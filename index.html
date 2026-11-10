@@ -647,7 +647,9 @@
     }
 
     function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin }) {
-      const [view, setView] = useState("home");
+      const [view, setView] = useState("mix");
+      const [itemBack, setItemBack] = useState("feed");
+      const [mixFilter, setMixFilter] = useState("all");
       const [chIdx, setChIdx] = useState(0);
       const [itemIdx, setItemIdx] = useState(0);
       const [filter, setFilter] = useState("all");
@@ -673,7 +675,44 @@
 
       const toTop = () => { try { window.scrollTo(0, 0); } catch (e) {} };
 
+      // FEED geral: todos os itens de todos os canais, do mais novo para o mais antigo (campo "data");
+      // itens sem data vêm depois, intercalando os canais
+      const parseData = (d) => {
+        if (!d) return null;
+        let t = Date.parse(d);
+        if (isNaN(t)) { const m = String(d).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/); if (m) t = new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime(); }
+        return isNaN(t) ? null : t;
+      };
+      const relTime = (t) => {
+        if (!t) return "";
+        const m = Math.max(0, Math.floor((Date.now() - t) / 60000));
+        if (m < 60) return " · há " + Math.max(1, m) + " min";
+        const h = Math.floor(m / 60); if (h < 24) return " · há " + h + " h";
+        const d = Math.floor(h / 24); if (d < 30) return " · há " + d + (d === 1 ? " dia" : " dias");
+        const mo = Math.floor(d / 30); if (mo < 12) return " · há " + mo + (mo === 1 ? " mês" : " meses");
+        const y = Math.floor(mo / 12); return " · há " + y + (y === 1 ? " ano" : " anos");
+      };
+      const mixAll = (() => {
+        const dated = [], byCh = {};
+        channels.forEach((c, ci) => (c.videos || []).forEach((v, ii) => {
+          const t = parseData(v.data);
+          const e = { ...v, ci, ii, kind: itemKind(v.url), t };
+          if (t != null) dated.push(e); else (byCh[ci] = byCh[ci] || []).push(e);
+        }));
+        dated.sort((a, b) => b.t - a.t);
+        const rr = []; const keys = Object.keys(byCh); let more = true;
+        while (more) { more = false; keys.forEach((k) => { if (byCh[k].length) { rr.push(byCh[k].shift()); more = true; } }); }
+        return dated.concat(rr);
+      })();
+
       const advance = (dir) => {
+        if (itemBack === "mix" && mixAll.length) {
+          const p = mixAll.findIndex((e) => e.ci === chIdx && e.ii === itemIdx);
+          const np = (((p < 0 ? 0 : p) + dir) % mixAll.length + mixAll.length) % mixAll.length;
+          setChIdx(mixAll[np].ci); setItemIdx(mixAll[np].ii); setFilter("all");
+          toTop();
+          return;
+        }
         const n = channels.length;
         if (dir > 0) {
           if (itemIdx + 1 < items.length) setItemIdx(itemIdx + 1);
@@ -710,13 +749,13 @@
       }, [view, selAdId]);
 
       // ---- botão VOLTAR do celular: cada tela vira uma entrada do histórico do navegador ----
-      const stackRef = useRef(["home"]);
+      const stackRef = useRef(["mix"]);
       useEffect(() => {
-        try { window.history.replaceState({ tv: "home", n: 0 }, ""); } catch (e) {}
+        try { window.history.replaceState({ tv: "mix", n: 0 }, ""); } catch (e) {}
         const onPop = (e) => {
           const st = e.state;
           const n = st && typeof st.n === "number" ? st.n : 0;
-          const v = st && st.tv ? st.tv : "home";
+          const v = st && st.tv ? st.tv : "mix";
           stackRef.current = stackRef.current.slice(0, n);
           stackRef.current[n] = v;
           setView(v); setFlagOpen(false); toTop();
@@ -749,14 +788,13 @@
       const go = (v) => {
         playHoloSound("click"); setFlagOpen(false); toTop();
         const s = stackRef.current;
-        if (v === "home") {
-          if (s.length > 1) { try { window.history.go(-(s.length - 1)); return; } catch (e) {} }
-          setView("home"); return;
-        }
+        const k = s.lastIndexOf(v);
+        if (k >= 0 && k < s.length - 1) { try { window.history.go(k - (s.length - 1)); return; } catch (e) {} }
+        if (v === "mix") { setView("mix"); return; }
         if (s.length > 1) navReplace(v); else navPush(v);
       };
       const openChannel = (ci) => { playHoloSound("swap"); setChIdx(ci); setItemIdx(0); setFilter("all"); navPush("feed"); toTop(); };
-      const openItem = (ci, ii) => { playHoloSound("swap"); setChIdx(ci); setItemIdx(ii); setRotated(false); navPush("viewer"); toTop(); };
+      const openItem = (ci, ii, from) => { playHoloSound("swap"); setItemBack(from || "feed"); setChIdx(ci); setItemIdx(ii); setRotated(false); navPush("viewer"); toTop(); };
       const openAd = (id, back) => { playHoloSound("swap"); setSelAdId(id); setAdBack(back); setAdMedia(0); navPush("ad"); toTop(); };
       const onFail = () => {
         if (!autoPlay) return;
@@ -823,9 +861,12 @@
             </div>;
       };
 
-      const capTitle = (label, kindTxt) => (
-        <div style={{ padding: "8px 4px 0" }}>
+      const chDesc = (c) => { const d = ((c && c.caseStudy) || "").trim(); return d && d !== "Novo canal ingerido pelo Dragão Consumidor." ? d : ""; };
+      const clamp = (n) => ({ display: "-webkit-box", WebkitLineClamp: n, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" });
+      const capTitle = (label, kindTxt, desc, onClick) => (
+        <div onClick={onClick} style={{ padding: "8px 4px 0", cursor: onClick ? "pointer" : "default" }}>
           <div className="font-hud font-bold" style={{ fontSize: 13, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>{label}</div>
+          {desc ? <div style={{ fontSize: 11, lineHeight: 1.35, color: "#CBD5E1", marginTop: 3, ...clamp(3) }}>{desc}</div> : null}
           {kindTxt ? <div className="font-mono" style={{ fontSize: 9, color: "#94A3B8", letterSpacing: "0.08em", marginTop: 3 }}>{kindTxt}</div> : null}
         </div>
       );
@@ -843,7 +884,7 @@
       );
 
       // ---------- TOPO (home, feed e ofertas) ----------
-      const subtitle = view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
+      const subtitle = view === "mix" ? "SHOPEE TV · FEED" : view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
       const topBar = (
         <div style={{ position: "relative" }}>
           <div style={{ padding: "10px 12px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -869,8 +910,6 @@
                 isMuted
                   ? <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
                   : <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>)}
-              {barBtn("Canais", view === "home" || view === "feed" ? "cyan" : "off", () => go("home"),
-                <Ico><rect x="2" y="7" width="20" height="15" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></Ico>)}
               {barBtn("Ofertas", view === "offers" ? "on" : "off", () => go("offers"),
                 <Ico><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>)}
             </div>
@@ -893,6 +932,110 @@
         </div>
       );
 
+      // ---------- ABAS FIXAS NO TOPO: FEED | CANAIS | OFERTAS ----------
+      const mainTab = (label, id, on, orange) => (
+        <button type="button" onClick={() => go(id)} className="font-mono"
+          style={{ flex: "1 1 0", maxWidth: 130, height: 38, padding: 0, borderRadius: 999, fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
+            border: on ? (orange ? "1px solid #FB923C" : "1px solid #22D3EE") : "1px solid rgba(148,163,184,0.35)",
+            background: on ? (orange ? "rgba(249,115,22,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626",
+            color: on ? (orange ? "#FDBA74" : "#A5F3FC") : "#94A3B8" }}>{label}</button>
+      );
+      const tabsBar = (
+        <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(5,10,20,0.96)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "8px 12px", display: "flex", justifyContent: "center", gap: 8 }}>
+          {mainTab("FEED", "mix", view === "mix", false)}
+          {mainTab("CANAIS", "home", view === "home" || view === "feed", false)}
+          {mainTab("OFERTAS", "offers", view === "offers", true)}
+        </div>
+      );
+
+      // ---------- 0. FEED GERAL ----------
+      if (view === "mix") {
+        const kindsPresent = [];
+        mixAll.forEach((e) => { if (kindsPresent.indexOf(e.kind) < 0) kindsPresent.push(e.kind); });
+        const base = mixAll.filter((e) => mixFilter === "all" || e.kind === mixFilter);
+        const isTall = (e) => !!e.ad || (e.kind !== "video" && e.kind !== "site");
+        const adList = mixFilter === "all" ? ads.slice() : [];
+        const q = [];
+        let adPos = 0;
+        base.forEach((e, n) => {
+          q.push(e);
+          if (adList.length && (n + 1) % 6 === 0) {
+            q.push({ ad: adList[adPos % adList.length] }); adPos++;
+            if (adList.length > 1) { q.push({ ad: adList[adPos % adList.length] }); adPos++; }
+          }
+        });
+        const rows = [];
+        const rest = q.slice();
+        while (rest.length) {
+          const e = rest.shift();
+          if (!isTall(e)) { rows.push({ t: e.kind === "site" ? "sq" : "wide", e }); continue; }
+          let j = -1;
+          for (let k = 0; k < Math.min(rest.length, 3); k++) { if (isTall(rest[k])) { j = k; break; } }
+          if (j >= 0) { rows.push({ t: "pair", list: [e, rest.splice(j, 1)[0]] }); }
+          else if (adList.length > 1 || (adList.length === 1 && !e.ad)) {
+            let a = adList[adPos % adList.length]; adPos++;
+            if (e.ad && a.id === e.ad.id) { a = adList[adPos % adList.length]; adPos++; }
+            rows.push({ t: "pair", list: [e, { ad: a }] });
+          } else rows.push({ t: "pair", list: [e] });
+        }
+        const chipMix = (id, label, orange, onClick) => {
+          const on = mixFilter === id;
+          return (
+            <button key={id} type="button" onClick={onClick || (() => { setMixFilter(id); toTop(); })} className="font-mono"
+              style={{ flex: "0 0 auto", height: 34, padding: "0 14px", borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer",
+                border: on ? "1px solid #22D3EE" : (orange ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"),
+                background: on ? "rgba(34,211,238,0.16)" : "#0B1626", color: on ? "#A5F3FC" : (orange ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
+          );
+        };
+        const meta = (e) => (channels[e.ci] ? channels[e.ci].title : "") + " · " + KIND_LABEL[e.kind] + relTime(e.t);
+        const adCard = (a) => (
+          <button key={"ad" + a.id} type="button" onClick={() => openAd(a.id, "mix")}
+            style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+            <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
+            {a.offer.badge ? tag(a.offer.badge, true) : null}
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
+              <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
+              <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+            </div>
+          </button>
+        );
+        const cell = (e, ratio, tagTxt) => (
+          <div key={"c" + e.ci + "-" + e.ii}>
+            <button type="button" onClick={() => openItem(e.ci, e.ii, "mix")}
+              style={{ position: "relative", display: "block", width: "100%", aspectRatio: ratio, padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+              {thumbBox(e)}
+              {tag(tagTxt)}
+            </button>
+            {capTitle(e.label, meta(e), e.desc, () => openItem(e.ci, e.ii, "mix"))}
+          </div>
+        );
+        return (
+          <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+            {topBar}
+            {tabsBar}
+            <div style={{ padding: "12px 12px 0" }}>
+              <div className="hud-scroll" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+                {chipMix("all", "TUDO")}
+                {kindsPresent.map((k) => chipMix(k, KIND_TAB[k]))}
+                {ads.length ? chipMix("ofertas", "OFERTAS", true, () => go("offers")) : null}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
+                {rows.map((r, ri) => {
+                  if (r.t === "wide") return <div key={"w" + ri}>{cell(r.e, "16 / 9", "VÍDEO · 16:9")}</div>;
+                  if (r.t === "sq") return <div key={"s" + ri}>{cell(r.e, "1 / 1", "SITE · 1:1")}</div>;
+                  return (
+                    <div key={"p" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, alignItems: "start" }}>
+                      {r.list.map((e) => e.ad ? adCard(e.ad) : cell(e, "9 / 16", KIND_LABEL[e.kind]))}
+                    </div>
+                  );
+                })}
+                {!rows.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>Nada por aqui ainda.</p>}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       // ---------- 1. HOME: CANAIS ----------
       if (view === "home") {
         const groups = {};
@@ -903,6 +1046,7 @@
         return (
           <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
             {topBar}
+            {tabsBar}
             <div style={{ padding: "16px 12px 0" }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                 <h2 className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em" }}>CANAIS DA SMARTBOX</h2>
@@ -916,7 +1060,7 @@
               </button>
               {Object.keys(groups).map((g) => (
                 <div key={g} style={{ marginTop: 20 }}>
-                  <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#94A3B8", marginBottom: 10 }}>— CATEGORIA · {g}</div>
+                  <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#94A3B8", marginBottom: 10 }}>— {g}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
                     {groups[g].map(({ c, i }) => {
                       const first = (c.videos || [])[0] || { url: "" };
@@ -929,8 +1073,9 @@
                             <span className="font-mono" style={{ position: "absolute", top: 8, right: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, background: "rgba(3,6,12,0.85)", color: "#E2E8F0" }}>{n} {n === 1 ? "ITEM" : "ITENS"}</span>
                           </div>
                           <div style={{ padding: "10px 10px 12px" }}>
-                            <div className="font-mono" style={{ fontSize: 9, color: "#67E8F9", letterSpacing: "0.08em", marginBottom: 4 }}>{c.badge}</div>
+                            {c.badge ? <div className="font-mono" style={{ fontSize: 9, color: "#67E8F9", letterSpacing: "0.08em", marginBottom: 4 }}>{c.badge}</div> : null}
                             <div className="font-hud font-bold" style={{ fontSize: 13, color: "#fff", lineHeight: 1.2 }}>{c.title}</div>
+                            {chDesc(c) ? <div style={{ fontSize: 11, lineHeight: 1.35, color: "#CBD5E1", marginTop: 4, ...clamp(3) }}>{chDesc(c)}</div> : null}
                           </div>
                         </button>
                       );
@@ -977,14 +1122,16 @@
         return (
           <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
             {topBar}
+            {tabsBar}
             <div style={{ padding: "14px 12px 0" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 {backBtn(() => up("home"), "cyan")}
                 <div style={{ minWidth: 0 }}>
                   <div className="font-hud font-bold" style={{ fontSize: 16, color: "#fff", letterSpacing: "0.04em" }}>{ch.title}</div>
-                  <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{ch.badge} · {items.length} ITENS</div>
+                  <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{ch.badge ? ch.badge + " · " : ""}{items.length} ITENS</div>
                 </div>
               </div>
+              {chDesc(ch) ? <div style={{ fontSize: 12, lineHeight: 1.45, color: "#CBD5E1", marginTop: 12, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{chDesc(ch)}</div> : null}
               <div className="hud-scroll" style={{ display: "flex", gap: 8, marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
                 {tabBtn("all", "TUDO")}
                 {kinds.map((k) => tabBtn(k, KIND_TAB[k]))}
@@ -1000,7 +1147,7 @@
                         {thumbBox(r.it)}
                         {tag("VÍDEO · 16:9")}
                       </button>
-                      {capTitle(r.it.label, "VÍDEO")}
+                      {capTitle(r.it.label, "VÍDEO", r.it.desc, () => openItem(chIdx, r.it.i))}
                       </div>
                     );
                   }
@@ -1012,7 +1159,7 @@
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                             {thumbBox(e.it)}
                             {tag(KIND_LABEL[e.it.kind])}
-                            </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind])}</div>
+                            </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind], e.it.desc, () => openItem(chIdx, e.it.i))}</div>
                         ) : ((a) => (
                           <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
@@ -1035,7 +1182,7 @@
                         {thumbBox(r.it)}
                         {tag("SITE · 1:1")}
                       </button>
-                      {capTitle(r.it.label, "SITE")}
+                      {capTitle(r.it.label, "SITE", r.it.desc, () => openItem(chIdx, r.it.i))}
                       </div>
                     );
                   }
@@ -1046,7 +1193,7 @@
                           style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                           {thumbBox(it)}
                           {tag(KIND_LABEL[it.kind])}
-                          </button>{capTitle(it.label, KIND_LABEL[it.kind])}</div>
+                          </button>{capTitle(it.label, KIND_LABEL[it.kind], it.desc, () => openItem(chIdx, it.i))}</div>
                       ))}
                     </div>
                   );
@@ -1091,7 +1238,7 @@
         if (wideView) {
           return (
             <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
-              {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+              {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
               <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#000" }}>
                 {player(item)}
                 <button type="button" aria-label="Girar para paisagem" onClick={() => { setRotated(true); }}
@@ -1102,6 +1249,7 @@
               <div style={{ padding: "14px 12px 0" }}>
                 <h2 className="font-hud font-bold" style={{ fontSize: 20, color: "#fff" }}>{item.label}</h2>
                 <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.08em", margin: "6px 0 14px" }}>{KIND_LABEL[kind]} · {parseOmniLink(item.url).badge} · 16:9</div>
+                {item.desc ? <div style={{ fontSize: 13, lineHeight: 1.5, color: "#CBD5E1", margin: "0 0 14px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{item.desc}</div> : null}
                 {prevNext}
                 <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.12em", margin: "18px 0 8px" }}>A SEGUIR NESTE CANAL</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1125,7 +1273,7 @@
         if (kind === "site" || kind === "pdf") {
           return (
             <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-              {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+              {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
               {kind === "site" && isBlockedSite(item) ? (
                 <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>{thumbBox(item)}</div>
@@ -1148,6 +1296,7 @@
               <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
                 <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
                 <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", margin: "4px 0 10px" }}>{KIND_LABEL[kind]} · TELA CHEIA</div>
+                {item.desc ? <div style={{ fontSize: 13, lineHeight: 1.5, color: "#CBD5E1", margin: "0 0 10px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{item.desc}</div> : null}
               </div>
               <div style={{ position: "sticky", bottom: 0, padding: "8px 12px calc(10px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(34,211,238,0.2)" }}>{prevNext}</div>
             </div>
@@ -1164,7 +1313,7 @@
               touchY.current = null;
               if (dy > 70) advance(1); else if (dy < -70) advance(-1);
             }}>
-            {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+            {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 0", background: "#000" }}>
               <div style={{ position: "relative", height: "calc(100dvh - 235px)", minHeight: 320, aspectRatio: "9 / 16", maxWidth: "100%", overflow: "hidden", background: "#000" }}>
                 {player(item)}
@@ -1174,6 +1323,7 @@
             <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
               <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
               <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", margin: "4px 0 10px" }}>▲ DESLIZE AQUI PARA CIMA PARA O PRÓXIMO</div>
+              {item.desc ? <div style={{ fontSize: 13, lineHeight: 1.5, color: "#CBD5E1", margin: "0 0 10px", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{item.desc}</div> : null}
             </div>
             <div style={{ position: "sticky", bottom: 0, padding: "8px 12px calc(10px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(34,211,238,0.2)" }}>{prevNext}</div>
           </div>
@@ -1220,6 +1370,7 @@
       return (
         <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
           {topBar}
+          {tabsBar}
           <div style={{ padding: "16px 12px 0" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
               <h2 className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em" }}>OFERTAS IMPERDÍVEIS</h2>
