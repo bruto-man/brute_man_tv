@@ -1,0 +1,76 @@
+[
+  {
+    "id": "CH_1794020269204",
+    "slug": "bonnie-tyler",
+    "title": "BONNIE TYLER",
+    "badge": "YOUTUBE HD",
+    "auraScore": "99.9% AURA",
+    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "videos": [
+      {
+        "label": "Vídeo 1: Principal",
+        "url": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/lcOxhH8N3Bo?si=m2QM24PyaSjsHLKt\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>"
+      }
+    ],
+    "offers": [],
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
+  },
+  {
+    "id": "CH_1794020024653",
+    "slug": "brute-man-app",
+    "title": "BRUTE_MAN APP",
+    "badge": "YOUTUBE HD",
+    "auraScore": "99.9% AURA",
+    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "videos": [
+      {
+        "label": "Vídeo 1: Principal",
+        "url": "https://youtu.be/Ci875Rz_Jb4?si=o3itoEveT7rAgady"
+      }
+    ],
+    "offers": [],
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
+  },
+  {
+    "id": "CH_1793597265179",
+    "slug": "news",
+    "title": "BLUES / JAZZ",
+    "badge": "YOUTUBE BLUES",
+    "auraScore": "99.9% AURA",
+    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "videos": [
+      {
+        "label": "BLUES NICE",
+        "url": "https://youtu.be/iR2LyVq8VYI?si=2-D-q1KGKie6Sstj"
+      },
+      {
+        "label": "PEEWE YT",
+        "url": "https://youtu.be/lL3Y_yGUvWI?si=uDGNekFA6WKfYEvG"
+      },
+      {
+        "label": "BIKE ROSA",
+        "url": "https://youtu.be/3R0pBe6iA54?si=Hrh1z9dQzqATufps"
+      },
+      {
+        "label": "SEEART",
+        "url": "https://www.seaart.ai/pt/"
+      },
+      {
+        "label": "BRUTE_MAN_APP",
+        "url": "https://youtu.be/8LIVXD-z81Y?si=Js1sz-0hb26nljQ2"
+      }
+    ],
+    "offers": [],
+    "category": "MÚSICA",
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
+  }
+]

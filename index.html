@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>BRUTE_MAN // SMARTBOX TV</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #03060c;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-hud { font-family: 'Orbitron', 'JetBrains Mono', sans-serif; }
+
+    .perspective-stage {
+      perspective: 1200px;
+      perspective-origin: 45% 50%;
+    }
+
+
+    /* ===== ABERTURA ANIMADA (tela de carregamento) ===== */
+    .hb-intro { background: radial-gradient(ellipse at 50% 40%, #0B1A2E 0%, #050A14 62%); }
+    .hb-intro-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.07) 1px, transparent 1px); background-size: 38px 38px; mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 70%); animation: hbGridMove 6s linear infinite; }
+    .hb-intro-sweep { position: absolute; left: 0; right: 0; height: 140px; top: -140px; background: linear-gradient(transparent, rgba(34,211,238,0.10), transparent); animation: hbSweep 2.6s ease-in-out infinite; }
+    .hb-intro-tv { position: relative; width: 230px; height: 130px; border-radius: 16px; border: 2px solid #22D3EE; background: #02050A; box-shadow: 0 0 30px rgba(34,211,238,0.45), inset 0 0 24px rgba(34,211,238,0.18); animation: hbCrtOn 0.7s cubic-bezier(.2,.8,.2,1) both; }
+    .hb-intro-tv::after { content: ""; position: absolute; left: 50%; bottom: -14px; width: 70px; height: 4px; margin-left: -35px; border-radius: 4px; background: rgba(34,211,238,0.5); box-shadow: 0 0 12px rgba(34,211,238,0.7); }
+    .hb-intro-screen { position: absolute; inset: 6px; border-radius: 11px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #0B1626, #050A14); }
+    .hb-intro-logo { font-weight: 800; font-size: 46px; color: #FB923C; letter-spacing: 0.06em; text-shadow: 0 0 18px rgba(249,115,22,0.9), 0 0 42px rgba(249,115,22,0.5); animation: hbPulse 1.4s ease-in-out infinite, hbGlitch 3.2s steps(1) infinite; }
+    .hb-intro-bars { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; display: flex; }
+    .hb-intro-bars span { flex: 1; animation: hbBar 1.1s ease-in-out infinite; }
+    .hb-intro-bars span:nth-child(1) { background: #F8FAFC; } .hb-intro-bars span:nth-child(2) { background: #FACC15; }
+    .hb-intro-bars span:nth-child(3) { background: #22D3EE; } .hb-intro-bars span:nth-child(4) { background: #22C55E; }
+    .hb-intro-bars span:nth-child(5) { background: #A78BFA; } .hb-intro-bars span:nth-child(6) { background: #F97316; }
+    .hb-intro-bars span:nth-child(7) { background: #3B82F6; }
+    .hb-intro-scan { position: absolute; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.35); box-shadow: 0 0 10px rgba(255,255,255,0.5); animation: hbScanY 1.8s linear infinite; }
+    .hb-intro-title { font-weight: 800; font-size: 26px; color: #FB923C; text-shadow: 0 0 16px rgba(249,115,22,0.55); animation: hbTitle 1.1s 0.35s cubic-bezier(.2,.8,.2,1) both; }
+    .hb-intro-sub { margin-top: 10px; font-size: 11px; color: #67E8F9; letter-spacing: 0.18em; animation: hbFade 0.8s 0.9s both; }
+    .hb-dots i { font-style: normal; animation: hbBlink 1.2s infinite; } .hb-dots i:nth-child(2) { animation-delay: 0.2s; } .hb-dots i:nth-child(3) { animation-delay: 0.4s; }
+    .hb-intro-load { width: 200px; height: 4px; border-radius: 4px; background: rgba(148,163,184,0.18); overflow: hidden; animation: hbFade 0.6s 0.7s both; }
+    .hb-intro-load span { display: block; width: 45%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #F97316, #22D3EE); box-shadow: 0 0 10px rgba(34,211,238,0.7); animation: hbLoad 1.3s ease-in-out infinite; }
+    @keyframes hbCrtOn { 0% { transform: scale(0.02, 0.02); opacity: 0; filter: brightness(3); } 45% { transform: scale(1, 0.02); opacity: 1; filter: brightness(3); } 100% { transform: scale(1, 1); opacity: 1; filter: brightness(1); } }
+    @keyframes hbPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.06); filter: brightness(1.25); } }
+    @keyframes hbGlitch { 0%, 92%, 100% { transform: translateX(0); } 93% { transform: translateX(-3px); } 95% { transform: translateX(3px); } 97% { transform: translateX(-2px); } }
+    @keyframes hbBar { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+    @keyframes hbScanY { 0% { top: -4px; } 100% { top: 100%; } }
+    @keyframes hbTitle { 0% { opacity: 0; letter-spacing: 0.7em; filter: blur(6px); } 100% { opacity: 1; letter-spacing: 0.1em; filter: blur(0); } }
+    @keyframes hbFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes hbBlink { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+    @keyframes hbLoad { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+    @keyframes hbSweep { 0% { top: -140px; } 100% { top: 100%; } }
+    @keyframes hbGridMove { 0% { background-position: 0 0; } 100% { background-position: 0 38px; } }
+    @media (prefers-reduced-motion: reduce) { .hb-intro *, .hb-intro { animation-duration: 0.01s !important; animation-iteration-count: 1 !important; } }
+
+    @keyframes gentleWaveBreath {
+      0%, 100% { transform: perspective(1200px) rotateY(2.2deg) rotateX(1deg) translate3d(0, 0px, 20px); }
+      50% { transform: perspective(1200px) rotateY(1.5deg) rotateX(1.5deg) translate3d(0, -5px, 25px); }
+    }
+
+    .stark-screen-deep {
+      transform: perspective(1200px) rotateY(14deg) rotateX(3deg) translate3d(0, 0px, 15px);
+      transform-origin: 18% center;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stark-screen-focus-front {
+      animation: gentleWaveBreath 5s ease-in-out infinite;
+      transform-origin: center center;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 50px rgba(0, 242, 254, 0.35);
+    }
+
+    @keyframes electricSurgePath {
+      0% { stroke-dashoffset: 2800; opacity: 0; }
+      5% { opacity: 1; }
+      25% { stroke-dashoffset: 0; opacity: 1; }
+      30% { opacity: 0; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    .electric-circuit-surge {
+      stroke-dasharray: 600 2200;
+      animation: electricSurgePath 10s linear infinite;
+    }
+
+    @keyframes scanlineWave {
+      0% { top: -100%; opacity: 0; }
+      50% { opacity: 0.55; }
+      100% { top: 200%; opacity: 0; }
+    }
+    .holo-scanline {
+      position: absolute;
+      left: 0; right: 0; height: 35%;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 242, 254, 0.25) 50%, transparent 100%);
+      animation: scanlineWave 4s linear infinite;
+      pointer-events: none;
+    }
+
+    .cyber-grid {
+      background-image: 
+        radial-gradient(circle at 50% 25%, rgba(0, 242, 254, 0.08) 0%, transparent 60%),
+        linear-gradient(to right, rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    .holo-glass-card {
+      background: linear-gradient(145deg, rgba(3, 18, 38, 0.75) 0%, rgba(0, 242, 254, 0.06) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 242, 254, 0.38);
+      box-shadow: 0 4px 20px 0 rgba(0, 242, 254, 0.08), inset 0 0 14px 0 rgba(0, 242, 254, 0.12);
+      transition: all 0.25s ease-out;
+    }
+    .holo-glass-card:hover {
+      border-color: #00f2fe;
+      background: linear-gradient(145deg, rgba(3, 24, 48, 0.85) 0%, rgba(0, 242, 254, 0.14) 100%);
+      box-shadow: 0 0 22px rgba(0, 242, 254, 0.5), inset 0 0 16px rgba(0, 242, 254, 0.25);
+      transform: translateY(-3px) scale(1.015);
+    }
+    .holo-glass-card.active-hud {
+      border-color: #f97316;
+      background: linear-gradient(145deg, rgba(40, 15, 5, 0.85) 0%, rgba(249, 115, 22, 0.12) 100%);
+      box-shadow: 0 0 24px rgba(249, 115, 22, 0.6), inset 0 0 16px rgba(249, 115, 22, 0.25);
+    }
+
+    .yt-holder iframe { width: 100%; height: 100%; border: 0; pointer-events: auto; }
+    .hud-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .hud-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+    .hud-scroll::-webkit-scrollbar-thumb { background: rgba(0, 242, 254, 0.4); border-radius: 3px; }
+    .hud-scroll::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.7); }
+    .hb-logo { touch-action: manipulation; }
+    .hb-mhead { display: none; }
+
+    /* ===== CELULAR / TELA ESTREITA (o desktop não muda) ===== */
+    @media (max-width: 820px) {
+      html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+      body { padding: 8px !important; padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important; display: block !important; }
+      #root { height: auto !important; }
+      body { overflow: visible !important; } /* v4: deixa o topo e os botões "grudarem" (sticky) ao rolar */
+      .hb-root { height: auto !important; min-height: 100vh; gap: 8px; justify-content: flex-start !important; }
+
+      .hb-header { flex-direction: column; align-items: stretch !important; gap: 8px; }
+      .hb-header h1 { font-size: 12px !important; line-height: 1.25; }
+      .hb-headbtns { flex-wrap: wrap; gap: 6px !important; }
+      .hb-headbtns button { padding: 8px 10px !important; font-size: 10px !important; }
+
+      .hb-main { flex-direction: column !important; overflow: visible !important; margin: 4px 0 !important; gap: 12px !important; }
+      .hb-stage { container-type: normal !important; display: flex !important; flex-direction: column !important; align-items: stretch !important;
+                  padding: 0 !important; perspective: none !important; gap: 12px; }
+
+      .hb-screen { transform: none !important; animation: none !important; box-shadow: none !important; width: 100% !important;
+                   height: auto !important; max-height: none !important; aspect-ratio: 16 / 10; min-height: 220px; }
+
+      .hb-pip { position: relative !important; inset: auto !important; bottom: auto !important; right: auto !important;
+                width: 100% !important; height: auto !important; min-height: 280px; }
+      .hb-pip .hb-expand { display: none !important; }
+      .hb-pipbtn { position: relative !important; inset: auto !important; width: 100%; justify-content: center; padding: 12px !important; }
+
+      .hb-side { width: 100% !important; height: auto !important; margin-left: 0 !important; }
+      .hb-side[aria-hidden="true"] { display: none !important; }
+      .hb-side > div { min-width: 0 !important; }
+      .hb-main > button.absolute { display: none !important; }
+      .hb-side > div, .hb-side > div > div { overflow: visible !important; flex: none !important; }
+      .hb-chgrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; overflow: visible !important; }
+      .hb-chgrid > div { min-height: 120px; }
+
+      .hb-adminwrap { padding: 0 !important; align-items: stretch !important; }
+      .hb-admin { max-width: none !important; max-height: none !important; height: 100% !important; border-radius: 0 !important; border-width: 0 !important; }
+      .hb-admin input, .hb-admin textarea, .hb-admin select { font-size: 16px !important; }
+      .hb-admin > div:first-child { flex-wrap: wrap; gap: 10px; align-items: flex-start !important; }
+      .hb-admin > div:first-child > div:last-child { flex-wrap: wrap; gap: 6px !important; width: 100%; }
+      .hb-admin > div:first-child > div:last-child > * { padding: 9px 10px !important; flex: 1 1 auto; text-align: center; }
+      .hb-admin h3 { font-size: 12px !important; }
+      .hb-admin form .flex.gap-2 { flex-direction: column; }
+      .hb-admin form .flex.gap-2 > * { width: 100% !important; }
+      .hb-admin div:has(> .shrink-0.ml-2) { flex-wrap: wrap; gap: 10px; }
+      .hb-admin div:has(> .shrink-0.ml-2) > :first-child { flex: 1 1 100%; min-width: 0; }
+      .hb-admin .shrink-0.ml-2 { flex-wrap: wrap; margin-left: 0 !important; width: 100%; }
+      .hb-admin .shrink-0.ml-2 > * { flex: 1 1 auto; padding: 9px 10px !important; }
+      .hb-admin .grid { grid-template-columns: minmax(0, 1fr) !important; }
+      .hb-admin .truncate { white-space: normal; word-break: break-all; }
+
+      /* --- topo mobile v3.9 --- */
+      .hb-mhead { display: block; }
+      .hb-header { display: none !important; }
+      /* --- ajustes v3.8 (celular) --- */
+      .hb-header p { display: none; }
+      .hb-header h1 { font-size: 11px !important; }
+      .hb-headbtns { gap: 5px !important; }
+      .hb-headbtns button { padding: 6px 8px !important; font-size: 9px !important; }
+      .hb-topbar { height: auto !important; min-height: 38px; padding: 6px 8px !important; gap: 8px; }
+      .hb-topbar .hb-tabs { flex: 1 1 0; min-width: 0; padding-bottom: 2px; }
+      .hb-topbar .hb-tabs button { padding: 5px 9px !important; font-size: 10px !important; }
+      .hb-topbar > div:last-child button { padding: 5px 10px !important; font-size: 11px !important; }
+      .hb-pricerow { flex-wrap: wrap; gap: 10px; }
+      .hb-pricerow > div { flex-wrap: wrap; gap: 6px 10px !important; }
+      .hb-pricerow span { white-space: nowrap; }
+      .hb-pricerow a { flex: 1 1 100%; text-align: center; padding: 12px !important; font-size: 12px !important; }
+    }
+  </style>
+</head>
+<body class="text-gray-100 cyber-grid min-h-screen flex flex-col justify-between p-3 selection:bg-[#00f2fe]/40 selection:text-white">
+  <div id="root" class="w-full h-full"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const playHoloSound = (type = 'click') => {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'swap') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(360, now);
+          osc.frequency.exponentialRampToValueAtTime(1180, now + 0.16);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(850, now);
+          osc.frequency.exponentialRampToValueAtTime(420, now + 0.07);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (e) {}
+    };
+
+    function channelThumb(c) {
+      const u = ((c.videos && c.videos[0] && c.videos[0].url) || "").trim();
+      let m = u.match(/youtu\.be\/([\w-]{6,})/) || u.match(/[?&]v=([\w-]{6,})/) || u.match(/\/(?:shorts|embed)\/([\w-]{6,})/);
+      if (u.match(/youtube\.com|youtu\.be/) && m) return "https://i.ytimg.com/vi/" + m[1] + "/hqdefault.jpg";
+      if (/^data:image\//i.test(u) || /\.(png|jpe?g|webp|gif)($|\?)/i.test(u)) return u;
+      return "";
+    }
+    function typeIcon(t) {
+      return ({YOUTUBE:"▶",YOUTUBE_SHORTS:"📱",PDF:"📄",GOOGLE_DRIVE:"☁️",IMAGE:"🖼️",VIDEO:"🎞️",WEBSITE:"🌐"})[t] || "📺";
+    }
+
+    function parseOmniLink(rawUrl) {
+      if (!rawUrl) return { type: 'UNKNOWN', cleanUrl: '', badge: 'STREAM' };
+      let url = rawUrl.trim();
+      if (/^data:image\//i.test(url)) return { type: 'IMAGE', cleanUrl: url, badge: 'IMAGEM HD' };
+      if (/^data:video\//i.test(url)) return { type: 'VIDEO', cleanUrl: url, badge: 'VÍDEO MP4' };
+      const iframeMatch = url.match(/src=["'](.*?)["']/);
+      if (iframeMatch) url = iframeMatch[1];
+
+      if (url.match(/\.pdf($|\?)/i) || (url.includes("drive.google.com") && url.includes(".pdf"))) {
+        return {
+          type: 'PDF',
+          cleanUrl: url.includes("drive.google.com") ? url.replace(/\/view.*/, "/preview") : url,
+          badge: 'DOCUMENTO PDF'
+        };
+      }
+
+      if (url.includes("youtube.com/shorts/")) {
+        const id = url.split("shorts/")[1].split("?")[0].split("/")[0];
+        return {
+          type: 'YOUTUBE_SHORTS',
+          cleanUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=1`,
+          badge: 'SHORTS VERTICAL'
+        };
+      }
+
+      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        let id = "";
+        if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1].split("?")[0].split("&")[0];
+        else if (url.includes("watch?v=")) id = url.split("watch?v=")[1].split("&")[0];
+        else if (url.includes("/embed/")) id = url.split("/embed/")[1].split("?")[0].split("&")[0];
+
+        return {
+          type: 'YOUTUBE',
+          cleanUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=1`,
+          badge: 'YOUTUBE HD'
+        };
+      }
+
+      if (url.includes("drive.google.com")) {
+        let driveUrl = url;
+        if (url.includes("/view")) driveUrl = url.replace(/\/view.*/, "/preview");
+        else if (!url.includes("/preview")) driveUrl = url.replace(/\/edit.*/, "/preview");
+        return {
+          type: 'GOOGLE_DRIVE',
+          cleanUrl: driveUrl,
+          badge: 'GOOGLE DRIVE'
+        };
+      }
+
+      if (url.match(/\.(png|jpe?g|webp|gif|svg)($|\?)/i) || url.includes("susercontent.com/file/")) {
+        return {
+          type: 'IMAGE',
+          cleanUrl: url,
+          badge: 'IMAGEM HD'
+        };
+      }
+
+      if (url.startsWith("blob:") || url.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || url.includes("mixkit.co") || url.includes("pub-")) {
+        return {
+          type: 'VIDEO',
+          cleanUrl: url,
+          badge: 'VÍDEO MP4'
+        };
+      }
+
+      return {
+        type: 'WEBSITE',
+        cleanUrl: url,
+        badge: 'PORTAL / WEB'
+      };
+    }
+
+    const SAFE_IMG_FALLBACK = "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=600&q=80";
+
+    function SafeImage({ src, alt, className, style }) {
+      const [imgSrc, setImgSrc] = useState(src || SAFE_IMG_FALLBACK);
+      useEffect(() => { setImgSrc(src || SAFE_IMG_FALLBACK); }, [src]);
+      return (
+        <img
+          src={imgSrc}
+          alt={alt || "Produto"}
+          referrerPolicy="no-referrer"
+          onError={() => setImgSrc(SAFE_IMG_FALLBACK)}
+          style={style}
+          className={className}
+        />
+      );
+    }
+
+    // ===== YOUTUBE: usa a API oficial para saber quando o vídeo acaba e controlar o som =====
+    let ytApiPromise = null;
+    function loadYTApi() {
+      if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+      if (!ytApiPromise) {
+        ytApiPromise = new Promise((resolve) => {
+          const prev = window.onYouTubeIframeAPIReady;
+          window.onYouTubeIframeAPIReady = () => { if (prev) prev(); resolve(window.YT); };
+          const tag = document.createElement("script");
+          tag.src = "https://www.youtube.com/iframe_api";
+          document.head.appendChild(tag);
+        });
+      }
+      return ytApiPromise;
+    }
+
+    function YouTubePlayer({ videoId, isShorts, isMuted, autoAdvance, onEnded, onFail, onBlocked }) {
+      const holder = useRef(null);
+      const playerRef = useRef(null);
+      const cb = useRef({});
+      cb.current = { isMuted, autoAdvance, onEnded, onFail, onBlocked };
+
+      useEffect(() => {
+        let dead = false;
+        const host = holder.current;
+        const mount = document.createElement("div");
+        host.innerHTML = "";
+        host.appendChild(mount);
+        loadYTApi().then((YT) => {
+          if (dead) return;
+          const vars = { autoplay: 1, mute: cb.current.isMuted ? 1 : 0, controls: 1, rel: 0, playsinline: 1 };
+          if (String(location.protocol).indexOf("http") === 0) vars.origin = location.origin;
+          playerRef.current = new YT.Player(mount, {
+            host: "https://www.youtube-nocookie.com",
+            videoId: videoId,
+            width: "100%",
+            height: "100%",
+            playerVars: vars,
+            events: {
+              onReady: (e) => {
+                if (cb.current.isMuted) e.target.mute();
+                else { e.target.unMute(); e.target.setVolume(30); }
+                e.target.playVideo();
+                // abriu com som: se o navegador bloquear o som automático, cai sozinho para o mudo e segue tocando
+                if (!cb.current.isMuted) {
+                  const check = (n) => {
+                    if (dead) return;
+                    try {
+                      const st = e.target.getPlayerState();
+                      if (st === 1) return;
+                      if (st === 3 && n < 3) { setTimeout(() => check(n + 1), 1500); return; }
+                      if (st === -1 || st === 5 || st === 2) {
+                        e.target.mute(); e.target.playVideo();
+                        if (cb.current.onBlocked) cb.current.onBlocked();
+                      }
+                    } catch (err) {}
+                  };
+                  setTimeout(() => check(0), 1800);
+                }
+              },
+              onStateChange: (e) => {
+                if (e.data === 0) {
+                  if (cb.current.autoAdvance) cb.current.onEnded();
+                  else { e.target.seekTo(0); e.target.playVideo(); }
+                }
+              },
+              onError: () => { if (cb.current.onFail) cb.current.onFail(); }
+            }
+          });
+        });
+        return () => {
+          dead = true;
+          try { if (playerRef.current && playerRef.current.destroy) playerRef.current.destroy(); } catch (err) {}
+          playerRef.current = null;
+          host.innerHTML = "";
+        };
+      }, [videoId]);
+
+      useEffect(() => {
+        const pl = playerRef.current;
+        if (!pl || !pl.mute) return;
+        try { if (isMuted) pl.mute(); else { pl.unMute(); pl.setVolume(30); } } catch (err) {}
+      }, [isMuted]);
+
+      return (
+        <div
+          ref={holder}
+          className={`yt-holder ${isShorts ? 'w-[320px] h-full shadow-[0_0_30px_rgba(249,115,22,0.4)] rounded-xl overflow-hidden' : 'w-full h-full'}`}
+        />
+      );
+    }
+
+    function HtmlVideo({ src, isMuted, autoAdvance, onEnded, onBlocked }) {
+      const ref = useRef(null);
+      useEffect(() => {
+        const v = ref.current;
+        if (!v) return;
+        v.volume = 0.3; v.muted = isMuted;
+        if (!isMuted) {
+          const p = v.play();
+          if (p && p.catch) p.catch(() => { v.muted = true; v.play().catch(() => {}); if (onBlocked) onBlocked(); });
+        }
+      }, [isMuted, src]);
+      return (
+        <video ref={ref} src={src} autoPlay controls muted={isMuted} playsInline loop={!autoAdvance} onEnded={onEnded} className="w-full h-full object-contain bg-black" />
+      );
+    }
+
+    function OmniScreenRenderer({ videoUrl, title, isMuted, autoAdvance, onVideoEnded, onFail, onBlocked }) {
+      if (!videoUrl) return null;
+      const parsed = parseOmniLink(videoUrl);
+
+      if (parsed.type === 'YOUTUBE' || parsed.type === 'YOUTUBE_SHORTS') {
+        const ytId = ((parsed.cleanUrl.match(/\/embed\/([\w-]+)/) || [])[1]) || "";
+        if (ytId) {
+          return (
+            <div className="w-full h-full flex items-center justify-center bg-black">
+              <YouTubePlayer videoId={ytId} isShorts={parsed.type === 'YOUTUBE_SHORTS'} isMuted={isMuted} autoAdvance={autoAdvance} onEnded={onVideoEnded} onFail={onFail} onBlocked={onBlocked} />
+            </div>
+          );
+        }
+        return (
+          <div className="w-full h-full flex items-center justify-center bg-black">
+            <iframe
+              className={`border-0 pointer-events-auto ${parsed.type === 'YOUTUBE_SHORTS' ? 'w-[320px] h-full shadow-[0_0_30px_rgba(249,115,22,0.4)] rounded-xl' : 'w-full h-full'}`}
+              src={parsed.cleanUrl}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+        );
+      }
+
+      if (parsed.type === 'GOOGLE_DRIVE') {
+        return <iframe className="w-full h-full border-0 pointer-events-auto" src={parsed.cleanUrl} title={title} allow="autoplay; fullscreen" allowFullScreen />;
+      }
+
+      if (parsed.type === 'PDF') {
+        return (
+          <div className="w-full h-full bg-slate-900 overflow-auto hud-scroll p-1 flex flex-col">
+            <iframe src={`${parsed.cleanUrl}#toolbar=1&navpanes=0`} title={title} className="w-full h-full border-0 rounded-lg flex-1" />
+          </div>
+        );
+      }
+
+      if (parsed.type === 'VIDEO') {
+        return <HtmlVideo src={parsed.cleanUrl} isMuted={isMuted} autoAdvance={autoAdvance} onEnded={onVideoEnded} onBlocked={onBlocked} />;
+      }
+
+      if (parsed.type === 'IMAGE') {
+        return (
+          <div className="w-full h-full flex items-center justify-center bg-black overflow-hidden relative">
+            <SafeImage src={parsed.cleanUrl} alt={title} className="w-full h-full object-contain p-2 hover:scale-105 transition duration-500" />
+          </div>
+        );
+      }
+
+      return (
+        <div className="w-full h-full bg-slate-950 overflow-auto hud-scroll relative">
+          <iframe src={parsed.cleanUrl} title={title} className="w-full h-full min-h-[600px] border-0" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" />
+        </div>
+      );
+    }
+
+
+    // ===== PONTE COM O CATÁLOGO v4: produtos viram ANÚNCIOS do monitor menor =====
+    const brlCat = (v) => (+v > 0 ? "R$ " + (+v).toFixed(2).replace(".", ",") : "Consulte o Preço");
+
+    // ENDEREÇO DOS DADOS: o site que guarda só canais.json e catalogo.json. Para trocar de site, mude só esta linha.
+    const DATA_URL = "./";
+
+    function catalogToAds(data) {
+      const list = Array.isArray(data) ? data : (data && data.P) || [];
+      const wa = String((data && data.cfg && data.cfg.wa) || "").replace(/\D/g, "");
+      return list.map((p) => {
+        const media = (Array.isArray(p.media) ? p.media : [])
+          .filter((m) => m && m.src)
+          .map((m) => ({ t: m.t === "vid" ? "vid" : "img", src: m.src }));
+        const firstImg = media.find((m) => m.t === "img");
+        const benefits = String(p.b || "").split("\n").map((x) => x.trim()).filter(Boolean);
+        const pct = p.o > p.p && p.p > 0 ? Math.round((1 - p.p / p.o) * 100) : 0;
+        const comum = p.tipo === "comum";
+        const link = comum
+          ? (wa ? `https://wa.me/${wa}?text=${encodeURIComponent("Olá! Tenho interesse no produto: " + p.n)}` : (p.l || "#"))
+          : (p.l || "#");
+        return {
+          id: "AD_" + p.id,
+          title: p.n,
+          media,
+          offer: {
+            title: p.n,
+            priceOld: p.o > p.p ? brlCat(p.o) : "",
+            priceCurrent: brlCat(p.p),
+            discount: pct ? `-${pct}%` : "",
+            sold: p.sd || "",
+            rating: "",
+            badge: p.bd || "",
+            cta: p.cta || "",
+            affiliateLink: link,
+            thumbImg: (firstImg && firstImg.src) || SAFE_IMG_FALLBACK,
+            features: benefits.length ? benefits.slice(0, 4) : ["Produto do catálogo Homem_Bruto"]
+          }
+        };
+      });
+    }
+
+    function AdMedia({ item, fallback, alt }) {
+      if (item && item.t === "vid") {
+        return <video key={item.src.slice(-40)} src={item.src} autoPlay muted loop playsInline className="w-full h-full object-contain" style={{ background: "#000" }} />;
+      }
+      const src = (item && item.src) || fallback;
+      return (
+        <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#050A14" }}>
+          <SafeImage src={src} alt="" className="w-full h-full object-cover" style={{ position: "absolute", inset: 0, filter: "blur(18px) brightness(0.55)", transform: "scale(1.2)" }} />
+          <SafeImage src={src} alt={alt} className="w-full h-full object-contain" style={{ position: "relative", zIndex: 1 }} />
+        </div>
+      );
+    }
+
+    // ===== MOBILE v4 (etapa 1): home de canais, feed em linhas, visualizadores, anúncio em pé e ofertas =====
+    // Só aparece em tela estreita (<= 820px). O desktop continua com o App original, sem mudanças.
+    // Regra de ouro: vídeo 16:9 = palco largo (gira para paisagem). Todo o resto = palco em pé 9:16.
+    function itemKind(url) {
+      const t = parseOmniLink(url || "").type;
+      if (t === "YOUTUBE" || t === "VIDEO") return "video";
+      if (t === "YOUTUBE_SHORTS") return "short";
+      if (t === "IMAGE") return "image";
+      if (t === "PDF") return "pdf";
+      return "site";
+    }
+    const KIND_LABEL = { video: "VÍDEO", short: "SHORT", image: "IMAGEM", site: "SITE", pdf: "PDF" };
+    const KIND_TAB = { video: "VÍDEOS", short: "SHORTS", image: "IMAGENS", site: "SITES", pdf: "PDFS" };
+    const itemThumb = (url) => channelThumb({ videos: [{ url: url }] });
+
+    function Ico({ size = 20, children }) {
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
+      );
+    }
+
+    // ---------- CHAT (micro blog, só leitura no site; texto simples: "DD/MM/AAAA HH:MM | AUTOR | mensagem") ----------
+    function parseChat(txt) {
+      return String(txt || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+        const p = l.split("|").map((x) => x.trim());
+        if (p.length >= 3) return { when: p[0], who: p[1], text: p.slice(2).join(" | ") };
+        if (p.length === 2) return { when: p[0], who: "", text: p[1] };
+        return { when: "", who: "", text: l };
+      });
+    }
+
+    function ChatBox({ txt }) {
+      const [open, setOpen] = useState(false);
+      const rev = parseChat(txt).reverse();
+      useEffect(() => {
+        if (!open) return;
+        const k = (e) => { if (e.key === "Escape") setOpen(false); };
+        window.addEventListener("keydown", k);
+        return () => window.removeEventListener("keydown", k);
+      }, [open]);
+      const row = (m, i) => (
+        <div key={i} className="mb-2">
+          <div className="text-[8px] font-mono font-bold text-red-400 tracking-wide">{m.when || "—"}{m.who ? " · " + m.who : ""}</div>
+          <div className="text-[10px] font-hud font-bold text-white leading-snug break-words">{m.text}</div>
+        </div>
+      );
+      return (
+        <>
+          <div className="mt-2 shrink-0 bg-black/50 border border-orange-500/20 rounded-xl p-2.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-hud font-bold text-[10px] tracking-wider text-white flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>CHAT
+              </span>
+              <button type="button" onClick={() => setOpen(true)} className="px-2 py-0.5 rounded bg-slate-900 border border-orange-500/50 hover:border-orange-400 text-orange-300 text-[9px] font-mono font-bold">VER CONVERSA ⤢</button>
+            </div>
+            <div className="hud-scroll overflow-y-auto pr-1" style={{ maxHeight: 112 }}>
+              {rev.length ? rev.slice(0, 3).map(row) : <div className="text-[9px] font-mono text-gray-500">Sem mensagens ainda.</div>}
+            </div>
+            <div className="mt-1 text-[8px] font-mono text-gray-500 truncate">BRUTE_MAN_TV - RODRIGO OZ / CLÁUDIA</div>
+          </div>
+          {open && (
+            <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 9000, background: "rgba(0,0,0,0.72)" }} onClick={() => setOpen(false)}>
+              <div className="w-full flex flex-col rounded-2xl border border-orange-500/60 bg-slate-950" style={{ maxWidth: 560, maxHeight: "80vh", boxShadow: "0 0 40px rgba(249,115,22,0.25)" }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-4 py-3 border-b border-orange-500/30">
+                  <span className="font-hud font-bold text-xs tracking-wider text-orange-400">CHAT · CONVERSA COMPLETA ({rev.length})</span>
+                  <button type="button" onClick={() => setOpen(false)} className="px-2 py-1 rounded bg-slate-900 border border-orange-500/50 text-orange-300 text-[10px] font-bold">✕</button>
+                </div>
+                <div className="hud-scroll overflow-y-auto px-4 py-3" style={{ flex: 1 }}>
+                  {rev.length ? rev.map(row) : <div className="text-xs font-mono text-gray-500">Sem mensagens ainda.</div>}
+                </div>
+                <div className="px-4 py-2 border-t border-orange-500/20 text-[9px] font-mono text-gray-500">BRUTE_MAN_TV - RODRIGO OZ / CLÁUDIA</div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin }) {
+      const [view, setView] = useState("home");
+      const [chIdx, setChIdx] = useState(0);
+      const [itemIdx, setItemIdx] = useState(0);
+      const [filter, setFilter] = useState("all");
+      const [selAdId, setSelAdId] = useState(null);
+      const [adBack, setAdBack] = useState("offers");
+      const [adMedia, setAdMedia] = useState(0);
+      const [rotated, setRotated] = useState(false);
+      const [flagOpen, setFlagOpen] = useState(false);
+      const [nonce, setNonce] = useState(0);
+      const advRef = useRef(null);
+      const failRef = useRef(null);
+      const touchY = useRef(null);
+
+      useEffect(() => {
+        if (chIdx >= channels.length) { setChIdx(0); setItemIdx(0); }
+      }, [channels.length]);
+
+      const ch = channels[chIdx] || channels[0];
+      const items = (ch && ch.videos) || [];
+      const item = items[itemIdx] || items[0] || null;
+      const kind = item ? itemKind(item.url) : "video";
+      const curAd = ads.find((a) => a.id === selAdId) || null;
+
+      const toTop = () => { try { window.scrollTo(0, 0); } catch (e) {} };
+
+      const advance = (dir) => {
+        const n = channels.length;
+        if (dir > 0) {
+          if (itemIdx + 1 < items.length) setItemIdx(itemIdx + 1);
+          else if (n > 1) { setChIdx((chIdx + 1) % n); setItemIdx(0); setFilter("all"); }
+          else { setItemIdx(0); setNonce((x) => x + 1); }
+        } else {
+          if (itemIdx > 0) setItemIdx(itemIdx - 1);
+          else if (n > 1) {
+            const p = (chIdx - 1 + n) % n;
+            setChIdx(p);
+            setItemIdx(Math.max(0, ((channels[p].videos) || []).length - 1));
+          }
+        }
+        toTop();
+      };
+      advRef.current = advance;
+
+      // limpa o "pular se der erro" ao trocar de item
+      useEffect(() => () => clearTimeout(failRef.current), [chIdx, itemIdx, view]);
+
+      // imagem, site e PDF não "terminam": ficam um tempo e passam (só com AUTOPLAY ligado)
+      useEffect(() => {
+        if (view !== "viewer" || !autoPlay || !item) return;
+        if (["image", "site", "pdf"].indexOf(kind) < 0) return;
+        const id = setTimeout(() => { if (advRef.current) advRef.current(1); }, Math.max(5, holdSec) * 1000);
+        return () => clearTimeout(id);
+      }, [view, chIdx, itemIdx, autoPlay, holdSec, nonce]);
+
+      // carrossel de mídias dentro do anúncio completo
+      useEffect(() => {
+        if (view !== "ad" || !curAd || !curAd.media || curAd.media.length < 2) return;
+        const t = setInterval(() => setAdMedia((m) => m + 1), 3500);
+        return () => clearInterval(t);
+      }, [view, selAdId]);
+
+      // ---- botão VOLTAR do celular: cada tela vira uma entrada do histórico do navegador ----
+      const stackRef = useRef(["home"]);
+      useEffect(() => {
+        try { window.history.replaceState({ tv: "home", n: 0 }, ""); } catch (e) {}
+        const onPop = (e) => {
+          const st = e.state;
+          const n = st && typeof st.n === "number" ? st.n : 0;
+          const v = st && st.tv ? st.tv : "home";
+          stackRef.current = stackRef.current.slice(0, n);
+          stackRef.current[n] = v;
+          setView(v); setFlagOpen(false); toTop();
+        };
+        window.addEventListener("popstate", onPop);
+        return () => window.removeEventListener("popstate", onPop);
+      }, []);
+
+      if (!ch) return null;
+
+      const navPush = (v) => {
+        const s = stackRef.current;
+        if (s[s.length - 1] === v) { try { window.history.replaceState({ tv: v, n: s.length - 1 }, ""); } catch (e) {} }
+        else { s.push(v); try { window.history.pushState({ tv: v, n: s.length - 1 }, ""); } catch (e) {} }
+        setView(v);
+      };
+      const navReplace = (v) => {
+        const s = stackRef.current;
+        s[s.length - 1] = v;
+        try { window.history.replaceState({ tv: v, n: s.length - 1 }, ""); } catch (e) {}
+        setView(v);
+      };
+      // seta ← da tela: sobe para a tela anterior; se ela já é a anterior do histórico, só volta uma entrada
+      const up = (v) => {
+        playHoloSound("click"); setFlagOpen(false); toTop();
+        const s = stackRef.current;
+        if (s.length > 1 && s[s.length - 2] === v) { try { window.history.back(); return; } catch (e) {} }
+        navReplace(v);
+      };
+      const go = (v) => {
+        playHoloSound("click"); setFlagOpen(false); toTop();
+        const s = stackRef.current;
+        if (v === "home") {
+          if (s.length > 1) { try { window.history.go(-(s.length - 1)); return; } catch (e) {} }
+          setView("home"); return;
+        }
+        if (s.length > 1) navReplace(v); else navPush(v);
+      };
+      const openChannel = (ci) => { playHoloSound("swap"); setChIdx(ci); setItemIdx(0); setFilter("all"); navPush("feed"); toTop(); };
+      const openItem = (ci, ii) => { playHoloSound("swap"); setChIdx(ci); setItemIdx(ii); setRotated(false); navPush("viewer"); toTop(); };
+      const openAd = (id, back) => { playHoloSound("swap"); setSelAdId(id); setAdBack(back); setAdMedia(0); navPush("ad"); toTop(); };
+      const onFail = () => {
+        if (!autoPlay) return;
+        clearTimeout(failRef.current);
+        failRef.current = setTimeout(() => { if (advRef.current) advRef.current(1); }, 5000);
+      };
+
+      const tones = {
+        on: { border: "1px solid #F97316", background: "rgba(249,115,22,0.16)", color: "#FDBA74" },
+        cyan: { border: "1px solid #22D3EE", background: "rgba(34,211,238,0.14)", color: "#A5F3FC" },
+        off: { border: "1px solid rgba(148,163,184,0.45)", background: "#0B1626", color: "#CBD5E1" }
+      };
+      const barBtn = (label, tone, onClick, icon) => (
+        <button type="button" aria-label={label} title={label} onClick={onClick}
+          style={{ flex: 1, height: 44, padding: 0, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...tones[tone] }}>
+          {icon}
+        </button>
+      );
+
+      const backBtn = (onClick, tone) => (
+        <button type="button" aria-label="Voltar" onClick={onClick}
+          style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: tone === "orange" ? "1px solid #F97316" : "1px solid rgba(34,211,238,0.5)", background: "#0B1626", color: tone === "orange" ? "#FB923C" : "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <Ico size={20}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></Ico>
+        </button>
+      );
+
+      const subHeader = (title, sub, onBack, tone) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#050A14", borderBottom: "1px solid rgba(34,211,238,0.2)", position: "sticky", top: 0, zIndex: 20 }}>
+          {backBtn(onBack, tone)}
+          <div style={{ minWidth: 0 }}>
+            <div className="font-hud font-bold" style={{ fontSize: 14, color: "#FB923C", letterSpacing: "0.04em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
+            <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>
+          </div>
+        </div>
+      );
+
+      const player = (it) => (
+        <OmniScreenRenderer
+          key={chIdx + "-" + itemIdx + "-" + nonce + (rotated ? "r" : "")}
+          videoUrl={it.url}
+          title={it.label || ch.title}
+          isMuted={isMuted} onBlocked={onBlocked}
+          autoAdvance={autoPlay}
+          onVideoEnded={() => { if (advRef.current) advRef.current(1); }}
+          onFail={onFail}
+        />
+      );
+
+      const thumbBox = (it) => {
+        const t = itemThumb(it.url);
+        const ty = parseOmniLink(it.url || "").type;
+        return t
+          ? <SafeImage src={t} alt={it.label} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
+              <span style={{ fontSize: 30 }}>{typeIcon(ty)}</span>
+              {ty !== "PDF" && (() => { try { return <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8", wordBreak: "break-all" }}>{new URL(it.url).hostname.replace(/^www\./, "")}</span>; } catch (e) { return null; } })()}
+            </div>;
+      };
+
+      const tag = (txt, orange) => (
+        <span className="font-mono" style={{ position: "absolute", top: 8, left: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", background: orange ? "#F97316" : "rgba(3,6,12,0.85)", color: orange ? "#1A0A00" : "#67E8F9", border: orange ? "0" : "1px solid rgba(34,211,238,0.35)", zIndex: 2 }}>{txt}</span>
+      );
+
+      const priceBlock = (offer, big) => (
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+          <span className="font-hud font-extrabold" style={{ fontSize: big ? 30 : 15, color: "#FDBA74" }}>{offer.priceCurrent}</span>
+          {offer.priceOld ? <span className="font-mono" style={{ fontSize: big ? 13 : 10, color: "#64748B", textDecoration: "line-through" }}>{offer.priceOld}</span> : null}
+          {offer.discount ? <span className="font-mono" style={{ fontSize: big ? 11 : 9, fontWeight: 800, padding: "2px 7px", borderRadius: 6, border: "1px solid rgba(249,115,22,0.6)", color: "#FB923C" }}>{offer.discount}</span> : null}
+        </div>
+      );
+
+      // ---------- TOPO (home, feed e ofertas) ----------
+      const subtitle = view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
+      const topBar = (
+        <div style={{ position: "relative" }}>
+          <div style={{ padding: "10px 12px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, height: 44 }}>
+              <div className="font-hud font-bold" style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
+              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <div className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
+                <div className="font-mono" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "#67E8F9", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22D3EE", display: "inline-block" }}></span>
+                  <span>{subtitle}</span>
+                </div>
+              </div>
+              <button type="button" aria-label="Atalhos da Claudinha" aria-expanded={flagOpen} title="Claudinha"
+                onClick={() => { playHoloSound("click"); setFlagOpen(!flagOpen); }}
+                style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #A78BFA", background: "rgba(167,139,250,0.16)", color: "#C4B5FD", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={22}><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"></path></Ico>
+              </button>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {barBtn(autoPlay ? "Autoplay ligado" : "Autoplay desligado", autoPlay ? "on" : "off", () => setAutoPlay(!autoPlay),
+                <Ico><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></Ico>)}
+              {barBtn(isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)", isMuted ? "off" : "on", () => { playHoloSound("click"); setIsMuted(!isMuted); },
+                isMuted
+                  ? <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
+                  : <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>)}
+              {barBtn("Canais", view === "home" || view === "feed" ? "cyan" : "off", () => go("home"),
+                <Ico><rect x="2" y="7" width="20" height="15" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></Ico>)}
+              {barBtn("Ofertas", view === "offers" ? "on" : "off", () => go("offers"),
+                <Ico><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>)}
+            </div>
+          </div>
+          {flagOpen && (
+            <>
+              <div onClick={() => setFlagOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }}></div>
+              <div role="menu" style={{ position: "absolute", top: 66, right: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
+                <div className="font-mono" style={{ padding: "4px 6px 8px", fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>CLAUDINHA · EM CONSTRUÇÃO</div>
+                {["Pauta do dia", "Radar de tendências", "Diário", "Fechar o dia"].map((label) => (
+                  <button key={label} type="button" role="menuitem" disabled
+                    style={{ height: 44, padding: "0 8px", borderRadius: 10, border: 0, background: "transparent", color: "#E2E8F0", display: "flex", alignItems: "center", gap: 12, fontSize: 13, fontWeight: 600, textAlign: "left", opacity: 0.75, cursor: "not-allowed" }}>
+                    <span style={{ flex: 1 }}>{label}</span>
+                    <span className="font-mono" style={{ fontSize: 9, letterSpacing: "0.08em", color: "#C4B5FD", border: "1px solid rgba(167,139,250,0.45)", borderRadius: 6, padding: "2px 6px" }}>EM BREVE</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      );
+
+      // ---------- 1. HOME: CANAIS ----------
+      if (view === "home") {
+        const groups = {};
+        channels.forEach((c, i) => {
+          const k = String(c.category || "CANAIS").toUpperCase();
+          (groups[k] = groups[k] || []).push({ c, i });
+        });
+        return (
+          <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+            {topBar}
+            <div style={{ padding: "16px 12px 0" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                <h2 className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em" }}>CANAIS DA SMARTBOX</h2>
+                <span className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>TOTAL: {channels.length}</span>
+              </div>
+              <button type="button" onClick={() => { setAutoPlay(true); openItem(0, 0); }}
+                className="font-mono"
+                style={{ marginTop: 14, width: "100%", height: 52, borderRadius: 14, border: "1px solid #22D3EE", background: "rgba(34,211,238,0.12)", color: "#A5F3FC", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontWeight: 800, fontSize: 12, letterSpacing: "0.08em", cursor: "pointer" }}>
+                <Ico><polygon points="6 4 20 12 6 20 6 4"></polygon></Ico>
+                LIGAR A TV · TOCA TUDO EM SEQUÊNCIA
+              </button>
+              {Object.keys(groups).map((g) => (
+                <div key={g} style={{ marginTop: 20 }}>
+                  <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#94A3B8", marginBottom: 10 }}>— CATEGORIA · {g}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                    {groups[g].map(({ c, i }) => {
+                      const first = (c.videos || [])[0] || { url: "" };
+                      const n = (c.videos || []).length;
+                      return (
+                        <button key={c.id} type="button" onClick={() => openChannel(i)}
+                          style={{ textAlign: "left", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer" }}>
+                          <div style={{ position: "relative", height: 104 }}>
+                            {thumbBox(first)}
+                            <span className="font-mono" style={{ position: "absolute", top: 8, right: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, background: "rgba(3,6,12,0.85)", color: "#E2E8F0" }}>{n} {n === 1 ? "ITEM" : "ITENS"}</span>
+                          </div>
+                          <div style={{ padding: "10px 10px 12px" }}>
+                            <div className="font-mono" style={{ fontSize: 9, color: "#67E8F9", letterSpacing: "0.08em", marginBottom: 4 }}>{c.badge}</div>
+                            <div className="font-hud font-bold" style={{ fontSize: 13, color: "#fff", lineHeight: 1.2 }}>{c.title}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // ---------- 2. FEED DO CANAL ----------
+      if (view === "feed") {
+        const all = items.map((v, i) => ({ ...v, i, kind: itemKind(v.url) }));
+        const kinds = [];
+        all.forEach((x) => { if (kinds.indexOf(x.kind) < 0) kinds.push(x.kind); });
+        const shown = filter === "all" ? all : filter === "ofertas" ? [] : all.filter((x) => x.kind === filter);
+        const wide = shown.filter((x) => x.kind === "video");
+        const tall = shown.filter((x) => x.kind !== "video" && x.kind !== "site");
+        const sq = shown.filter((x) => x.kind === "site");
+        // anúncios só entram quando o canal aponta para produtos do catálogo (campo "adIds")
+        const adsAll = (ch.adIds || []).map((id) => ads.find((a) => a.id === "AD_" + String(id).replace(/^AD_/, ""))).filter(Boolean);
+        const linked = (filter === "all" || filter === "ofertas") ? adsAll.slice() : [];
+        const rows = [];
+        while (wide.length || tall.length || linked.length || sq.length) {
+          if (wide.length) rows.push({ t: "wide", it: wide.shift() });
+          if (linked.length) {
+            const list = linked.splice(0, 2).map((a) => ({ ad: a }));
+            if (list.length < 2 && tall.length) list.push({ it: tall.shift() }); // completa o espaço vazio
+            rows.push({ t: "ads", list });
+          }
+          if (tall.length) rows.push({ t: "tall", list: tall.splice(0, 2).map((it) => ({ it })) });
+          if (sq.length) rows.push({ t: "sq", it: sq.shift() });
+        }
+        const tabBtn = (id, label) => {
+          const of = id === "ofertas";
+          const on = filter === id;
+          return (
+            <button key={id} type="button" onClick={() => setFilter(id)} className="font-mono"
+              style={{ flex: "0 0 auto", height: 36, padding: "0 14px", borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: on ? (of ? "1px solid #FB923C" : "1px solid #22D3EE") : (of ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"), background: on ? (of ? "rgba(251,146,60,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626", color: on ? (of ? "#FED7AA" : "#A5F3FC") : (of ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
+          );
+        };
+        return (
+          <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+            {topBar}
+            <div style={{ padding: "14px 12px 0" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {backBtn(() => up("home"), "cyan")}
+                <div style={{ minWidth: 0 }}>
+                  <div className="font-hud font-bold" style={{ fontSize: 16, color: "#fff", letterSpacing: "0.04em" }}>{ch.title}</div>
+                  <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{ch.badge} · {items.length} ITENS</div>
+                </div>
+              </div>
+              <div className="hud-scroll" style={{ display: "flex", gap: 8, marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
+                {tabBtn("all", "TUDO")}
+                {kinds.map((k) => tabBtn(k, KIND_TAB[k]))}
+                {adsAll.length ? tabBtn("ofertas", "OFERTAS") : null}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+                {rows.map((r, ri) => {
+                  if (r.t === "wide") {
+                    return (
+                      <button key={"w" + ri} type="button" onClick={() => openItem(chIdx, r.it.i)}
+                        style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                        {thumbBox(r.it)}
+                        {tag("VÍDEO · 16:9")}
+                        <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "22px 12px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.85))", color: "#fff", fontSize: 12 }}>{r.it.label}</div>
+                      </button>
+                    );
+                  }
+                  if (r.t === "ads") {
+                    return (
+                      <div key={"a" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                        {r.list.map((e) => e.it ? (
+                          <button key={"i" + e.it.i} type="button" onClick={() => openItem(chIdx, e.it.i)}
+                            style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                            {thumbBox(e.it)}
+                            {tag(KIND_LABEL[e.it.kind])}
+                            <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 11, textTransform: "uppercase" }}>{e.it.label}</div>
+                          </button>
+                        ) : ((a) => (
+                          <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
+                            style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                            <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
+                            {a.offer.badge ? tag(a.offer.badge, true) : null}
+                            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
+                              <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
+                              <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+                            </div>
+                          </button>
+                        ))(e.ad))}
+                      </div>
+                    );
+                  }
+                  if (r.t === "sq") {
+                    return (
+                      <button key={"s" + ri} type="button" onClick={() => openItem(chIdx, r.it.i)}
+                        style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                        {thumbBox(r.it)}
+                        {tag("SITE · 1:1")}
+                        <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 12px 12px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 13, textTransform: "uppercase" }}>{r.it.label}</div>
+                      </button>
+                    );
+                  }
+                  return (
+                    <div key={"t" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                      {r.list.map((e) => e.it).map((it) => (
+                        <button key={it.i} type="button" onClick={() => openItem(chIdx, it.i)}
+                          style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                          {thumbBox(it)}
+                          {tag(KIND_LABEL[it.kind])}
+                          <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 11, textTransform: "uppercase" }}>{it.label}</div>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
+                {!rows.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>Nenhum item nesta aba.</p>}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------- 3. VISUALIZADORES ----------
+      if (view === "viewer" && item) {
+        const wideView = kind === "video";
+        const prevNext = (
+          <div style={{ display: "flex", gap: 10 }}>
+            <button type="button" onClick={() => { playHoloSound("click"); advance(-1); }} className="font-mono"
+              style={{ flex: 1, height: 48, borderRadius: 12, border: "1px solid rgba(34,211,238,0.5)", background: "#0B1626", color: "#67E8F9", fontWeight: 800, fontSize: 12, letterSpacing: "0.08em", cursor: "pointer" }}>◀ ANTERIOR</button>
+            <button type="button" onClick={() => { playHoloSound("click"); advance(1); }} className="font-mono"
+              style={{ flex: 1, height: 48, borderRadius: 12, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FDBA74", fontWeight: 800, fontSize: 12, letterSpacing: "0.08em", cursor: "pointer" }}>PRÓXIMO ▶</button>
+          </div>
+        );
+
+        // 3b. vídeo girado em paisagem (tela cheia)
+        if (rotated && wideView) {
+          return (
+            <div style={{ position: "fixed", top: 0, left: 0, width: "100vh", height: "100vw", transformOrigin: "top left", transform: "translateX(100vw) rotate(90deg)", background: "#000", zIndex: 60 }}>
+              <div style={{ position: "absolute", inset: 0 }}>{player(item)}</div>
+              <button type="button" aria-label="Sair da paisagem" onClick={() => setRotated(false)}
+                style={{ position: "absolute", top: 10, left: 10, width: 44, height: 44, borderRadius: 12, border: "1px solid rgba(34,211,238,0.5)", background: "rgba(5,10,20,0.85)", color: "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 5, cursor: "pointer" }}>
+                <Ico><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></Ico>
+              </button>
+              <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", gap: 8, zIndex: 5 }}>
+                <button type="button" aria-label="Anterior" onClick={() => advance(-1)} style={{ width: 44, height: 44, borderRadius: 12, border: "1px solid rgba(34,211,238,0.5)", background: "rgba(5,10,20,0.85)", color: "#67E8F9", cursor: "pointer" }}>◀</button>
+                <button type="button" aria-label="Próximo" onClick={() => advance(1)} style={{ width: 44, height: 44, borderRadius: 12, border: "1px solid #F97316", background: "rgba(5,10,20,0.85)", color: "#FDBA74", cursor: "pointer" }}>▶</button>
+              </div>
+            </div>
+          );
+        }
+
+        const sub = "ITEM " + (itemIdx + 1) + " DE " + items.length;
+        if (wideView) {
+          return (
+            <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+              {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+              <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#000" }}>
+                {player(item)}
+                <button type="button" aria-label="Girar para paisagem" onClick={() => { setRotated(true); }}
+                  style={{ position: "absolute", right: 8, bottom: 8, width: 40, height: 40, borderRadius: 10, border: "1px solid rgba(34,211,238,0.5)", background: "rgba(5,10,20,0.8)", color: "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 5 }}>
+                  <Ico><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></Ico>
+                </button>
+              </div>
+              <div style={{ padding: "14px 12px 0" }}>
+                <h2 className="font-hud font-bold" style={{ fontSize: 20, color: "#fff" }}>{item.label}</h2>
+                <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.08em", margin: "6px 0 14px" }}>{KIND_LABEL[kind]} · {parseOmniLink(item.url).badge} · 16:9</div>
+                {prevNext}
+                <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.12em", margin: "18px 0 8px" }}>A SEGUIR NESTE CANAL</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {items.map((v, i) => ({ v, i })).filter((x) => x.i !== itemIdx).map(({ v, i }) => (
+                    <button key={i} type="button" onClick={() => { setItemIdx(i); setRotated(false); toTop(); }}
+                      style={{ display: "flex", alignItems: "center", gap: 12, padding: 8, borderRadius: 12, border: "1px solid rgba(34,211,238,0.3)", background: "#0B1626", textAlign: "left", cursor: "pointer" }}>
+                      <div style={{ flex: "0 0 84px", height: 56, borderRadius: 8, overflow: "hidden" }}>{thumbBox(v)}</div>
+                      <div style={{ minWidth: 0 }}>
+                        <div className="font-hud font-bold" style={{ fontSize: 12, color: "#fff" }}>{v.label}</div>
+                        <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{KIND_LABEL[itemKind(v.url)]}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // site e PDF: largura total (nao cabem num palco 9:16)
+        if (kind === "site" || kind === "pdf") {
+          return (
+            <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+              {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+              <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden" }}>
+                {player(item)}
+              </div>
+              <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
+                <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
+                <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", margin: "4px 0 10px" }}>{KIND_LABEL[kind]} · TELA CHEIA</div>
+              </div>
+              <div style={{ position: "sticky", bottom: 0, padding: "8px 12px calc(10px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(34,211,238,0.2)" }}>{prevNext}</div>
+            </div>
+          );
+        }
+
+        // visualizador em pé 9:16 (Short, imagem)
+        return (
+          <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+            onTouchStart={(e) => { touchY.current = e.touches[0].clientY; }}
+            onTouchEnd={(e) => {
+              if (touchY.current === null) return;
+              const dy = touchY.current - e.changedTouches[0].clientY;
+              touchY.current = null;
+              if (dy > 70) advance(1); else if (dy < -70) advance(-1);
+            }}>
+            {subHeader(ch.title, sub, () => up("feed"), "cyan")}
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 0", background: "#000" }}>
+              <div style={{ position: "relative", height: "calc(100dvh - 235px)", minHeight: 320, aspectRatio: "9 / 16", maxWidth: "100%", overflow: "hidden", background: "#000" }}>
+                {player(item)}
+                <span className="font-mono" style={{ position: "absolute", top: 8, left: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, background: "rgba(3,6,12,0.85)", color: "#67E8F9", border: "1px solid rgba(34,211,238,0.35)", zIndex: 5, pointerEvents: "none" }}>{KIND_LABEL[kind]} · 9:16</span>
+              </div>
+            </div>
+            <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
+              <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
+              <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", margin: "4px 0 10px" }}>▲ DESLIZE AQUI PARA CIMA PARA O PRÓXIMO</div>
+            </div>
+            <div style={{ position: "sticky", bottom: 0, padding: "8px 12px calc(10px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(34,211,238,0.2)" }}>{prevNext}</div>
+          </div>
+        );
+      }
+
+      // ---------- 4. ANÚNCIO COMPLETO (em pé) ----------
+      if (view === "ad" && curAd) {
+        const o = curAd.offer;
+        const m = curAd.media && curAd.media.length ? curAd.media[adMedia % curAd.media.length] : null;
+        return (
+          <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+            {subHeader("ANÚNCIO COMPLETO", "OFERTA · HOMEM BRUTO", () => up(adBack), "orange")}
+            <div style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", maxHeight: "62vh", background: "#000", overflow: "hidden" }}>
+              <AdMedia item={m} fallback={o.thumbImg} alt={curAd.title} />
+              {o.badge ? tag(o.badge, true) : null}
+              {curAd.media && curAd.media.length > 1 && (
+                <div style={{ position: "absolute", top: 12, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 6, zIndex: 3 }}>
+                  {curAd.media.map((_, i) => (
+                    <span key={i} style={{ width: 28, height: 4, borderRadius: 2, background: i === adMedia % curAd.media.length ? "#F97316" : "rgba(255,255,255,0.35)" }}></span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{ padding: "14px 12px", flex: 1 }}>
+              {o.sold ? <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", marginBottom: 6 }}>{String(o.sold).toUpperCase()}</div> : null}
+              <h2 className="font-hud font-bold" style={{ fontSize: 19, color: "#fff", lineHeight: 1.25, marginBottom: 10 }}>{curAd.title}</h2>
+              {priceBlock(o, true)}
+              <ul className="font-mono" style={{ margin: "12px 0 0", padding: 0, listStyle: "none", fontSize: 12, color: "#CBD5E1", display: "flex", flexDirection: "column", gap: 4 }}>
+                {(o.features || []).map((f, i) => <li key={i}>• {f}</li>)}
+              </ul>
+            </div>
+            <div style={{ position: "sticky", bottom: 0, padding: "10px 12px calc(12px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(249,115,22,0.35)" }}>
+              <a href={o.affiliateLink} target="_blank" rel="noopener noreferrer" className="font-hud font-bold"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 52, borderRadius: 14, background: "linear-gradient(90deg,#F97316,#EF4444)", color: "#1A0A00", fontSize: 15, letterSpacing: "0.08em", textDecoration: "none" }}>
+                {o.cta || "VER OFERTA"}
+              </a>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------- 5. OFERTAS (grade) ----------
+      return (
+        <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+          {topBar}
+          <div style={{ padding: "16px 12px 0" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+              <h2 className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em" }}>OFERTAS IMPERDÍVEIS</h2>
+              <span className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>TOTAL: {ads.length}</span>
+            </div>
+            {!ads.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "40px 0" }}>Nenhuma oferta ainda.</p>}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginTop: 14 }}>
+              {ads.map((a) => (
+                <button key={a.id} type="button" onClick={() => openAd(a.id, "offers")}
+                  style={{ display: "flex", flexDirection: "column", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ position: "relative", width: "100%", aspectRatio: "9 / 14" }}>
+                    <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
+                    {a.offer.badge ? tag(a.offer.badge, true) : null}
+                  </div>
+                  <div style={{ padding: "10px 10px 12px" }}>
+                    <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 6 }}>{a.title}</div>
+                    {priceBlock(a.offer, false)}
+                    <div className="font-hud font-bold" style={{ marginTop: 10, height: 36, borderRadius: 10, background: "linear-gradient(90deg,#F97316,#EF4444)", color: "#1A0A00", fontSize: 11, letterSpacing: "0.08em", display: "flex", alignItems: "center", justifyContent: "center" }}>COMPRAR</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <p className="font-mono" style={{ fontSize: 10, color: "#64748B", marginTop: 14 }}>Os produtos vêm do catálogo. Cada card abre o anúncio completo em pé.</p>
+          </div>
+        </div>
+      );
+    }
+
+    function AppInner({ initCh, adsPub, adsLoading, chatTxt }) {
+      const [channels, setChannels] = useState(initCh);
+
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
+      const [selectedOfferIdx, setSelectedOfferIdx] = useState(0);
+
+      const [isPipVisible, setIsPipVisible] = useState(true);
+      const [isPipExpanded, setIsPipExpanded] = useState(false);
+      const [isSwapped, setIsSwapped] = useState(false);
+      const [isMainHovered, setIsMainHovered] = useState(false);
+      const [isMuted, setIsMuted] = useState(false);
+      // som: se o navegador bloqueou o som automático, o primeiro clique/toque/tecla do visitante liga o som (30%)
+      const autoMutedRef = useRef(false);
+      const reportBlocked = () => { autoMutedRef.current = true; setIsMuted(true); };
+      useEffect(() => {
+        const onGesture = (e) => {
+          if (!autoMutedRef.current) return;
+          const t = e && e.target;
+          const btn = t && t.closest ? t.closest("button") : null;
+          // se a pessoa mexeu no próprio botão de som, a escolha dela vale
+          if (btn && /som (ligado|desligado)/i.test((btn.getAttribute("aria-label") || "") + " " + (btn.textContent || ""))) { autoMutedRef.current = false; return; }
+          autoMutedRef.current = false;
+          setIsMuted(false);
+        };
+        const evs = ["pointerup", "keydown", "touchend"];
+        evs.forEach((n) => window.addEventListener(n, onGesture, true));
+        return () => evs.forEach((n) => window.removeEventListener(n, onGesture, true));
+      }, []);
+      const [autoPlayNext, setAutoPlayNext] = useState(true);
+      const [playNonce, setPlayNonce] = useState(0);
+      const [holdSec, setHoldSec] = useState(() => {
+        try { return Math.max(5, +localStorage.getItem("BRUTE_HOLD_SEC") || 15); } catch (e) { return 15; }
+      });
+      const advanceRef = useRef(null);
+      const failTimer = useRef(null);
+      const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+        try { return localStorage.getItem("BRUTE_SIDEBAR_OPEN") !== "0"; } catch (e) { return true; }
+      });
+
+      // ADMIN & DRAGÃO
+      const [isFlagOpen, setIsFlagOpen] = useState(false);
+      // v4: no celular (tela estreita) entra o layout novo; no PC nada muda
+      const [isMobile, setIsMobile] = useState(() => {
+        try { return window.matchMedia("(max-width: 820px)").matches; } catch (e) { return false; }
+      });
+      useEffect(() => {
+        let mq;
+        try { mq = window.matchMedia("(max-width: 820px)"); } catch (e) { return; }
+        const on = () => setIsMobile(mq.matches);
+        if (mq.addEventListener) mq.addEventListener("change", on); else mq.addListener(on);
+        return () => { if (mq.removeEventListener) mq.removeEventListener("change", on); else mq.removeListener(on); };
+      }, []);
+      const mSvg = (size, children) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
+      );
+      const mBarBtn = (label, pressed, tone, onClick, icon) => {
+        const tones = {
+          on: { border: "1px solid #F97316", background: "rgba(249,115,22,0.16)", color: "#FDBA74" },
+          cyan: { border: "1px solid #22D3EE", background: "rgba(34,211,238,0.14)", color: "#A5F3FC" },
+          off: { border: "1px solid rgba(148,163,184,0.45)", background: "#0B1626", color: "#CBD5E1" },
+          neutral: { border: "1px solid rgba(34,211,238,0.35)", background: "#0B1626", color: "#67E8F9" }
+        };
+        return (
+          <button type="button" aria-label={label} title={label} aria-pressed={pressed} onClick={onClick}
+            style={{ flex: 1, height: 44, padding: 0, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...tones[tone] }}>
+            {icon}
+          </button>
+        );
+      };
+      
+      // ESTÚDIO MULTI-PÁGINA: Canal em edição aprofundada!
+
+      // ANÚNCIOS DO MONITOR MENOR (vindos do catálogo v4), independentes do telão
+      const [ads, setAds] = useState([]);
+      const [adIdx, setAdIdx] = useState(0);
+      const [adMediaIdx, setAdMediaIdx] = useState(0);
+      const [adSec, setAdSec] = useState(() => {
+        try { return +localStorage.getItem("BRUTE_AD_SEC") || 10; } catch (e) { return 10; }
+      });
+      const [adminTab, setAdminTab] = useState("conteudo");
+      const [catUrl, setCatUrl] = useState(() => {
+        try { return localStorage.getItem("BRUTE_CAT_URL") || "https://brute-man-produtos.netlify.app/"; } catch (e) { return "https://brute-man-produtos.netlify.app/"; }
+      });
+
+
+      useEffect(() => {
+        try { localStorage.setItem("BRUTE_HOLD_SEC", String(holdSec)); } catch (e) {}
+      }, [holdSec]);
+
+      useEffect(() => {
+        try { localStorage.setItem("BRUTE_AD_SEC", String(adSec)); } catch (e) {}
+      }, [adSec]);
+
+      useEffect(() => {
+        try { localStorage.setItem("BRUTE_CAT_URL", catUrl); } catch (e) {}
+      }, [catUrl]);
+
+      // anúncios do catálogo entram quando o catalogo.json chega (os canais já vieram antes)
+      useEffect(() => {
+        if (adsPub && adsPub.length) { setAds(adsPub); setAdIdx(0); setAdMediaIdx(0); }
+      }, [adsPub]);
+
+      // gira os anúncios sozinho, solto do que passa no telão
+      useEffect(() => {
+        if (ads.length < 2) return;
+        const t = setInterval(() => { setAdIdx((i) => (i + 1) % ads.length); setAdMediaIdx(0); }, Math.max(3, adSec) * 1000);
+        return () => clearInterval(t);
+      }, [ads.length, adSec]);
+
+      // dentro de cada anúncio, troca foto/vídeo/GIF
+      useEffect(() => {
+        const cur = ads.length ? ads[adIdx % ads.length] : null;
+        if (!cur || !cur.media || cur.media.length < 2) return;
+        const t = setInterval(() => setAdMediaIdx((m) => m + 1), 3500);
+        return () => clearInterval(t);
+      }, [ads, adIdx]);
+
+      useEffect(() => {
+        try { localStorage.setItem("BRUTE_SIDEBAR_OPEN", isSidebarOpen ? "1" : "0"); } catch (e) {}
+      }, [isSidebarOpen]);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          const tag = (e.target && e.target.tagName) || "";
+          if ((e.key === "c" || e.key === "C") && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(tag)) {
+            setIsSidebarOpen((v) => !v);
+          }
+          if (e.key === "Escape") {
+          }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+      }, []);
+
+      const selectChannel = (idx) => {
+        playHoloSound('swap');
+        setCurrentIndex(idx);
+        setSelectedVideoIdx(0);
+        setSelectedOfferIdx(0);
+        if (channels[idx]) {
+          window.location.hash = channels[idx].slug || channels[idx].id;
+        }
+      };
+
+      const handleProximoCanal = () => {
+        playHoloSound('swap');
+        const next = (currentIndex + 1) % channels.length;
+        selectChannel(next);
+      };
+
+      const handleCanalAnterior = () => {
+        playHoloSound('swap');
+        const prev = (currentIndex - 1 + channels.length) % channels.length;
+        selectChannel(prev);
+      };
+
+      const currentChannel = channels[currentIndex] || channels[0];
+      const activeVideo = currentChannel.videos[selectedVideoIdx] || currentChannel.videos[0];
+
+      // ===== LOOP DOS CONTEÚDOS =====
+      // próximo vídeo do canal; acabou o canal, vai para o próximo canal; acabou tudo, volta ao começo.
+      const advanceContent = () => {
+        if (selectedVideoIdx + 1 < currentChannel.videos.length) {
+          setSelectedVideoIdx(selectedVideoIdx + 1);
+        } else if (channels.length > 1) {
+          handleProximoCanal();
+        } else {
+          setSelectedVideoIdx(0);
+          setPlayNonce((n) => n + 1);
+        }
+      };
+      advanceRef.current = advanceContent;
+      const totalContents = channels.reduce((sum, c) => sum + (c.videos || []).length, 0);
+
+      // sites, notícias, PDF, Drive e imagens não "terminam": ficam um tempo na tela e passam
+      useEffect(() => {
+        if (!autoPlayNext) return;
+        const t = parseOmniLink(activeVideo.url).type;
+        if (["WEBSITE", "PDF", "GOOGLE_DRIVE", "IMAGE"].indexOf(t) < 0) return;
+        const id = setTimeout(() => { if (advanceRef.current) advanceRef.current(); }, Math.max(5, holdSec) * 1000);
+        return () => clearTimeout(id);
+      }, [autoPlayNext, currentIndex, selectedVideoIdx, activeVideo.url, holdSec, playNonce]);
+
+      // se um vídeo do YouTube der erro, não trava: pula depois de 5 s (só se houver outro conteúdo)
+      useEffect(() => () => clearTimeout(failTimer.current), [currentIndex, selectedVideoIdx, playNonce]);
+      const handleContentFail = () => {
+        if (!autoPlayNext || totalContents < 2) return;
+        clearTimeout(failTimer.current);
+        failTimer.current = setTimeout(() => { if (advanceRef.current) advanceRef.current(); }, 5000);
+      };
+      const curAd = ads.length ? ads[adIdx % ads.length] : null;
+      const adPageUrl = curAd
+        ? (catUrl.trim().replace(/#.*$/, "").replace(/\/?$/, "/") + "#/p/" + String(curAd.id).replace(/^AD_/, ""))
+        : "";
+      const chOffers = currentChannel.offers || [];
+      const activeOffer = curAd ? curAd.offer : (chOffers[selectedOfferIdx] || chOffers[0] || null);
+
+      // Telão: quanto mais espaço livre (monitor menor e/ou barra fechados), maior e mais reto.
+      const isExpanded = !isPipVisible && !isSidebarOpen;
+      const shouldApplyFocusFront = !isPipVisible && isMainHovered;
+      const tvRotY = isPipVisible ? 14 : (isSidebarOpen ? 5 : 1.2);
+      const tvRotX = isPipVisible ? 3 : (isSidebarOpen ? 1.2 : 0.4);
+      const tvWidth = isPipVisible ? "min(90cqw, 158cqh)" : "min(97cqw, 172cqh)";
+
+      // fechar o monitor menor: se o conteúdo do telão estava nele, volta antes para o telão
+      const closePip = () => { if (isSwapped) setIsSwapped(false); setIsPipVisible(false); };
+
+
+
+
+
+
+
+
+
+
+
+
+      const renderMainContent = () => (
+        <OmniScreenRenderer
+          key={playNonce + "-" + currentIndex + "-" + selectedVideoIdx}
+          videoUrl={activeVideo.url}
+          title={activeVideo.label || currentChannel.title}
+          isMuted={isMuted} onBlocked={reportBlocked}
+          autoAdvance={autoPlayNext}
+          onVideoEnded={() => { if (advanceRef.current) advanceRef.current(); }}
+          onFail={handleContentFail}
+        />
+      );
+
+      const renderProductCardContent = () => !activeOffer ? (
+        <div className="flex flex-col h-full items-center justify-center text-center gap-2 p-4">
+          <div className="text-3xl">🛒</div>
+          <div className="font-hud font-bold text-[11px] text-orange-300">{adsLoading ? "CARREGANDO OFERTAS..." : "SEM OFERTAS NO MOMENTO"}</div>
+          {adsLoading ? <div className="text-[9px] font-mono text-gray-400">Só mais um instante.</div> : null}
+        </div>
+      ) : (
+        <div className="flex flex-col h-full justify-between">
+          <div>
+            {!curAd && chOffers.length > 1 && (
+              <div className="flex gap-1 mb-2 overflow-x-auto hud-scroll pb-1">
+                {chOffers.map((off, oIdx) => (
+                  <button
+                    key={oIdx}
+                    onClick={() => { playHoloSound('click'); setSelectedOfferIdx(oIdx); }}
+                    className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold whitespace-nowrap transition ${
+                      selectedOfferIdx === oIdx ? 'bg-orange-600 text-white shadow' : 'bg-slate-900 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    OFERTA {oIdx + 1}: {off.badge}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-3 items-center">
+              <div className={`${curAd ? "w-28 h-40" : "w-24 h-24"} rounded-xl overflow-hidden border border-orange-500/40 bg-black/80 flex-shrink-0 relative`}>
+                {curAd
+                  ? <AdMedia item={curAd.media[adMediaIdx % (curAd.media.length || 1)]} fallback={activeOffer.thumbImg} alt={activeOffer.title} />
+                  : <SafeImage src={activeOffer.thumbImg} alt={activeOffer.title} className="w-full h-full object-cover" />}
+                <span className="absolute top-1 left-1 px-1.5 py-0.2 rounded bg-orange-600 text-white font-bold text-[7px] font-mono">
+                  {activeOffer.badge}
+                </span>
+                {curAd && curAd.media.length > 1 && (
+                  <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
+                    {curAd.media.map((_, i) => (
+                      <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === adMediaIdx % curAd.media.length ? "bg-orange-400" : "bg-white/40"}`}></span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1 text-[8px] font-mono text-yellow-400 mb-0.5">
+                  {activeOffer.rating && <span>{activeOffer.rating}</span>}
+                  <span className="text-gray-400">{activeOffer.rating ? "• " : ""}{activeOffer.sold}</span>
+                </div>
+                <h4 className="font-hud font-bold text-xs text-white leading-tight truncate mb-1">
+                  {activeOffer.title}
+                </h4>
+                <div className="space-y-0.5 text-[8px] font-mono text-gray-300">
+                  {activeOffer.features.slice(0, isPipExpanded ? 4 : 2).map((feat, i) => (
+                    <p key={i} className="truncate text-gray-400">• {feat}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {isPipExpanded && (
+            <div className="my-2 p-2 rounded-lg bg-orange-950/40 border border-orange-500/30 text-[9px] font-mono text-orange-200 leading-relaxed">
+              <span className="font-bold text-orange-400">ESTUDO DE CASO: </span>
+              {currentChannel.caseStudy}
+            </div>
+          )}
+
+          <div className="hb-pricerow flex items-center justify-between pt-1 border-t border-orange-500/30">
+            <div className="flex items-baseline gap-2">
+              {activeOffer.priceOld && <span className="text-[10px] font-mono line-through text-gray-500">{activeOffer.priceOld}</span>}
+              <span className="font-hud font-extrabold text-base text-orange-400">{activeOffer.priceCurrent}</span>
+              {activeOffer.discount && <span className="px-1 py-0.2 rounded bg-red-950 text-red-400 font-bold text-[8px] font-mono">{activeOffer.discount}</span>}
+            </div>
+
+            <a
+              href={activeOffer.affiliateLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-hud font-bold text-[10px] shadow-[0_0_15px_rgba(249,115,22,0.6)] active:scale-95 transition"
+            >
+              {activeOffer.cta || "VER OFERTA"} ➔
+            </a>
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="hb-root w-full h-full flex flex-col justify-between">
+          
+          {isMobile ? (
+            <MobileTV channels={channels} ads={ads} isMuted={isMuted} setIsMuted={setIsMuted} onBlocked={reportBlocked}
+              autoPlay={autoPlayNext} setAutoPlay={setAutoPlayNext} holdSec={holdSec}
+              />
+          ) : (<>
+          {/* HEADER PÚBLICO */}
+          <header className="hb-header flex items-center justify-between border-b border-cyan-500/20 pb-2 text-xs">
+            <div className="flex items-center gap-3">
+              <div 
+                className="hb-logo w-8 h-8 rounded-lg bg-orange-600/30 border border-orange-500 flex items-center justify-center font-hud font-bold text-orange-400 text-xs shadow-[0_0_12px_rgba(249,115,22,0.4)] cursor-pointer select-none hover:scale-105 transition"
+              >
+                HB
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-hud font-bold text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-300 to-cyan-300">
+                    HOMEM BRUTO // OFERTAS DA SHOPEE TV
+                  </h1>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                    CANAL {currentIndex + 1}/{channels.length}
+                  </span>
+                </div>
+                <p className="text-[9px] font-mono text-cyan-400/70">
+                  TRANSMISSÃO 24/7 • PRODUTOS RECOMENDADOS & ESTUDOS DE CASO
+                </p>
+              </div>
+            </div>
+
+            <div className="hb-headbtns flex items-center gap-2 font-mono text-[10px]">
+              <button
+                onClick={() => { playHoloSound('swap'); setIsSwapped(!isSwapped); }}
+                className="px-2 py-1 rounded bg-slate-900 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 font-bold transition flex items-center gap-1"
+                title="Inverter Telão com Monitor Comercial"
+              >
+                <span>⇄ INVERTER TELAS</span>
+              </button>
+
+              <button
+                onClick={() => setAutoPlayNext(!autoPlayNext)}
+                className={`px-2 py-1 rounded border font-bold transition ${
+                  autoPlayNext ? 'bg-emerald-950 border-emerald-400 text-emerald-300' : 'bg-black/80 border-gray-600 text-gray-500'
+                }`}
+              >
+                {autoPlayNext ? '🔁 AUTOPLAY: ON' : '⏸️ AUTOPLAY: OFF'}
+              </button>
+
+              <button
+                onClick={() => { playHoloSound('click'); setIsMuted(!isMuted); }}
+                className={`px-2 py-1 rounded border font-bold transition ${
+                  !isMuted ? 'bg-orange-500/30 border-orange-400 text-orange-300' : 'bg-red-950/70 border-red-400 text-red-300'
+                }`}
+              >
+                {isMuted ? '🔇 SOM DESLIGADO' : '🔊 SOM LIGADO'}
+              </button>
+
+              <button
+                onClick={() => { playHoloSound('click'); setIsSidebarOpen(!isSidebarOpen); }}
+                title="Esconder ou mostrar a barra de canais (atalho: C)"
+                className={`px-2 py-1 rounded border font-bold transition ${
+                  isSidebarOpen ? 'bg-orange-500/20 border-orange-400 text-orange-200' : 'bg-black/80 border-gray-600 text-gray-400'
+                }`}
+              >
+                {isSidebarOpen ? '☰ CANAIS' : '☰ CANAIS (OFF)'}
+              </button>
+
+              <button
+                onClick={() => { playHoloSound('click'); if (isPipVisible) closePip(); else setIsPipVisible(true); }}
+                className={`px-2 py-1 rounded border font-bold transition ${
+                  isPipVisible ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200' : 'bg-black/80 border-gray-600 text-gray-400'
+                }`}
+              >
+                {isPipVisible ? '👁️ MONITOR LOJA' : '👁️🗨️ FECHAR LOJA'}
+              </button>
+            </div>
+          </header>
+
+          {/* TOPO MOBILE: duas bandeiras + barra de ícones (só aparece em tela estreita) */}
+          <div className="hb-mhead" style={{ position: "relative" }}>
+            <div style={{ padding: "10px 12px", background: "#07101D", border: "1px solid rgba(34,211,238,0.22)", borderRadius: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, height: 44 }}>
+                <div className="font-hud font-bold" style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
+                  <div className="font-mono" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "#67E8F9", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22D3EE", display: "inline-block" }}></span>
+                    <span>SHOPEE TV · CANAL {currentIndex + 1}/{channels.length}</span>
+                  </div>
+                </div>
+                <button type="button" aria-label="Bandeira da Claudinha: atalhos" aria-expanded={isFlagOpen} title="Claudinha"
+                  onClick={() => { playHoloSound('click'); setIsFlagOpen(!isFlagOpen); }}
+                  style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #A78BFA", background: "rgba(167,139,250,0.16)", color: "#C4B5FD", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                  {mSvg(22, <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"></path></>)}
+                </button>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {mBarBtn(autoPlayNext ? "Autoplay ligado" : "Autoplay desligado", autoPlayNext, autoPlayNext ? "on" : "off", () => setAutoPlayNext(!autoPlayNext),
+                  mSvg(20, <><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></>))}
+                {mBarBtn(isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)", !isMuted, isMuted ? "off" : "on", () => { playHoloSound('click'); setIsMuted(!isMuted); },
+                  isMuted
+                    ? mSvg(20, <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></>)
+                    : mSvg(20, <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></>))}
+                {mBarBtn("Inverter telas", false, "neutral", () => { playHoloSound('swap'); setIsSwapped(!isSwapped); },
+                  mSvg(20, <><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></>))}
+                {mBarBtn(isPipVisible ? "Esconder monitor da loja" : "Mostrar monitor da loja", isPipVisible, isPipVisible ? "cyan" : "off", () => { playHoloSound('click'); if (isPipVisible) closePip(); else setIsPipVisible(true); },
+                  mSvg(20, <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></>))}
+                {mBarBtn(isSidebarOpen ? "Esconder canais" : "Mostrar canais", isSidebarOpen, isSidebarOpen ? "on" : "off", () => { playHoloSound('click'); setIsSidebarOpen(!isSidebarOpen); },
+                  mSvg(20, <><rect x="2" y="7" width="20" height="15" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></>))}
+              </div>
+            </div>
+
+            {isFlagOpen && (
+              <>
+                <div onClick={() => setIsFlagOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }}></div>
+                <div role="menu" style={{ position: "absolute", top: 66, right: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
+                  <div className="font-mono" style={{ padding: "4px 6px 8px", fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>CLAUDINHA · EM CONSTRUÇÃO</div>
+                  {[
+                    { label: "Pauta do dia", icon: <><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></> },
+                    { label: "Radar de tendências", icon: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></> },
+                    { label: "Diário", icon: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></> },
+                    { label: "Fechar o dia", icon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> }
+                  ].map((it) => (
+                    <button key={it.label} type="button" role="menuitem" disabled
+                      style={{ height: 44, padding: "0 8px", borderRadius: 10, border: 0, background: "transparent", color: "#E2E8F0", display: "flex", alignItems: "center", gap: 12, fontSize: 13, fontWeight: 600, textAlign: "left", opacity: 0.75, cursor: "not-allowed" }}>
+                      <span style={{ color: "#A78BFA", display: "flex" }}>{mSvg(20, it.icon)}</span>
+                      <span style={{ flex: 1 }}>{it.label}</span>
+                      <span className="font-mono" style={{ fontSize: 9, letterSpacing: "0.08em", color: "#C4B5FD", border: "1px solid rgba(167,139,250,0.45)", borderRadius: 6, padding: "2px 6px" }}>EM BREVE</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* PALCO 3D */}
+          <main className="hb-main flex-1 flex items-stretch my-2 overflow-hidden relative">
+            <div className="hb-stage flex-1 min-w-0 perspective-stage relative flex items-center justify-center p-2 pl-8 pr-2" style={{ containerType: "size" }} onMouseEnter={() => setIsMainHovered(true)} onMouseLeave={() => setIsMainHovered(false)}>
+              <div 
+                style={{
+                  width: tvWidth,
+                  aspectRatio: "16 / 9",
+                  ...(shouldApplyFocusFront ? {} : {
+                    transform: `perspective(1200px) rotateY(${tvRotY}deg) rotateX(${tvRotX}deg) translate3d(0, 0px, ${isExpanded ? 0 : 15}px)`,
+                    transformOrigin: isExpanded ? "50% 50%" : (isPipVisible ? "18% center" : "40% center")
+                  })
+                }}
+                className={`hb-screen rounded-2xl bg-black/85 border border-cyan-400/50 relative overflow-hidden flex flex-col shrink-0 ${
+                  shouldApplyFocusFront ? 'stark-screen-focus-front' : 'stark-screen-deep'
+                }`}
+              >
+                <svg className="absolute inset-0 w-full h-full pointer-events-none z-30">
+                  <defs>
+                    <linearGradient id="neonElectricGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#00f2fe" />
+                      <stop offset="50%" stopColor="#ec4899" />
+                      <stop offset="100%" stopColor="#10b981" />
+                    </linearGradient>
+                    <filter id="neonGlow">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                  </defs>
+                  <rect
+                    x="2" y="2" width="calc(100% - 4px)" height="calc(100% - 4px)" rx="16"
+                    fill="none" stroke="url(#neonElectricGrad)" strokeWidth="3" filter="url(#neonGlow)"
+                    className="electric-circuit-surge"
+                  />
+                </svg>
+
+                {/* Topbar com Abas de Vídeos */}
+                <div className="hb-topbar h-7 px-3 bg-black/60 border-b border-cyan-400/30 flex items-center justify-between text-[10px] font-mono text-cyan-300 relative z-10">
+                  <div className="hb-tabs flex items-center gap-2 overflow-x-auto hud-scroll">
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping shrink-0"></span>
+                    {currentChannel.videos.map((vid, vIdx) => (
+                      <button
+                        key={vIdx}
+                        onClick={() => { playHoloSound('click'); setSelectedVideoIdx(vIdx); }}
+                        className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold transition whitespace-nowrap ${
+                          selectedVideoIdx === vIdx ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-400' : 'bg-black/60 text-gray-400'
+                        }`}
+                      >
+                        {vid.label || `VÍDEO ${vIdx + 1}`}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={handleCanalAnterior} className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-[9px]">◀</button>
+                    <span className="text-[9px] text-slate-400 font-mono">{currentIndex + 1}/{channels.length}</span>
+                    <button onClick={handleProximoCanal} className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-[9px]">▶</button>
+                  </div>
+                </div>
+
+                <div className="flex-1 relative overflow-hidden bg-black/50 flex items-center justify-center p-2">
+                  {!isSwapped ? renderMainContent() : (
+                    <div className="w-full h-full max-w-2xl bg-slate-950/90 border border-orange-500/60 rounded-xl p-4">
+                      {renderProductCardContent()}
+                    </div>
+                  )}
+
+                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                </div>
+
+                <div className="h-6 px-4 bg-black/85 border-t border-cyan-400/25 flex items-center justify-between text-[9px] font-mono text-cyan-400/80">
+                  <span>CANAL: #{currentChannel.slug || currentChannel.id}</span>
+                  <span className="text-orange-400 font-hud font-bold">{currentChannel.auraScore}</span>
+                </div>
+              </div>
+
+              {/* MONITOR COMERCIAL COM MULTI-OFERTAS */}
+              {isPipVisible ? (
+                <div 
+                  className={`hb-pip absolute bottom-3 right-3 rounded-2xl bg-black/95 border-2 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.45)] overflow-hidden flex flex-col z-30 transition-all duration-300 ${
+                    isPipExpanded ? 'w-[520px] h-[350px]' : 'w-[420px] h-[270px]'
+                  }`}
+                >
+                  <div className="holo-scanline"></div>
+
+                  <div className="h-7 px-3 bg-gradient-to-r from-orange-950 to-black border-b border-orange-500/40 flex items-center justify-between text-[9px] font-mono text-orange-300">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                      <span className="font-bold font-hud tracking-wider">
+                        {isSwapped ? "TRANSMISSÃO NO MONITOR MENOR" : curAd ? "ANÚNCIOS (" + ((adIdx % ads.length) + 1) + "/" + ads.length + ")" : "OFERTAS DO CANAL (" + chOffers.length + ")"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {curAd && !isSwapped && (
+                        <a
+                          href={adPageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-1.5 py-0.5 rounded bg-black/80 hover:bg-orange-500 hover:text-black border border-orange-500/50 text-[8px] font-bold text-orange-200"
+                        >
+                          📄 ANÚNCIO COMPLETO
+                        </a>
+                      )}
+                      <button 
+                        onClick={() => { playHoloSound('swap'); setIsSwapped(!isSwapped); }}
+                        title="Troca o conteúdo do telão com o do monitor menor"
+                        className="px-1.5 py-0.5 rounded bg-black/80 hover:bg-cyan-500 hover:text-black border border-cyan-500/60 text-[8px] font-bold text-cyan-200"
+                      >
+                        ⇄ ALTERNAR
+                      </button>
+                      <button 
+                        onClick={() => setIsPipExpanded(!isPipExpanded)}
+                        className="hb-expand px-1.5 py-0.5 rounded bg-black/80 hover:bg-orange-500 hover:text-black border border-orange-500/50 text-[8px] font-bold text-orange-200"
+                      >
+                        {isPipExpanded ? "⤡ REDUZIR" : "⤢ EXPANDIR"}
+                      </button>
+
+                      <button 
+                        onClick={closePip}
+                        className="px-1.5 py-0.5 rounded bg-black/80 hover:bg-red-500 hover:text-white border border-red-500/50 text-[8px] font-bold text-red-300"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 p-3 bg-black/60 relative overflow-hidden flex flex-col justify-between">
+                    {isSwapped ? renderMainContent() : renderProductCardContent()}
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsPipVisible(true)}
+                  className="hb-pipbtn absolute bottom-3 right-3 px-4 py-2 rounded-xl bg-orange-950/90 hover:bg-orange-900 border-2 border-orange-500 text-orange-300 font-mono text-[10px] font-bold shadow-[0_0_20px_rgba(249,115,22,0.5)] flex items-center gap-2 z-30 transition-all active:scale-95 animate-pulse"
+                >
+                  <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+                  <span>✦ ABRIR OFERTAS{activeOffer ? " // " + activeOffer.priceCurrent : ""}</span>
+                </button>
+              )}
+            </div>
+
+            {/* COLUNA DIREITA */}
+            <div
+              className={`hb-side shrink-0 flex flex-col justify-between gap-2 overflow-hidden transition-all duration-500 ease-out ${
+                isSidebarOpen ? 'w-80 md:w-[410px] ml-4 opacity-100' : 'w-0 ml-0 opacity-0 pointer-events-none'
+              }`}
+              aria-hidden={!isSidebarOpen}
+            >
+              <div className="bg-black/60 border border-orange-500/30 rounded-xl p-2.5 flex-1 flex flex-col justify-between overflow-hidden min-w-[320px] md:min-w-[410px]">
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-orange-500/20 pb-1 mb-2">
+                    <h3 className="font-hud font-bold text-xs tracking-wider text-orange-400">
+                      CANAIS DA SMARTBOX
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-mono text-gray-400">TOTAL: {channels.length}</span>
+                      <button
+                        onClick={() => { playHoloSound('click'); setIsSidebarOpen(false); }}
+                        title="Esconder canais (C)"
+                        className="px-1.5 py-0.5 rounded bg-slate-900 border border-orange-500/50 hover:border-orange-400 text-orange-300 text-[10px] font-bold"
+                      >
+                        ⟩
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="hb-chgrid grid grid-cols-3 gap-2 content-start flex-1 overflow-y-auto hud-scroll pr-1">
+                    {channels.map((item, idx) => {
+                      const isActive = currentIndex === idx;
+                      const thumb = channelThumb(item);
+                      const nVid = (item.videos || []).length;
+                      const vType = parseOmniLink((item.videos && item.videos[0] && item.videos[0].url) || "").type;
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => selectChannel(idx)}
+                          className={`holo-glass-card rounded-xl p-2 flex flex-col justify-between cursor-pointer ${
+                            isActive ? 'active-hud' : ''
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between text-[8px] font-mono mb-1">
+                              <span className="text-orange-400 font-bold truncate">{item.badge}</span>
+                              <span className="text-yellow-400 font-bold">{nVid} {nVid === 1 ? "item" : "itens"}</span>
+                            </div>
+                            <h4 className="font-hud font-bold text-[9px] text-white leading-tight mb-1 truncate">
+                              {item.title}
+                            </h4>
+                          </div>
+
+                          <div className="w-full h-16 rounded-lg overflow-hidden bg-black/60 border border-orange-500/30 my-1 relative">
+                            {thumb
+                              ? <SafeImage src={thumb} alt={item.title} className="w-full h-full object-cover" />
+                              : <div className="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-slate-900 to-black">{typeIcon(vType)}</div>}
+                          </div>
+
+                          <div className="flex items-center justify-between text-[8px] font-mono text-gray-300 pt-1 border-t border-orange-500/20">
+                            <span className="font-bold text-orange-400">{typeIcon(vType)} {item.badge}</span>
+                            <span className="text-teal-300 font-bold">VER ⚡</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <ChatBox txt={chatTxt} />
+              </div>
+            </div>
+
+            {!isSidebarOpen && (
+              <button
+                onClick={() => { playHoloSound('click'); setIsSidebarOpen(true); }}
+                title="Mostrar canais (C)"
+                className="absolute right-0 top-3 z-40 px-1.5 py-3 rounded-l-xl bg-orange-950/90 hover:bg-orange-900 border border-r-0 border-orange-500 text-orange-300 font-hud font-bold text-[10px] shadow-[0_0_18px_rgba(249,115,22,0.45)] transition active:scale-95"
+                style={{ writingMode: 'vertical-rl' }}
+              >
+                ⟨ CANAIS ({channels.length})
+              </button>
+            )}
+          </main>
+          </>)}
+
+          {/* ========================================================
+              MODAL DRAGÃO ADMIN MASTER & ESTÚDIO MULTI-PÁGINA
+             ======================================================== */}
+
+        </div>
+      );
+    }
+
+    function IntroScreen({ on, status, onRetry }) {
+      const [gone, setGone] = useState(false);
+      useEffect(() => {
+        if (on) { setGone(false); return; }
+        const t = setTimeout(() => setGone(true), 700);
+        return () => clearTimeout(t);
+      }, [on]);
+      if (gone && !on) return null;
+      return (
+            <div className="hb-intro" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 26, overflow: "hidden", opacity: on ? 1 : 0, transition: "opacity 0.6s ease", pointerEvents: on ? "auto" : "none" }}>
+            <div className="hb-intro-grid" />
+            <div className="hb-intro-sweep" />
+            <div className="hb-intro-tv">
+              <div className="hb-intro-screen">
+                <div className="hb-intro-logo font-hud">HB</div>
+                <div className="hb-intro-bars">
+                  {[0, 1, 2, 3, 4, 5, 6].map((i) => <span key={i} style={{ animationDelay: (i * 0.12) + "s" }} />)}
+                </div>
+                <div className="hb-intro-scan" />
+              </div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div className="hb-intro-title font-hud">HOMEM BRUTO</div>
+              {status === "erro" ? (
+                <div>
+                  <div className="hb-intro-sub font-mono" style={{ color: "#FCA5A5" }}>SEM CONEXÃO COM OS CANAIS</div>
+                  <button type="button" onClick={onRetry} className="font-mono" style={{ marginTop: 14, height: 38, padding: "0 18px", borderRadius: 999, border: "1px solid #22D3EE", background: "rgba(34,211,238,0.14)", color: "#A5F3FC", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer" }}>TENTAR DE NOVO</button>
+                </div>
+              ) : <div className="hb-intro-sub font-mono">SINTONIZANDO OS CANAIS<span className="hb-dots"><i>.</i><i>.</i><i>.</i></span></div>}
+            </div>
+            <div className="hb-intro-load"><span /></div>
+          </div>
+      );
+    }
+
+    function App() {
+      const [chData, setChData] = useState(null);
+      const [adsData, setAdsData] = useState([]);
+      const [adsLoading, setAdsLoading] = useState(true);
+      const [chatTxt, setChatTxt] = useState("");
+      const [status, setStatus] = useState("carregando");
+      const [minOk, setMinOk] = useState(false);
+      const [tryN, setTryN] = useState(0);
+      useEffect(() => { const t = setTimeout(() => setMinOk(true), 1800); return () => clearTimeout(t); }, []);
+      useEffect(() => {
+        let off = false;
+        setStatus("carregando");
+        // insiste sozinho: se uma tentativa falhar (rede, servidor, resposta cortada), tenta de novo, sem o visitante precisar de F5
+        const get = async (name, tries) => {
+          for (let i = 0; i < tries; i++) {
+            if (off) return null;
+            try {
+              const r = await fetch(DATA_URL + name + "?v=" + Date.now() + "_" + i, { cache: "no-store" });
+              if (r.ok) return await r.json();
+              console.warn("[TV]", name, "HTTP", r.status, "tentativa", i + 1);
+            } catch (e) {
+              console.warn("[TV]", name, "falhou", e && e.message, "tentativa", i + 1);
+            }
+            await new Promise((res) => setTimeout(res, 1200 * (i + 1)));
+          }
+          return null;
+        };
+        const timer = setTimeout(() => { if (!off) setStatus((st) => (st === "carregando" ? "erro" : st)); }, 15000);
+        // os canais (leve) aparecem primeiro; o catálogo (pesado) entra depois sem travar a TV
+        get("canais.json", 5).then((pc) => {
+          if (off) return;
+          const chs = Array.isArray(pc) ? pc.filter((c) => c && c.id && !String(c.id).startsWith("CAT_")) : [];
+          if (chs.length) { clearTimeout(timer); setChData(chs); setStatus("ok"); }
+          else { clearTimeout(timer); setStatus("erro"); }
+        });
+        setAdsLoading(true);
+        get("catalogo.json", 7).then((pk) => {
+          if (off) return;
+          try { const a = pk ? catalogToAds(pk) : []; if (a.length) setAdsData(a); } catch (e) {}
+          setAdsLoading(false);
+        });
+        // chat (texto simples): se não existir ou falhar, o site segue sem ele
+        (async () => {
+          for (let i = 0; i < 3; i++) {
+            if (off) return;
+            try {
+              const r = await fetch(DATA_URL + "chat.txt?v=" + Date.now() + "_" + i, { cache: "no-store" });
+              if (r.ok) { const t = await r.text(); if (!off) setChatTxt(t); return; }
+              if (r.status === 404) return;
+            } catch (e) {}
+            await new Promise((res) => setTimeout(res, 1200 * (i + 1)));
+          }
+        })();
+        return () => { off = true; clearTimeout(timer); };
+      }, [tryN]);
+      return (
+        <>
+          {chData ? <AppInner initCh={chData} adsPub={adsData} adsLoading={adsLoading} chatTxt={chatTxt} /> : null}
+          <IntroScreen on={!(chData && minOk)} status={status} onRetry={() => setTryN((n) => n + 1)} />
+        </>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
