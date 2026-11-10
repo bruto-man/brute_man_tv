@@ -5,14 +5,19 @@
     "title": "BRUTE_MAN APP II",
     "badge": "YOUTUBE HD",
     "auraScore": "99.9% AURA",
-    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "caseStudy": "TESTE DE APLICATIVO",
     "videos": [
       {
-        "label": "Vídeo 1: Principal",
+        "label": "APP BRUTE_MAN",
         "url": "https://youtu.be/saSNUe_-vXM"
       }
     ],
-    "offers": []
+    "offers": [],
+    "category": "BRUTE_MAN APP",
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
   },
   {
     "id": "CH_1794020269204",
@@ -20,10 +25,10 @@
     "title": "BONNIE TYLER",
     "badge": "YOUTUBE HD",
     "auraScore": "99.9% AURA",
-    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "caseStudy": "ETERNA BONNY TYLER",
     "videos": [
       {
-        "label": "Vídeo 1: Principal",
+        "label": "CANTA MUITO",
         "url": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/lcOxhH8N3Bo?si=m2QM24PyaSjsHLKt\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>"
       }
     ],
@@ -31,7 +36,8 @@
     "adIds": [
       "cacto-dancante",
       "bike-rosa"
-    ]
+    ],
+    "category": "MÚSICA"
   },
   {
     "id": "CH_1794020024653",
