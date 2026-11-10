@@ -805,8 +805,15 @@
         />
       );
 
+      const BLOCKED_HOSTS = ["seaart.ai","instagram.com","facebook.com","fb.com","x.com","twitter.com","linkedin.com","tiktok.com","pinterest.com","mercadolivre.com.br","shopee.com.br","amazon.com.br","amazon.com","aliexpress.com","github.com","netflix.com","openai.com","chatgpt.com","claude.ai","google.com","whatsapp.com","wa.me","t.me","discord.com","reddit.com"];
+      const isBlockedSite = (it) => {
+        if (!it) return false;
+        if (it.externo) return true;
+        try { const h = new URL(it.url).hostname.replace(/^www\./, ""); return BLOCKED_HOSTS.some((b) => h === b || h.endsWith("." + b)); } catch (e) { return false; }
+      };
+
       const thumbBox = (it) => {
-        const t = itemThumb(it.url);
+        const t = (it.capa && it.capa.trim()) || itemThumb(it.url);
         const ty = parseOmniLink(it.url || "").type;
         return t
           ? <SafeImage src={t} alt={it.label} className="w-full h-full object-cover" />
@@ -815,6 +822,13 @@
               {ty !== "PDF" && (() => { try { return <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8", wordBreak: "break-all" }}>{new URL(it.url).hostname.replace(/^www\./, "")}</span>; } catch (e) { return null; } })()}
             </div>;
       };
+
+      const capTitle = (label, kindTxt) => (
+        <div style={{ padding: "8px 4px 0" }}>
+          <div className="font-hud font-bold" style={{ fontSize: 13, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>{label}</div>
+          {kindTxt ? <div className="font-mono" style={{ fontSize: 9, color: "#94A3B8", letterSpacing: "0.08em", marginTop: 3 }}>{kindTxt}</div> : null}
+        </div>
+      );
 
       const tag = (txt, orange) => (
         <span className="font-mono" style={{ position: "absolute", top: 8, left: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", background: orange ? "#F97316" : "rgba(3,6,12,0.85)", color: orange ? "#1A0A00" : "#67E8F9", border: orange ? "0" : "1px solid rgba(34,211,238,0.35)", zIndex: 2 }}>{txt}</span>
@@ -980,24 +994,25 @@
                 {rows.map((r, ri) => {
                   if (r.t === "wide") {
                     return (
-                      <button key={"w" + ri} type="button" onClick={() => openItem(chIdx, r.it.i)}
+                      <div key={"w" + ri}>
+                      <button type="button" onClick={() => openItem(chIdx, r.it.i)}
                         style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                         {thumbBox(r.it)}
                         {tag("VÍDEO · 16:9")}
-                        <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "22px 12px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.85))", color: "#fff", fontSize: 12 }}>{r.it.label}</div>
                       </button>
+                      {capTitle(r.it.label, "VÍDEO")}
+                      </div>
                     );
                   }
                   if (r.t === "ads") {
                     return (
                       <div key={"a" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
                         {r.list.map((e) => e.it ? (
-                          <button key={"i" + e.it.i} type="button" onClick={() => openItem(chIdx, e.it.i)}
+                          <div key={"i" + e.it.i}><button type="button" onClick={() => openItem(chIdx, e.it.i)}
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                             {thumbBox(e.it)}
                             {tag(KIND_LABEL[e.it.kind])}
-                            <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 11, textTransform: "uppercase" }}>{e.it.label}</div>
-                          </button>
+                            </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind])}</div>
                         ) : ((a) => (
                           <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
@@ -1014,23 +1029,24 @@
                   }
                   if (r.t === "sq") {
                     return (
-                      <button key={"s" + ri} type="button" onClick={() => openItem(chIdx, r.it.i)}
+                      <div key={"s" + ri}>
+                      <button type="button" onClick={() => openItem(chIdx, r.it.i)}
                         style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                         {thumbBox(r.it)}
                         {tag("SITE · 1:1")}
-                        <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 12px 12px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 13, textTransform: "uppercase" }}>{r.it.label}</div>
                       </button>
+                      {capTitle(r.it.label, "SITE")}
+                      </div>
                     );
                   }
                   return (
                     <div key={"t" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
                       {r.list.map((e) => e.it).map((it) => (
-                        <button key={it.i} type="button" onClick={() => openItem(chIdx, it.i)}
+                        <div key={it.i}><button type="button" onClick={() => openItem(chIdx, it.i)}
                           style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                           {thumbBox(it)}
                           {tag(KIND_LABEL[it.kind])}
-                          <div className="font-hud font-bold" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))", color: "#fff", fontSize: 11, textTransform: "uppercase" }}>{it.label}</div>
-                        </button>
+                          </button>{capTitle(it.label, KIND_LABEL[it.kind])}</div>
                       ))}
                     </div>
                   );
@@ -1110,9 +1126,25 @@
           return (
             <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
               {subHeader(ch.title, sub, () => up("feed"), "cyan")}
-              <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden" }}>
-                {player(item)}
-              </div>
+              {kind === "site" && isBlockedSite(item) ? (
+                <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>{thumbBox(item)}</div>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(3,6,12,0.2), rgba(3,6,12,0.88))" }}></div>
+                  <div style={{ position: "relative", textAlign: "center", padding: 20 }}>
+                    <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", marginBottom: 12 }}>ESTE SITE NÃO ABRE DENTRO DA TV</div>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-hud font-bold"
+                      style={{ display: "inline-block", padding: "16px 28px", borderRadius: 14, background: "#F97316", color: "#1A0A00", fontSize: 18, letterSpacing: "0.08em", textDecoration: "none", boxShadow: "0 0 24px rgba(249,115,22,0.5)" }}>ABRIR SITE ↗</a>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden" }}>
+                  {player(item)}
+                </div>
+              )}
+              {kind === "site" && !isBlockedSite(item) && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-mono"
+                  style={{ display: "block", padding: "8px 12px", background: "#07101D", color: "#67E8F9", fontSize: 11, letterSpacing: "0.08em", textAlign: "center", textDecoration: "none", borderTop: "1px solid rgba(34,211,238,0.2)" }}>NÃO CARREGOU? ABRIR EM NOVA ABA ↗</a>
+              )}
               <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
                 <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
                 <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", margin: "4px 0 10px" }}>{KIND_LABEL[kind]} · TELA CHEIA</div>
