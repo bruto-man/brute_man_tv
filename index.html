@@ -537,6 +537,7 @@
         return {
           id: "AD_" + p.id,
           title: p.n,
+          wa,
           media,
           offer: {
             title: p.n,
@@ -649,6 +650,9 @@
     function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin }) {
       const [view, setView] = useState("mix");
       const [itemBack, setItemBack] = useState("feed");
+      const [drawerOpen, setDrawerOpen] = useState(false);
+      const [toast, setToast] = useState("");
+      const pendingRef = useRef(null);
       const [mixFilter, setMixFilter] = useState("all");
       const [chIdx, setChIdx] = useState(0);
       const [itemIdx, setItemIdx] = useState(0);
@@ -758,7 +762,9 @@
           const v = st && st.tv ? st.tv : "mix";
           stackRef.current = stackRef.current.slice(0, n);
           stackRef.current[n] = v;
-          setView(v); setFlagOpen(false); toTop();
+          if (v === "drawer") { try { window.history.back(); } catch (e2) {} return; }
+          setView(v); setFlagOpen(false); setDrawerOpen(false); toTop();
+          if (pendingRef.current) { const f = pendingRef.current; pendingRef.current = null; setTimeout(f, 0); }
         };
         window.addEventListener("popstate", onPop);
         return () => window.removeEventListener("popstate", onPop);
@@ -796,6 +802,31 @@
       const openChannel = (ci) => { playHoloSound("swap"); setChIdx(ci); setItemIdx(0); setFilter("all"); navPush("feed"); toTop(); };
       const openItem = (ci, ii, from) => { playHoloSound("swap"); setItemBack(from || "feed"); setChIdx(ci); setItemIdx(ii); setRotated(false); navPush("viewer"); toTop(); };
       const openAd = (id, back) => { playHoloSound("swap"); setSelAdId(id); setAdBack(back); setAdMedia(0); navPush("ad"); toTop(); };
+      const openDrawer = () => {
+        playHoloSound("click"); setFlagOpen(false);
+        const st = stackRef.current;
+        st.push("drawer");
+        try { window.history.pushState({ tv: "drawer", n: st.length - 1 }, ""); } catch (e) {}
+        setDrawerOpen(true);
+      };
+      const closeDrawer = (cb) => {
+        setDrawerOpen(false);
+        const st = stackRef.current;
+        if (st[st.length - 1] === "drawer") {
+          pendingRef.current = cb || null;
+          try { window.history.back(); return; } catch (e) {}
+          pendingRef.current = null;
+        }
+        if (cb) cb();
+      };
+      const showToast = (t) => { setToast(t); setTimeout(() => setToast(""), 2200); };
+      const shareSite = () => {
+        const url = String(window.location.href).split("#")[0];
+        if (navigator.share) { navigator.share({ title: "Homem Bruto TV", url }).catch(() => {}); return; }
+        try { navigator.clipboard.writeText(url).then(() => showToast("LINK COPIADO")); } catch (e) { showToast(url); }
+      };
+      const waNum = (ads.find((a) => a.wa) || {}).wa || "";
+
       const onFail = () => {
         if (!autoPlay) return;
         clearTimeout(failRef.current);
@@ -821,13 +852,21 @@
         </button>
       );
 
-      const subHeader = (title, sub, onBack, tone) => (
+      const autoBtn = (
+        <button type="button" aria-label={autoPlay ? "Autoplay ligado" : "Autoplay desligado"} title="Autoplay" onClick={() => setAutoPlay(!autoPlay)}
+          style={{ flex: "0 0 auto", height: 36, padding: "0 10px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6, cursor: "pointer", ...(autoPlay ? tones.cyan : tones.off) }}>
+          <Ico size={16}><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></Ico>
+          <span className="font-mono" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em" }}>{autoPlay ? "AUTO ON" : "AUTO OFF"}</span>
+        </button>
+      );
+      const subHeader = (title, sub, onBack, tone, right) => (
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#050A14", borderBottom: "1px solid rgba(34,211,238,0.2)", position: "sticky", top: 0, zIndex: 20 }}>
           {backBtn(onBack, tone)}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div className="font-hud font-bold" style={{ fontSize: 14, color: "#FB923C", letterSpacing: "0.04em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
             <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>
           </div>
+          {right || null}
         </div>
       );
 
@@ -887,37 +926,65 @@
       const subtitle = view === "mix" ? "SHOPEE TV · FEED" : view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
       const topBar = (
         <div style={{ position: "relative" }}>
-          <div style={{ padding: "10px 12px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, height: 44 }}>
-              <div className="font-hud font-bold" style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
-              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <div className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
-                <div className="font-mono" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "#67E8F9", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22D3EE", display: "inline-block" }}></span>
-                  <span>{subtitle}</span>
-                </div>
-              </div>
-              <button type="button" aria-label="Atalhos da Claudinha" aria-expanded={flagOpen} title="Claudinha"
-                onClick={() => { playHoloSound("click"); setFlagOpen(!flagOpen); }}
-                style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #A78BFA", background: "rgba(167,139,250,0.16)", color: "#C4B5FD", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                <Ico size={22}><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"></path></Ico>
-              </button>
+          <div style={{ padding: "14px 10px 16px", background: "linear-gradient(180deg, #0A1628 0%, #07101D 100%)", borderBottom: "1px solid rgba(34,211,238,0.32)", boxShadow: "0 6px 18px rgba(0,0,0,0.45)", display: "flex", alignItems: "center", gap: 8 }}>
+            <button type="button" aria-label="Menu" onClick={openDrawer}
+              style={{ flex: "0 0 46px", width: 46, height: 46, padding: 0, borderRadius: 14, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <Ico size={22}><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></Ico>
+            </button>
+            <div className="font-hud font-bold" style={{ flex: "0 0 46px", width: 46, height: 46, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="font-hud font-bold" style={{ fontSize: "clamp(13px, 4.2vw, 17px)", color: "#FB923C", letterSpacing: "0.05em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.15 }}>HOMEM BRUTO</div>
+              <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.1em", lineHeight: 1.4, marginTop: 2 }}>PRODUTOS RAIZ · PARA ELES &amp; ELAS</div>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              {barBtn(autoPlay ? "Autoplay ligado" : "Autoplay desligado", autoPlay ? "on" : "off", () => setAutoPlay(!autoPlay),
-                <Ico><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></Ico>)}
-              {barBtn(isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)", isMuted ? "off" : "on", () => { playHoloSound("click"); setIsMuted(!isMuted); },
-                isMuted
-                  ? <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
-                  : <Ico><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>)}
-              {barBtn("Ofertas", view === "offers" ? "on" : "off", () => go("offers"),
-                <Ico><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>)}
-            </div>
+            <button type="button" aria-label={isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)"} onClick={() => { playHoloSound("click"); setIsMuted(!isMuted); }}
+              style={{ flex: "0 0 46px", width: 46, height: 46, padding: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...(isMuted ? tones.off : tones.on) }}>
+              {isMuted
+                ? <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
+                : <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>}
+            </button>
           </div>
+          {drawerOpen && (
+            <>
+              <div onClick={() => closeDrawer()} style={{ position: "fixed", top: 0, bottom: 0, left: 52, right: 0, zIndex: 60, background: "rgba(0,0,0,0.55)" }}></div>
+              <nav aria-label="Menu" style={{ position: "fixed", top: 0, bottom: 0, left: 0, width: 52, zIndex: 61, background: "rgba(5,10,20,0.97)", borderRight: "1px solid rgba(34,211,238,0.28)", boxShadow: "6px 0 24px rgba(0,0,0,0.5)", display: "flex", flexDirection: "column", alignItems: "stretch", padding: "12px 0", overflowY: "auto" }}>
+                {(() => {
+                  const it = (key, label, icon, onClick, on, orange, sub, href) => {
+                    const col = on ? "#22D3EE" : orange ? "#FB923C" : "#94A3B8";
+                    const inner = (
+                      <>
+                        {on ? <span style={{ position: "absolute", left: 0, top: 4, bottom: 4, width: 2, borderRadius: 2, background: "#22D3EE" }}></span> : null}
+                        <Ico size={22}>{icon}</Ico>
+                        <span className="font-mono" style={{ fontSize: 7, fontWeight: 800, letterSpacing: "0.03em", color: on ? "#A5F3FC" : orange ? "#FDBA74" : "#CBD5E1" }}>{label}</span>
+                        {sub ? <span className="font-mono" style={{ fontSize: 6, fontWeight: 800, color: sub === "ON" ? "#22D3EE" : "#64748B" }}>{sub}</span> : null}
+                      </>
+                    );
+                    const st = { position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "9px 0", background: "transparent", border: 0, color: col, cursor: "pointer", textDecoration: "none" };
+                    return href
+                      ? <a key={key} href={href} target="_blank" rel="noopener noreferrer" onClick={() => closeDrawer()} style={st}>{inner}</a>
+                      : <button key={key} type="button" onClick={onClick} style={st}>{inner}</button>;
+                  };
+                  return (
+                    <>
+                      {it("feed", "FEED", <><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></>, () => closeDrawer(() => go("mix")), view === "mix")}
+                      {it("canais", "CANAIS", <><rect x="2" y="7" width="20" height="14" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></>, () => closeDrawer(() => go("home")), view === "home" || view === "feed")}
+                      {it("ofertas", "OFERTAS", <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></>, () => closeDrawer(() => go("offers")), view === "offers", true)}
+                      <div style={{ borderTop: "1px solid rgba(148,163,184,0.25)", margin: "4px 10px" }}></div>
+                      {it("som", "SOM", <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></>, () => { playHoloSound("click"); setIsMuted(!isMuted); }, false, false, isMuted ? "OFF" : "ON")}
+                      {it("auto", "AUTOPLAY", <><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></>, () => setAutoPlay(!autoPlay), false, false, autoPlay ? "ON" : "OFF")}
+                      {it("cla", "CLAUDIA", <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"></path></>, () => closeDrawer(() => setFlagOpen(true)))}
+                      {waNum ? it("wa", "WHATS", <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l1.9-5.4A8.5 8.5 0 1 1 21 11.5z"></path>, null, false, false, "", "https://wa.me/" + waNum + "?text=" + encodeURIComponent("Olá! Vim pela TV Homem Bruto.")) : null}
+                      {it("env", "ENVIAR", <><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="8 7 17 7 17 16"></polyline></>, () => { shareSite(); closeDrawer(); })}
+                    </>
+                  );
+                })()}
+              </nav>
+            </>
+          )}
+          {toast ? <div className="font-mono" style={{ position: "fixed", left: "50%", bottom: 40, transform: "translateX(-50%)", zIndex: 80, padding: "10px 16px", borderRadius: 999, background: "#0B1626", border: "1px solid #22D3EE", color: "#A5F3FC", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em" }}>{toast}</div> : null}
           {flagOpen && (
             <>
               <div onClick={() => setFlagOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }}></div>
-              <div role="menu" style={{ position: "absolute", top: 66, right: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
+              <div role="menu" style={{ position: "absolute", top: 80, left: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
                 <div className="font-mono" style={{ padding: "4px 6px 8px", fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>CLAUDINHA · EM CONSTRUÇÃO</div>
                 {["Pauta do dia", "Radar de tendências", "Diário", "Fechar o dia"].map((label) => (
                   <button key={label} type="button" role="menuitem" disabled
@@ -935,16 +1002,16 @@
       // ---------- ABAS FIXAS NO TOPO: FEED | CANAIS | OFERTAS ----------
       const mainTab = (label, id, on, orange) => (
         <button type="button" onClick={() => go(id)} className="font-mono"
-          style={{ flex: "1 1 0", maxWidth: 130, height: 38, padding: 0, borderRadius: 999, fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
+          style={{ flex: "0 1 auto", minWidth: 84, maxWidth: 150, height: 26, padding: "0 14px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
             border: on ? (orange ? "1px solid #FB923C" : "1px solid #22D3EE") : "1px solid rgba(148,163,184,0.35)",
             background: on ? (orange ? "rgba(249,115,22,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626",
             color: on ? (orange ? "#FDBA74" : "#A5F3FC") : "#94A3B8" }}>{label}</button>
       );
       const tabsBar = (
-        <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(5,10,20,0.96)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "8px 12px", display: "flex", justifyContent: "center", gap: 8 }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 30, marginTop: 8, background: "rgba(5,10,20,0.96)", borderTop: "1px solid rgba(34,211,238,0.12)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "5px 12px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
           {mainTab("FEED", "mix", view === "mix", false)}
           {mainTab("CANAIS", "home", view === "home" || view === "feed", false)}
-          {mainTab("OFERTAS", "offers", view === "offers", true)}
+          {mainTab(<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Ico size={14}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>OFERTAS{ads.length ? <span style={{ background: "#F97316", color: "#1A0A00", borderRadius: 999, padding: "1px 6px", fontSize: 10 }}>{ads.length}</span> : null}</span>, "offers", view === "offers", true)}
         </div>
       );
 
@@ -982,7 +1049,7 @@
           const on = mixFilter === id;
           return (
             <button key={id} type="button" onClick={onClick || (() => { setMixFilter(id); toTop(); })} className="font-mono"
-              style={{ flex: "0 0 auto", height: 34, padding: "0 14px", borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer",
+              style={{ flex: "0 0 auto", height: 24, padding: "0 12px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer",
                 border: on ? "1px solid #22D3EE" : (orange ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"),
                 background: on ? "rgba(34,211,238,0.16)" : "#0B1626", color: on ? "#A5F3FC" : (orange ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
           );
@@ -1014,7 +1081,7 @@
             {topBar}
             {tabsBar}
             <div style={{ padding: "12px 12px 0" }}>
-              <div className="hud-scroll" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+              <div className="hud-scroll" style={{ display: "flex", gap: 8, justifyContent: "safe center", overflowX: "auto", paddingBottom: 4 }}>
                 {chipMix("all", "TUDO")}
                 {kindsPresent.map((k) => chipMix(k, KIND_TAB[k]))}
                 {ads.length ? chipMix("ofertas", "OFERTAS", true, () => go("offers")) : null}
@@ -1116,7 +1183,7 @@
           const on = filter === id;
           return (
             <button key={id} type="button" onClick={() => setFilter(id)} className="font-mono"
-              style={{ flex: "0 0 auto", height: 36, padding: "0 14px", borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: on ? (of ? "1px solid #FB923C" : "1px solid #22D3EE") : (of ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"), background: on ? (of ? "rgba(251,146,60,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626", color: on ? (of ? "#FED7AA" : "#A5F3FC") : (of ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
+              style={{ flex: "0 0 auto", height: 24, padding: "0 12px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: on ? (of ? "1px solid #FB923C" : "1px solid #22D3EE") : (of ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"), background: on ? (of ? "rgba(251,146,60,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626", color: on ? (of ? "#FED7AA" : "#A5F3FC") : (of ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
           );
         };
         return (
@@ -1132,7 +1199,7 @@
                 </div>
               </div>
               {chDesc(ch) ? <div style={{ fontSize: 12, lineHeight: 1.45, color: "#CBD5E1", marginTop: 12, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{chDesc(ch)}</div> : null}
-              <div className="hud-scroll" style={{ display: "flex", gap: 8, marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
+              <div className="hud-scroll" style={{ display: "flex", gap: 8, justifyContent: "safe center", marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
                 {tabBtn("all", "TUDO")}
                 {kinds.map((k) => tabBtn(k, KIND_TAB[k]))}
                 {adsAll.length ? tabBtn("ofertas", "OFERTAS") : null}
@@ -1238,7 +1305,7 @@
         if (wideView) {
           return (
             <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
-              {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
+              {subHeader(ch.title, sub, () => up(itemBack), "cyan", autoBtn)}
               <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#000" }}>
                 {player(item)}
                 <button type="button" aria-label="Girar para paisagem" onClick={() => { setRotated(true); }}
@@ -1273,7 +1340,7 @@
         if (kind === "site" || kind === "pdf") {
           return (
             <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-              {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
+              {subHeader(ch.title, sub, () => up(itemBack), "cyan", autoBtn)}
               {kind === "site" && isBlockedSite(item) ? (
                 <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>{thumbBox(item)}</div>
@@ -1313,7 +1380,7 @@
               touchY.current = null;
               if (dy > 70) advance(1); else if (dy < -70) advance(-1);
             }}>
-            {subHeader(ch.title, sub, () => up(itemBack), "cyan")}
+            {subHeader(ch.title, sub, () => up(itemBack), "cyan", autoBtn)}
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 0", background: "#000" }}>
               <div style={{ position: "relative", height: "calc(100dvh - 235px)", minHeight: 320, aspectRatio: "9 / 16", maxWidth: "100%", overflow: "hidden", background: "#000" }}>
                 {player(item)}
