@@ -1,11 +1,30 @@
 [
   {
+    "id": "CH_1794002601168",
+    "slug": "as-g-meas",
+    "title": "AS GÊMEAS",
+    "badge": "SHORTS VERTICAL",
+    "auraScore": "99.9% AURA",
+    "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
+    "videos": [
+      {
+        "label": "LALÁ NA BAGUNÇA",
+        "url": "https://youtube.com/shorts/Dv7tHojScfM?si=NvIOaM9Jjrq-AY_l"
+      },
+      {
+        "label": "AVENTURAS",
+        "url": "https://youtube.com/shorts/-BHBKqcVTs8?si=RjwsRr6Wxv46ri4Z"
+      }
+    ],
+    "offers": []
+  },
+  {
     "id": "CH_1794279042804",
     "slug": "brute-man-app-ii",
     "title": "BRUTE_MAN APP II",
     "badge": "YOUTUBE HD",
     "auraScore": "99.9% AURA",
-    "caseStudy": "TESTE DE APLICATIVO",
+    "caseStudy": "TESTE DE APLICATIVO BRUTE MAN TV",
     "videos": [
       {
         "label": "APP BRUTE_MAN",
