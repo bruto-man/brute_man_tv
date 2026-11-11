@@ -99,7 +99,8 @@
       },
       {
         "label": "SEEART",
-        "url": "https://www.seaart.ai/pt/"
+        "url": "https://www.seaart.ai/pt/",
+        "capa": "seeart.jpg"
       },
       {
         "label": "BRUTE_MAN_APP",
@@ -122,12 +123,6 @@
     "caseStudy": "Postagens recados do Rodrigo e da Cláudia.",
     "category": "POSTAGENS",
     "videos": [
-      {
-        "label": "O VIDEO BLUES DO CANAL 01 É MUITO BOM....",
-        "url": "https://youtube.com/shorts/hoDy5VAcfoM?si=zVY9INsncP5F2QYz",
-        "desc": "O VIDEO BLUES DO CANAL 01 É MUITO BOM....",
-        "data": "2026-11-11T07:35:00.000Z"
-      },
       {
         "label": "Um guerreiro não abandona a sentinela",
         "url": "https://youtu.be/Ne7_TDFzsW4?si=RIbSX9VH2fWhTKFh",
