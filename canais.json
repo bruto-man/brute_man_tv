@@ -112,5 +112,24 @@
       "cacto-dancante",
       "bike-rosa"
     ]
+  },
+  {
+    "id": "CH_POST_RECADOS",
+    "slug": "postagens-recados",
+    "title": "RECADOS",
+    "badge": "POSTAGENS",
+    "auraScore": "",
+    "caseStudy": "Postagens recados do Rodrigo e da Cláudia.",
+    "category": "POSTAGENS",
+    "videos": [
+      {
+        "label": "Um guerreiro não abandona a sentinela",
+        "url": "https://youtu.be/Ne7_TDFzsW4?si=RIbSX9VH2fWhTKFh",
+        "desc": "O ruído grave do isqueiro de latão estalando na penumbra da mesa de mogno. A fumaça azulada de um charuto cubano sobe em espiral lenta diante da luz âmbar dos monitores. O gigante careca ergue o copo de uísque âmbar e a singular cicatriz na sobrancelha esquerda.",
+        "data": "2026-11-11T06:45:00.000Z"
+      }
+    ],
+    "offers": [],
+    "adIds": []
   }
 ]
