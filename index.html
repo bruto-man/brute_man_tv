@@ -647,7 +647,7 @@
       );
     }
 
-    function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin }) {
+    function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin, chatTxt }) {
       const [view, setView] = useState("mix");
       const [itemBack, setItemBack] = useState("feed");
       const [drawerOpen, setDrawerOpen] = useState(false);
@@ -666,6 +666,7 @@
       const advRef = useRef(null);
       const failRef = useRef(null);
       const touchY = useRef(null);
+      useEffect(() => { if (view === "sala") { setTimeout(() => { try { window.scrollTo(0, document.documentElement.scrollHeight); } catch (e) {} }, 60); } }, [view]);
 
       useEffect(() => {
         if (chIdx >= channels.length) { setChIdx(0); setItemIdx(0); }
@@ -926,18 +927,18 @@
       const subtitle = view === "mix" ? "SHOPEE TV · FEED" : view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
       const topBar = (
         <div style={{ position: "relative" }}>
-          <div style={{ padding: "14px 10px 16px", background: "linear-gradient(180deg, #0A1628 0%, #07101D 100%)", borderBottom: "1px solid rgba(34,211,238,0.32)", boxShadow: "0 6px 18px rgba(0,0,0,0.45)", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ padding: "16px 12px 14px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", boxShadow: "0 8px 18px rgba(0,0,0,0.35)", display: "flex", alignItems: "center", gap: 10 }}>
             <button type="button" aria-label="Menu" onClick={openDrawer}
-              style={{ flex: "0 0 46px", width: 46, height: 46, padding: 0, borderRadius: 14, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-              <Ico size={22}><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></Ico>
+              style={{ flex: "0 0 50px", width: 50, height: 50, padding: 0, borderRadius: 14, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <Ico size={24}><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></Ico>
             </button>
-            <div className="font-hud font-bold" style={{ flex: "0 0 46px", width: 46, height: 46, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
+            <div className="font-hud font-bold" style={{ flex: "0 0 50px", width: 50, height: 50, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="font-hud font-bold" style={{ fontSize: "clamp(13px, 4.2vw, 17px)", color: "#FB923C", letterSpacing: "0.05em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.15 }}>HOMEM BRUTO</div>
-              <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.1em", lineHeight: 1.4, marginTop: 2 }}>PRODUTOS RAIZ · PARA ELES &amp; ELAS</div>
+              <div className="font-hud font-bold" style={{ fontSize: 19, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
+              <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.1em", lineHeight: 1.35, marginTop: 2 }}>PRODUTOS RAIZ · PARA ELES &amp; ELAS</div>
             </div>
             <button type="button" aria-label={isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)"} onClick={() => { playHoloSound("click"); setIsMuted(!isMuted); }}
-              style={{ flex: "0 0 46px", width: 46, height: 46, padding: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...(isMuted ? tones.off : tones.on) }}>
+              style={{ flex: "0 0 50px", width: 50, height: 50, padding: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...(isMuted ? tones.off : tones.on) }}>
               {isMuted
                 ? <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
                 : <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>}
@@ -968,6 +969,7 @@
                       {it("feed", "FEED", <><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></>, () => closeDrawer(() => go("mix")), view === "mix")}
                       {it("canais", "CANAIS", <><rect x="2" y="7" width="20" height="14" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></>, () => closeDrawer(() => go("home")), view === "home" || view === "feed")}
                       {it("ofertas", "OFERTAS", <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></>, () => closeDrawer(() => go("offers")), view === "offers", true)}
+                      {it("sala", "SALA", <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></>, () => closeDrawer(() => go("sala")), view === "sala")}
                       <div style={{ borderTop: "1px solid rgba(148,163,184,0.25)", margin: "4px 10px" }}></div>
                       {it("som", "SOM", <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></>, () => { playHoloSound("click"); setIsMuted(!isMuted); }, false, false, isMuted ? "OFF" : "ON")}
                       {it("auto", "AUTOPLAY", <><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></>, () => setAutoPlay(!autoPlay), false, false, autoPlay ? "ON" : "OFF")}
@@ -984,7 +986,7 @@
           {flagOpen && (
             <>
               <div onClick={() => setFlagOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }}></div>
-              <div role="menu" style={{ position: "absolute", top: 80, left: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
+              <div role="menu" style={{ position: "absolute", top: 66, left: 12, width: 284, maxWidth: "calc(100% - 24px)", padding: 10, borderRadius: 16, border: "1px solid rgba(167,139,250,0.5)", background: "#0B1626", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", display: "flex", flexDirection: "column", gap: 4, zIndex: 50 }}>
                 <div className="font-mono" style={{ padding: "4px 6px 8px", fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>CLAUDINHA · EM CONSTRUÇÃO</div>
                 {["Pauta do dia", "Radar de tendências", "Diário", "Fechar o dia"].map((label) => (
                   <button key={label} type="button" role="menuitem" disabled
@@ -1002,13 +1004,13 @@
       // ---------- ABAS FIXAS NO TOPO: FEED | CANAIS | OFERTAS ----------
       const mainTab = (label, id, on, orange) => (
         <button type="button" onClick={() => go(id)} className="font-mono"
-          style={{ flex: "0 1 auto", minWidth: 84, maxWidth: 150, height: 26, padding: "0 14px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
+          style={{ flex: "1 1 0", maxWidth: 150, height: 30, padding: 0, borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
             border: on ? (orange ? "1px solid #FB923C" : "1px solid #22D3EE") : "1px solid rgba(148,163,184,0.35)",
             background: on ? (orange ? "rgba(249,115,22,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626",
             color: on ? (orange ? "#FDBA74" : "#A5F3FC") : "#94A3B8" }}>{label}</button>
       );
       const tabsBar = (
-        <div style={{ position: "sticky", top: 0, zIndex: 30, marginTop: 8, background: "rgba(5,10,20,0.96)", borderTop: "1px solid rgba(34,211,238,0.12)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "5px 12px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 30, marginTop: 8, background: "rgba(5,10,20,0.96)", borderTop: "1px solid rgba(34,211,238,0.22)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "6px 12px", display: "flex", justifyContent: "center", gap: 8 }}>
           {mainTab("FEED", "mix", view === "mix", false)}
           {mainTab("CANAIS", "home", view === "home" || view === "feed", false)}
           {mainTab(<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Ico size={14}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>OFERTAS{ads.length ? <span style={{ background: "#F97316", color: "#1A0A00", borderRadius: 999, padding: "1px 6px", fontSize: 10 }}>{ads.length}</span> : null}</span>, "offers", view === "offers", true)}
@@ -1049,7 +1051,7 @@
           const on = mixFilter === id;
           return (
             <button key={id} type="button" onClick={onClick || (() => { setMixFilter(id); toTop(); })} className="font-mono"
-              style={{ flex: "0 0 auto", height: 24, padding: "0 12px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer",
+              style={{ flex: "0 0 auto", height: 28, padding: "0 13px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer",
                 border: on ? "1px solid #22D3EE" : (orange ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"),
                 background: on ? "rgba(34,211,238,0.16)" : "#0B1626", color: on ? "#A5F3FC" : (orange ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
           );
@@ -1081,10 +1083,12 @@
             {topBar}
             {tabsBar}
             <div style={{ padding: "12px 12px 0" }}>
-              <div className="hud-scroll" style={{ display: "flex", gap: 8, justifyContent: "safe center", overflowX: "auto", paddingBottom: 4 }}>
+              <div className="hud-scroll" style={{ display: "flex", overflowX: "auto", paddingBottom: 4 }}>
+               <div style={{ display: "flex", gap: 8, margin: "0 auto" }}>
                 {chipMix("all", "TUDO")}
                 {kindsPresent.map((k) => chipMix(k, KIND_TAB[k]))}
                 {ads.length ? chipMix("ofertas", "OFERTAS", true, () => go("offers")) : null}
+               </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
                 {rows.map((r, ri) => {
@@ -1098,6 +1102,48 @@
                 })}
                 {!rows.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>Nada por aqui ainda.</p>}
               </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------- NOSSA SALA (Rodrigo & Cláudia; leitura) ----------
+      if (view === "sala") {
+        const msgs = parseChat(chatTxt);
+        const isCla = (w) => /cl[aá]ud/i.test(w || "");
+        const linkify = (t) => String(t).split(/(https?:\/\/[^\s]+)/g).map((p, i) => /^https?:\/\//.test(p)
+          ? <a key={i} href={p} target="_blank" rel="noopener noreferrer" style={{ color: "#67E8F9", textDecoration: "underline", wordBreak: "break-all" }}>{p}</a>
+          : <span key={i}>{p}</span>);
+        let lastDay = "";
+        const last = msgs.length ? msgs[msgs.length - 1] : null;
+        return (
+          <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+            {subHeader("NOSSA SALA", "RODRIGO & CLÁUDIA · " + msgs.length + (msgs.length === 1 ? " MENSAGEM" : " MENSAGENS"), () => { if (stackRef.current.length > 1) { try { window.history.back(); return; } catch (e) {} } navReplace("mix"); }, "orange")}
+            <div style={{ padding: "14px 12px 0" }}>
+              <div style={{ border: "1px solid rgba(249,115,22,0.35)", background: "rgba(249,115,22,0.07)", borderRadius: 14, padding: "10px 12px" }}>
+                <div className="font-hud font-bold" style={{ fontSize: 12, color: "#FB923C", letterSpacing: "0.06em" }}>BEM-VINDO À NOSSA SALA</div>
+                <div style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.45, marginTop: 4 }}>Aqui o Rodrigo e a Cláudia conversam sobre a TV. Só nós dois escrevemos; você acompanha tudo por aqui.</div>
+              </div>
+            </div>
+            <div style={{ flex: 1, padding: "12px 12px 28px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {!msgs.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>A sala ainda está vazia.</p>}
+              {msgs.map((m, i) => {
+                const cla = isCla(m.who);
+                const day = (m.when || "").split(" ")[0];
+                const hour = (m.when || "").split(" ")[1] || "";
+                const sep = day && day !== lastDay;
+                if (day) lastDay = day;
+                return (
+                  <React.Fragment key={i}>
+                    {sep ? <div className="font-mono" style={{ alignSelf: "center", fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", padding: "6px 10px", border: "1px solid rgba(148,163,184,0.25)", borderRadius: 999, marginTop: 6 }}>{day}</div> : null}
+                    <div style={{ alignSelf: cla ? "flex-start" : "flex-end", maxWidth: "86%", display: "flex", flexDirection: "column", alignItems: cla ? "flex-start" : "flex-end" }}>
+                      <div className="font-mono" style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: cla ? "#C4B5FD" : "#FDBA74", marginBottom: 3 }}>{(m.who || (cla ? "CLÁUDIA" : "RODRIGO")).toUpperCase()}{hour ? " · " + hour : ""}</div>
+                      <div style={{ padding: "9px 12px", borderRadius: cla ? "4px 16px 16px 16px" : "16px 4px 16px 16px", background: cla ? "rgba(167,139,250,0.14)" : "rgba(249,115,22,0.16)", border: "1px solid " + (cla ? "rgba(167,139,250,0.45)" : "rgba(249,115,22,0.5)"), color: "#F1F5F9", fontSize: 14, lineHeight: 1.4, overflowWrap: "anywhere" }}>{linkify(m.text)}</div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+              {last && last.when ? <div className="font-mono" style={{ alignSelf: "center", fontSize: 9, color: "#64748B", letterSpacing: "0.1em", marginTop: 10 }}>ÚLTIMA ATUALIZAÇÃO · {last.when}</div> : null}
             </div>
           </div>
         );
@@ -1183,7 +1229,7 @@
           const on = filter === id;
           return (
             <button key={id} type="button" onClick={() => setFilter(id)} className="font-mono"
-              style={{ flex: "0 0 auto", height: 24, padding: "0 12px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: on ? (of ? "1px solid #FB923C" : "1px solid #22D3EE") : (of ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"), background: on ? (of ? "rgba(251,146,60,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626", color: on ? (of ? "#FED7AA" : "#A5F3FC") : (of ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
+              style={{ flex: "0 0 auto", height: 28, padding: "0 13px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", cursor: "pointer", border: on ? (of ? "1px solid #FB923C" : "1px solid #22D3EE") : (of ? "1px solid rgba(251,146,60,0.55)" : "1px solid rgba(148,163,184,0.35)"), background: on ? (of ? "rgba(251,146,60,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626", color: on ? (of ? "#FED7AA" : "#A5F3FC") : (of ? "#FDBA74" : "#CBD5E1") }}>{label}</button>
           );
         };
         return (
@@ -1199,10 +1245,12 @@
                 </div>
               </div>
               {chDesc(ch) ? <div style={{ fontSize: 12, lineHeight: 1.45, color: "#CBD5E1", marginTop: 12, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{chDesc(ch)}</div> : null}
-              <div className="hud-scroll" style={{ display: "flex", gap: 8, justifyContent: "safe center", marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
+              <div className="hud-scroll" style={{ display: "flex", marginTop: 14, overflowX: "auto", paddingBottom: 4 }}>
+               <div style={{ display: "flex", gap: 8, margin: "0 auto" }}>
                 {tabBtn("all", "TUDO")}
                 {kinds.map((k) => tabBtn(k, KIND_TAB[k]))}
                 {adsAll.length ? tabBtn("ofertas", "OFERTAS") : null}
+               </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
                 {rows.map((r, ri) => {
@@ -1787,7 +1835,7 @@
           
           {isMobile ? (
             <MobileTV channels={channels} ads={ads} isMuted={isMuted} setIsMuted={setIsMuted} onBlocked={reportBlocked}
-              autoPlay={autoPlayNext} setAutoPlay={setAutoPlayNext} holdSec={holdSec}
+              autoPlay={autoPlayNext} setAutoPlay={setAutoPlayNext} holdSec={holdSec} chatTxt={chatTxt}
               />
           ) : (<>
           {/* HEADER PÚBLICO */}
