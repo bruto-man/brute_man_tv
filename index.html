@@ -1289,54 +1289,36 @@
                       </div>
                     );
                   }
-                 if (r.t === "sq") {
-  return (
-    <div key={"s" + ri}>
-      <button
-        type="button"
-        onClick={() => openItem(chIdx, r.it.i)}
-        style={{
-          position: "relative",
-          width: "100%",
-          aspectRatio: "1 / 1",
-          padding: 0,
-          borderRadius: 14,
-          overflow: "hidden",
-          border: "1px solid rgba(34,211,238,0.4)",
-          background: "#0B1626",
-          cursor: "pointer",
-          textAlign: "left"
-        }}
-      >
-        {thumbBox(r.it)}
-        {tag("SITE · 1:1")}
-      </button>
-
-      {r.it.previewNoCard && (
-        <div
-          style={{
-            height: 360,
-            marginTop: 8,
-            overflow: "hidden",
-            borderRadius: 10,
-            border: "1px solid rgba(34,211,238,0.4)",
-            background: "#050A14"
-          }}
-        >
-          <iframe
-            src={r.it.url}
-            title={"Prévia: " + (r.it.label || "site")}
-            loading="lazy"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-            style={{ width: "100%", height: "100%", border: 0 }}
-          />
-        </div>
-      )}
-
-      {capTitle(r.it.label, "SITE", r.it.desc, () => openItem(chIdx, r.it.i))}
-    </div>
-  );
-}
+                  if (r.t === "sq") {
+                    return (
+                      <div key={"s" + ri}>
+                      <button type="button" onClick={() => openItem(chIdx, r.it.i)}
+                        style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                        {thumbBox(r.it)}
+                        {tag("SITE · 1:1")}
+                      </button>
+                      {capTitle(r.it.label, "SITE", r.it.desc, () => openItem(chIdx, r.it.i))}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={"t" + ri} style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                      {r.list.map((e) => e.it).map((it) => (
+                        <div key={it.i}><button type="button" onClick={() => openItem(chIdx, it.i)}
+                          style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                          {thumbBox(it)}
+                          {tag(KIND_LABEL[it.kind])}
+                          </button>{capTitle(it.label, KIND_LABEL[it.kind], it.desc, () => openItem(chIdx, it.i))}</div>
+                      ))}
+                    </div>
+                  );
+                })}
+                {!rows.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>Nenhum item nesta aba.</p>}
+              </div>
+            </div>
+          </div>
+        );
+      }
 
       // ---------- 3. VISUALIZADORES ----------
       if (view === "viewer" && item) {
