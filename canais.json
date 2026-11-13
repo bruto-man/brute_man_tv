@@ -8,15 +8,20 @@
     "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
     "videos": [
       {
-        "label": "LALÁ NA BAGUNÇA",
-        "url": "https://youtube.com/shorts/Dv7tHojScfM?si=NvIOaM9Jjrq-AY_l"
+        "label": "GEMÊAS AVENTUREIRAS - PARTE 01",
+        "url": "https://youtube.com/shorts/q7fyH20khLc?si=RruRTmkNknwfHePr"
       },
       {
-        "label": "AVENTURAS",
-        "url": "https://youtube.com/shorts/-BHBKqcVTs8?si=RjwsRr6Wxv46ri4Z"
+        "label": "GEMÊAS AVENTUREIRAS - PARTE 01",
+        "url": "https://youtube.com/shorts/DlwKJ3eSne4?si=nEMAK5rO8d6xAkJO"
       }
     ],
-    "offers": []
+    "offers": [],
+    "category": "KAKÁ & LALÁ",
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
   },
   {
     "id": "CH_1794279042804",
@@ -62,12 +67,12 @@
     "id": "CH_1794020024653",
     "slug": "brute-man-app",
     "title": "BRUTE_MAN APP",
-    "badge": "YOUTUBE HD",
+    "badge": "",
     "auraScore": "99.9% AURA",
     "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
     "videos": [
       {
-        "label": "Vídeo 1: Principal",
+        "label": "BRUTE_MAN INTRO",
         "url": "https://youtu.be/Ci875Rz_Jb4?si=o3itoEveT7rAgady"
       }
     ],
@@ -75,7 +80,8 @@
     "adIds": [
       "cacto-dancante",
       "bike-rosa"
-    ]
+    ],
+    "category": "BRUTE_MAN APP"
   },
   {
     "id": "CH_1793597265179",
