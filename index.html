@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>BRUTE-MAN // SMARTBOX TV</title>
+  <title>BRUTE_MAN // SMARTBOX TV</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -331,6 +331,34 @@
     }
 
     const SAFE_IMG_FALLBACK = "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=600&q=80";
+
+    // Lab 21b: miniatura "ao vivo" do site no card (so quando nao ha capa). Quadro 1024 px reduzido, sem toque, carrega so perto da tela.
+    function SitePreview({ url, label, fallback }) {
+      const boxRef = React.useRef(null);
+      const [size, setSize] = React.useState({ w: 0, h: 0 });
+      const [near, setNear] = React.useState(false);
+      React.useEffect(() => {
+        const el = boxRef.current; if (!el) return;
+        const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+        measure();
+        let ro = null; try { ro = new ResizeObserver(measure); ro.observe(el); } catch (e) {}
+        let io = null;
+        try { io = new IntersectionObserver((en) => { if (en[0] && en[0].isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: "300px" }); io.observe(el); } catch (e) { setNear(true); }
+        return () => { if (ro) ro.disconnect(); if (io) io.disconnect(); };
+      }, []);
+      const W = 1024;
+      const k = size.w ? size.w / W : 0;
+      return (
+        <div ref={boxRef} style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#0B1626" }}>
+          <div style={{ position: "absolute", inset: 0 }}>{fallback}</div>
+          {near && k > 0 ? (
+            <iframe src={url} title={label || "site"} loading="lazy" tabIndex={-1} aria-hidden="true"
+              sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer"
+              style={{ position: "absolute", top: 0, left: 0, width: W, height: Math.ceil(size.h / k), border: 0, transform: "scale(" + k + ")", transformOrigin: "top left", pointerEvents: "none", background: "#fff" }} />
+          ) : null}
+        </div>
+      );
+    }
 
     function SafeImage({ src, alt, className, style }) {
       const [imgSrc, setImgSrc] = useState(src || SAFE_IMG_FALLBACK);
@@ -738,13 +766,24 @@
       // limpa o "pular se der erro" ao trocar de item
       useEffect(() => () => clearTimeout(failRef.current), [chIdx, itemIdx, view]);
 
+      // Lab 21c: ao entrar/mexer dentro do site (ou travar no botao), o relogio do autoplay para
+      const [siteHold, setSiteHold] = useState(false);
+      useEffect(() => { setSiteHold(false); }, [chIdx, itemIdx, view]);
+      useEffect(() => {
+        if (view !== "viewer" || (kind !== "site" && kind !== "pdf")) return;
+        const onBlur = () => setTimeout(() => { const a = document.activeElement; if (a && a.tagName === "IFRAME") setSiteHold(true); }, 0);
+        window.addEventListener("blur", onBlur);
+        return () => window.removeEventListener("blur", onBlur);
+      }, [view, kind, chIdx, itemIdx]);
+
       // imagem, site e PDF não "terminam": ficam um tempo e passam (só com AUTOPLAY ligado)
       useEffect(() => {
         if (view !== "viewer" || !autoPlay || !item) return;
         if (["image", "site", "pdf"].indexOf(kind) < 0) return;
+        if (siteHold) return;
         const id = setTimeout(() => { if (advRef.current) advRef.current(1); }, Math.max(5, holdSec) * 1000);
         return () => clearTimeout(id);
-      }, [view, chIdx, itemIdx, autoPlay, holdSec, nonce]);
+      }, [view, chIdx, itemIdx, autoPlay, holdSec, nonce, siteHold]);
 
       // carrossel de mídias dentro do anúncio completo
       useEffect(() => {
@@ -890,15 +929,16 @@
         try { const h = new URL(it.url).hostname.replace(/^www\./, ""); return BLOCKED_HOSTS.some((b) => h === b || h.endsWith("." + b)); } catch (e) { return false; }
       };
 
-      const thumbBox = (it) => {
+      const thumbBox = (it, live) => {
         const t = (it.capa && it.capa.trim()) || itemThumb(it.url);
         const ty = parseOmniLink(it.url || "").type;
-        return t
-          ? <SafeImage src={t} alt={it.label} className="w-full h-full object-cover" />
-          : <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
+        const ph = (<div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
               <span style={{ fontSize: 30 }}>{typeIcon(ty)}</span>
               {ty !== "PDF" && (() => { try { return <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8", wordBreak: "break-all" }}>{new URL(it.url).hostname.replace(/^www\./, "")}</span>; } catch (e) { return null; } })()}
-            </div>;
+            </div>);
+        if (t) return <SafeImage src={t} alt={it.label} className="w-full h-full object-cover" />;
+        if (live !== false && ty === "WEBSITE" && !it.externo) return <SitePreview url={it.url} label={it.label} fallback={ph} />;
+        return ph;
       };
 
       const chDesc = (c) => { const d = ((c && c.caseStudy) || "").trim(); return d && d !== "Novo canal ingerido pelo Dragão Consumidor." ? d : ""; };
@@ -1182,7 +1222,7 @@
                         <button key={c.id} type="button" onClick={() => openChannel(i)}
                           style={{ textAlign: "left", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer" }}>
                           <div style={{ position: "relative", height: 104 }}>
-                            {thumbBox(first)}
+                            {thumbBox(first, false)}
                             <span className="font-mono" style={{ position: "absolute", top: 8, right: 8, padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 800, background: "rgba(3,6,12,0.85)", color: "#E2E8F0" }}>{n} {n === 1 ? "ITEM" : "ITENS"}</span>
                           </div>
                           <div style={{ padding: "10px 10px 12px" }}>
@@ -1340,7 +1380,7 @@
               {items.map((v, i) => ({ v, i })).filter((x) => x.i !== itemIdx).map(({ v, i }) => (
                 <button key={i} type="button" onClick={() => { setItemIdx(i); setRotated(false); toTop(); }}
                   style={{ display: "flex", alignItems: "center", gap: 12, padding: 8, borderRadius: 12, border: "1px solid rgba(34,211,238,0.3)", background: "#0B1626", textAlign: "left", cursor: "pointer" }}>
-                  <div style={{ flex: "0 0 84px", height: 56, borderRadius: 8, overflow: "hidden" }}>{thumbBox(v)}</div>
+                  <div style={{ flex: "0 0 84px", height: 56, borderRadius: 8, overflow: "hidden" }}>{thumbBox(v, false)}</div>
                   <div style={{ minWidth: 0 }}>
                     <div className="font-hud font-bold" style={{ fontSize: 12, color: "#fff" }}>{v.label}</div>
                     <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{KIND_LABEL[itemKind(v.url)]}</div>
@@ -1398,7 +1438,7 @@
               {subHeader(ch.title, sub, () => up(itemBack), "cyan", autoBtn)}
               {kind === "site" && isBlockedSite(item) ? (
                 <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 215px)", minHeight: 360, background: "#000", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>{thumbBox(item)}</div>
+                  <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>{thumbBox(item, false)}</div>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(3,6,12,0.2), rgba(3,6,12,0.88))" }}></div>
                   <div style={{ position: "relative", textAlign: "center", padding: 20 }}>
                     <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", marginBottom: 12 }}>ESTE SITE NÃO ABRE DENTRO DA TV</div>
@@ -1414,6 +1454,12 @@
               {kind === "site" && !isBlockedSite(item) && (
                 <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-mono"
                   style={{ display: "block", padding: "8px 12px", background: "#07101D", color: "#67E8F9", fontSize: 11, letterSpacing: "0.08em", textAlign: "center", textDecoration: "none", borderTop: "1px solid rgba(34,211,238,0.2)" }}>NÃO CARREGOU? ABRIR EM NOVA ABA ↗</a>
+              )}
+              {autoPlay && (
+                <button type="button" onClick={() => setSiteHold(!siteHold)} className="font-mono"
+                  style={{ display: "block", width: "100%", padding: "10px 12px", background: siteHold ? "rgba(249,115,22,0.16)" : "#07101D", color: siteHold ? "#FDBA74" : "#67E8F9", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textAlign: "center", border: 0, borderTop: "1px solid rgba(34,211,238,0.2)", cursor: "pointer" }}>
+                  {siteHold ? "⏸ AUTOPLAY PAUSADO NESTE SITE · TOQUE PARA SEGUIR" : "🔒 FICAR NESTE SITE (PAUSA O AUTOPLAY)"}
+                </button>
               )}
               <div style={{ padding: "10px 12px 0", background: "#050A14" }}>
                 <div className="font-hud font-bold" style={{ fontSize: 15, color: "#fff", textTransform: "uppercase" }}>{item.label}</div>
@@ -1698,14 +1744,25 @@
       advanceRef.current = advanceContent;
       const totalContents = channels.reduce((sum, c) => sum + (c.videos || []).length, 0);
 
+      // Lab 21c: ao mexer dentro do site (ou travar no botao), o relogio do autoplay para
+      const [pcSiteHold, setPcSiteHold] = useState(false);
+      const pcIsSiteLike = ["WEBSITE", "PDF", "GOOGLE_DRIVE"].indexOf(parseOmniLink(activeVideo.url).type) >= 0;
+      useEffect(() => { setPcSiteHold(false); }, [currentIndex, selectedVideoIdx, activeVideo.url, playNonce]);
+      useEffect(() => {
+        if (!pcIsSiteLike) return;
+        const onBlur = () => setTimeout(() => { const a = document.activeElement; if (a && a.tagName === "IFRAME") setPcSiteHold(true); }, 0);
+        window.addEventListener("blur", onBlur);
+        return () => window.removeEventListener("blur", onBlur);
+      }, [pcIsSiteLike, currentIndex, selectedVideoIdx, activeVideo.url]);
+
       // sites, notícias, PDF, Drive e imagens não "terminam": ficam um tempo na tela e passam
       useEffect(() => {
-        if (!autoPlayNext) return;
+        if (!autoPlayNext || pcSiteHold) return;
         const t = parseOmniLink(activeVideo.url).type;
         if (["WEBSITE", "PDF", "GOOGLE_DRIVE", "IMAGE"].indexOf(t) < 0) return;
         const id = setTimeout(() => { if (advanceRef.current) advanceRef.current(); }, Math.max(5, holdSec) * 1000);
         return () => clearTimeout(id);
-      }, [autoPlayNext, currentIndex, selectedVideoIdx, activeVideo.url, holdSec, playNonce]);
+      }, [autoPlayNext, currentIndex, selectedVideoIdx, activeVideo.url, holdSec, playNonce, pcSiteHold]);
 
       // se um vídeo do YouTube der erro, não trava: pula depois de 5 s (só se houver outro conteúdo)
       useEffect(() => () => clearTimeout(failTimer.current), [currentIndex, selectedVideoIdx, playNonce]);
@@ -1888,6 +1945,17 @@
               >
                 {autoPlayNext ? '🔁 AUTOPLAY: ON' : '⏸️ AUTOPLAY: OFF'}
               </button>
+
+              {autoPlayNext && pcIsSiteLike && (
+                <button
+                  onClick={() => setPcSiteHold(!pcSiteHold)}
+                  className={`px-2 py-1 rounded border font-bold transition ${
+                    pcSiteHold ? 'bg-orange-500/30 border-orange-400 text-orange-300' : 'bg-black/80 border-cyan-500/60 text-cyan-300'
+                  }`}
+                >
+                  {pcSiteHold ? '⏸ PAUSADO NO SITE (SEGUIR)' : '🔒 FICAR NO SITE'}
+                </button>
+              )}
 
               <button
                 onClick={() => { playHoloSound('click'); setIsMuted(!isMuted); }}
