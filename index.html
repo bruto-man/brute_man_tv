@@ -678,6 +678,8 @@
     function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin, chatTxt }) {
       const [view, setView] = useState("mix");
       const [itemBack, setItemBack] = useState("feed");
+      const [homeSel, setHomeSel] = useState(-1); // Lab 22: canal escolhido no seletor da tela CANAIS (-1 = todos)
+      const [homeOpen, setHomeOpen] = useState(false);
       const [drawerOpen, setDrawerOpen] = useState(false);
       const [toast, setToast] = useState("");
       const pendingRef = useRef(null);
@@ -1191,6 +1193,7 @@
 
       // ---------- 1. HOME: CANAIS ----------
       if (view === "home") {
+        const selCh = homeSel >= 0 && channels[homeSel] ? channels[homeSel] : null;
         const groups = {};
         channels.forEach((c, i) => {
           const k = String(c.category || "CANAIS").toUpperCase();
@@ -1203,15 +1206,48 @@
             <div style={{ padding: "16px 12px 0" }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
                 <h2 className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em" }}>CANAIS DA SMARTBOX</h2>
-                <span className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>TOTAL: {channels.length}</span>
+                <span className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>{selCh ? "NO CANAL: " + (selCh.videos || []).length : "TOTAL: " + channels.length}</span>
               </div>
-              <button type="button" onClick={() => { setAutoPlay(true); openItem(0, 0); }}
-                className="font-mono"
-                style={{ marginTop: 14, width: "100%", height: 52, borderRadius: 14, border: "1px solid #22D3EE", background: "rgba(34,211,238,0.12)", color: "#A5F3FC", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontWeight: 800, fontSize: 12, letterSpacing: "0.08em", cursor: "pointer" }}>
-                <Ico><polygon points="6 4 20 12 6 20 6 4"></polygon></Ico>
-                LIGAR A TV · TOCA TUDO EM SEQUÊNCIA
-              </button>
-              {Object.keys(groups).map((g) => (
+              <div style={{ position: "relative", marginTop: 14, zIndex: 31 }}>
+                {homeOpen && <div onClick={() => setHomeOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 30 }} />}
+                <button type="button" aria-expanded={homeOpen} onClick={() => { playHoloSound("click"); setHomeOpen(!homeOpen); }} className="font-mono"
+                  style={{ position: "relative", zIndex: 31, width: "100%", height: 48, borderRadius: 12, border: "1px solid #22D3EE", background: "#0B1626", color: "#fff", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontWeight: 800, fontSize: 12, letterSpacing: "0.04em", textAlign: "left", cursor: "pointer" }}>
+                  <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{selCh ? selCh.title + " · " + (selCh.videos || []).length + ((selCh.videos || []).length === 1 ? " item" : " itens") : "ESCOLHA O CANAL"}</span>
+                  <Ico><polyline points="6 9 12 15 18 9"></polyline></Ico>
+                </button>
+                {homeOpen && (
+                  <div style={{ position: "absolute", top: 54, left: 0, right: 0, zIndex: 32, borderRadius: 12, border: "1px solid #22D3EE", background: "#08111F", boxShadow: "0 12px 30px rgba(0,0,0,0.6)", maxHeight: 340, overflowY: "auto" }}>
+                    {[{ title: "TODOS OS CANAIS", n: channels.length + " canais", i: -1 }].concat(channels.map((c, i) => ({ title: c.title, n: (c.videos || []).length + ((c.videos || []).length === 1 ? " item" : " itens"), i }))).map((r) => (
+                      <button key={r.i} type="button" onClick={() => { playHoloSound("click"); setHomeSel(r.i); setHomeOpen(false); }} className="font-mono"
+                        style={{ width: "100%", minHeight: 48, display: "flex", alignItems: "center", gap: 12, padding: "0 14px", border: 0, borderBottom: "1px solid #16233A", background: homeSel === r.i ? "rgba(34,211,238,0.10)" : "transparent", color: "#fff", textAlign: "left", cursor: "pointer" }}>
+                        <span style={{ flex: "0 0 18px", width: 18, height: 18, boxSizing: "border-box", borderRadius: 9, border: "2px solid " + (homeSel === r.i ? "#22D3EE" : "#475569"), background: homeSel === r.i ? "#22D3EE" : "transparent" }}></span>
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.04em" }}>{r.title}</span>
+                        <span style={{ fontSize: 10, color: "#94A3B8" }}>{r.n}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selCh ? (
+                <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, alignItems: "start" }}>
+                  {(selCh.videos || []).map((v, ii) => {
+                    const k = itemKind(v.url);
+                    const ratio = k === "video" ? "16 / 9" : k === "site" ? "1 / 1" : "9 / 16";
+                    return (
+                      <div key={ii}>
+                        <button type="button" onClick={() => openItem(homeSel, ii, "home")}
+                          style={{ position: "relative", width: "100%", aspectRatio: ratio, padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid rgba(34,211,238,0.4)", background: "#0B1626", cursor: "pointer", textAlign: "left", display: "block" }}>
+                          {thumbBox(v)}
+                          {tag(KIND_LABEL[k] + (k === "video" ? " · 16:9" : k === "site" ? " · 1:1" : ""))}
+                        </button>
+                        {capTitle(v.label, KIND_LABEL[k], v.desc, () => openItem(homeSel, ii, "home"))}
+                      </div>
+                    );
+                  })}
+                  {!(selCh.videos || []).length && <p className="font-mono" style={{ gridColumn: "1 / -1", fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>Nenhum item neste canal.</p>}
+                </div>
+              ) : null}
+              {!selCh && Object.keys(groups).map((g) => (
                 <div key={g} style={{ marginTop: 20 }}>
                   <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#94A3B8", marginBottom: 10 }}>— {g}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
