@@ -1083,26 +1083,45 @@
         </div>
       );
 
+      // ---------- ABAS FIXAS NO TOPO: FEED | CANAIS | OFERTAS ----------
+      const mainTab = (label, id, on, orange) => (
+        <button type="button" onClick={() => go(id)} className="font-mono"
+          style={{ flex: "1 1 0", maxWidth: 150, height: 30, padding: 0, borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
+            border: on ? (orange ? "1px solid #FB923C" : "1px solid #22D3EE") : "1px solid rgba(148,163,184,0.35)",
+            background: on ? (orange ? "rgba(249,115,22,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626",
+            color: on ? (orange ? "#FDBA74" : "#A5F3FC") : "#94A3B8" }}>{label}</button>
+      );
+
       // ---------- TOPO (home, feed e ofertas) ----------
+      const LOGO_URL = ""; // Opcional: coloque ex. "logo.png" (subida no GitHub/Netlify) ou URL completa; vazio = "HB"
       const subtitle = view === "mix" ? "SHOPEE TV · FEED" : view === "home" ? "SHOPEE TV · CANAIS" : view === "offers" ? "SHOPEE TV · OFERTAS" : "SHOPEE TV · CANAL " + (chIdx + 1) + "/" + channels.length;
-      const topBar = (
-        <div style={{ position: "relative" }}>
-          <div style={{ padding: "16px 12px 14px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", boxShadow: "0 8px 18px rgba(0,0,0,0.35)", display: "flex", alignItems: "center", gap: 10 }}>
-            <button type="button" aria-label="Menu" onClick={openDrawer}
-              style={{ flex: "0 0 50px", width: 50, height: 50, padding: 0, borderRadius: 14, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-              <Ico size={24}><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></Ico>
-            </button>
-            <div className="font-hud font-bold" style={{ flex: "0 0 50px", width: 50, height: 50, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="font-hud font-bold" style={{ fontSize: 19, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
-              <div className="font-mono" style={{ fontSize: 10, color: "#67E8F9", letterSpacing: "0.1em", lineHeight: 1.35, marginTop: 2 }}>PRODUTOS RAIZ · PARA ELES &amp; ELAS</div>
+      const topHeader = (extraRow) => (
+        <>
+          <div style={{ position: "sticky", top: 0, zIndex: 35, background: "#050A14" }}>
+          <div style={{ padding: "10px 12px 14px", background: "#07101D", borderBottom: "1px solid rgba(34,211,238,0.22)", boxShadow: "0 8px 18px rgba(0,0,0,0.35)" }}>
+            <div style={{ textAlign: "center", fontSize: "clamp(9.5px, 2.8vw, 12px)", color: "#F8FAFC", letterSpacing: "0.02em", lineHeight: 1.3, marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              Rod_Oz - dhigoos@gmail.com - zap: 38.9247.6634
             </div>
-            <button type="button" aria-label={isMuted ? "Som desligado (tocar para ligar)" : "Som ligado (tocar para desligar)"} onClick={() => { playHoloSound("click"); setIsMuted(!isMuted); }}
-              style={{ flex: "0 0 50px", width: 50, height: 50, padding: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", ...(isMuted ? tones.off : tones.on) }}>
-              {isMuted
-                ? <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></Ico>
-                : <Ico size={22}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></Ico>}
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div className="font-hud font-bold" style={{ flex: "0 0 50px", width: 50, height: 50, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                {LOGO_URL ? <img src={LOGO_URL} alt="HB" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : "HB"}
+              </div>
+              <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+                <div className="font-hud font-bold" style={{ fontSize: "clamp(16px, 5vw, 20px)", color: "#FB923C", letterSpacing: "0.06em", lineHeight: 1.1, whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
+                <div className="font-mono" style={{ fontSize: "clamp(9px, 2.6vw, 10.5px)", color: "#67E8F9", letterSpacing: "0.08em", lineHeight: 1.35, marginTop: 3 }}>PRODUTOS RAIZ · PARA ELES &amp; ELAS</div>
+              </div>
+              <button type="button" aria-label="Menu" onClick={openDrawer}
+                style={{ flex: "0 0 50px", width: 50, height: 50, padding: 0, borderRadius: 14, border: "1px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={24}><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></Ico>
+              </button>
+            </div>
+          </div>
+          <div style={{ marginTop: 8, background: "rgba(5,10,20,0.96)", borderTop: "1px solid rgba(34,211,238,0.22)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "6px 12px", display: "flex", justifyContent: "center", gap: 8 }}>
+            {mainTab("FEED", "mix", view === "mix", false)}
+            {mainTab("CANAIS", "home", view === "home" || view === "feed", false)}
+            {mainTab(<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Ico size={14}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>OFERTAS{ads.length ? <span style={{ background: "#F97316", color: "#1A0A00", borderRadius: 999, padding: "1px 6px", fontSize: 10 }}>{ads.length}</span> : null}</span>, "offers", view === "offers", true)}
+          </div>
+          {extraRow}
           </div>
           {drawerOpen && (
             <>
@@ -1158,24 +1177,10 @@
               </div>
             </>
           )}
-        </div>
+        </>
       );
-
-      // ---------- ABAS FIXAS NO TOPO: FEED | CANAIS | OFERTAS ----------
-      const mainTab = (label, id, on, orange) => (
-        <button type="button" onClick={() => go(id)} className="font-mono"
-          style={{ flex: "1 1 0", maxWidth: 150, height: 30, padding: 0, borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer",
-            border: on ? (orange ? "1px solid #FB923C" : "1px solid #22D3EE") : "1px solid rgba(148,163,184,0.35)",
-            background: on ? (orange ? "rgba(249,115,22,0.18)" : "rgba(34,211,238,0.16)") : "#0B1626",
-            color: on ? (orange ? "#FDBA74" : "#A5F3FC") : "#94A3B8" }}>{label}</button>
-      );
-      const tabsBar = (
-        <div style={{ position: "sticky", top: 0, zIndex: 30, marginTop: 8, background: "rgba(5,10,20,0.96)", borderTop: "1px solid rgba(34,211,238,0.22)", borderBottom: "1px solid rgba(34,211,238,0.22)", padding: "6px 12px", display: "flex", justifyContent: "center", gap: 8 }}>
-          {mainTab("FEED", "mix", view === "mix", false)}
-          {mainTab("CANAIS", "home", view === "home" || view === "feed", false)}
-          {mainTab(<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Ico size={14}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></Ico>OFERTAS{ads.length ? <span style={{ background: "#F97316", color: "#1A0A00", borderRadius: 999, padding: "1px 6px", fontSize: 10 }}>{ads.length}</span> : null}</span>, "offers", view === "offers", true)}
-        </div>
-      );
+      const tabsBar = null;
+      const topBar = topHeader(null);
 
       // ---------- 0. FEED GERAL ----------
       if (view === "mix") {
@@ -1238,19 +1243,22 @@
             {capTitle(e.label, meta(e), e.desc, () => openItem(e.ci, e.ii, "mix"))}
           </div>
         );
-        return (
-          <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
-            {topBar}
-            {tabsBar}
-            <div style={{ padding: "12px 12px 0" }}>
-              <div className="hud-scroll" style={{ display: "flex", overflowX: "auto", paddingBottom: 4 }}>
-               <div style={{ display: "flex", gap: 8, margin: "0 auto" }}>
+        const mixChipsBar = (
+          <div style={{ padding: "10px 12px 8px", background: "#050A14", borderBottom: "1px solid rgba(34,211,238,0.16)" }}>
+            <div className="hud-scroll" style={{ display: "flex", overflowX: "auto", paddingBottom: 4 }}>
+              <div style={{ display: "flex", gap: 8, margin: "0 auto" }}>
                 {chipMix("all", "TUDO")}
                 {kindsPresent.map((k) => chipMix(k, KIND_TAB[k]))}
                 {ads.length ? chipMix("ofertas", "OFERTAS", true, () => go("offers")) : null}
-               </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
+            </div>
+          </div>
+        );
+        return (
+          <div style={{ minHeight: "100vh", paddingBottom: 24 }}>
+            {topHeader(mixChipsBar)}
+            <div style={{ padding: "12px 12px 0" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {rows.map((r, ri) => {
                   if (r.t === "wide") return <div key={"w" + ri}>{cell(r.e, "16 / 9", "VÍDEO · 16:9")}</div>;
                   if (r.t === "sq") return <div key={"s" + ri}>{cell(r.e, "1 / 1", "SITE · 1:1")}</div>;
