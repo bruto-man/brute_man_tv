@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>BRUTE_MAN // SMARTBOX TV</title>
+  <title>BRUTE_MAN // SMARTBOX MULTI-CAMPAIGN TV 24/7</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -30,40 +30,6 @@
       perspective: 1200px;
       perspective-origin: 45% 50%;
     }
-
-
-    /* ===== ABERTURA ANIMADA (tela de carregamento) ===== */
-    .hb-intro { background: radial-gradient(ellipse at 50% 40%, #0B1A2E 0%, #050A14 62%); }
-    .hb-intro-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.07) 1px, transparent 1px); background-size: 38px 38px; mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 70%); animation: hbGridMove 6s linear infinite; }
-    .hb-intro-sweep { position: absolute; left: 0; right: 0; height: 140px; top: -140px; background: linear-gradient(transparent, rgba(34,211,238,0.10), transparent); animation: hbSweep 2.6s ease-in-out infinite; }
-    .hb-intro-tv { position: relative; width: 230px; height: 130px; border-radius: 16px; border: 2px solid #22D3EE; background: #02050A; box-shadow: 0 0 30px rgba(34,211,238,0.45), inset 0 0 24px rgba(34,211,238,0.18); animation: hbCrtOn 0.7s cubic-bezier(.2,.8,.2,1) both; }
-    .hb-intro-tv::after { content: ""; position: absolute; left: 50%; bottom: -14px; width: 70px; height: 4px; margin-left: -35px; border-radius: 4px; background: rgba(34,211,238,0.5); box-shadow: 0 0 12px rgba(34,211,238,0.7); }
-    .hb-intro-screen { position: absolute; inset: 6px; border-radius: 11px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #0B1626, #050A14); }
-    .hb-intro-logo { font-weight: 800; font-size: 46px; color: #FB923C; letter-spacing: 0.06em; text-shadow: 0 0 18px rgba(249,115,22,0.9), 0 0 42px rgba(249,115,22,0.5); animation: hbPulse 1.4s ease-in-out infinite, hbGlitch 3.2s steps(1) infinite; }
-    .hb-intro-bars { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; display: flex; }
-    .hb-intro-bars span { flex: 1; animation: hbBar 1.1s ease-in-out infinite; }
-    .hb-intro-bars span:nth-child(1) { background: #F8FAFC; } .hb-intro-bars span:nth-child(2) { background: #FACC15; }
-    .hb-intro-bars span:nth-child(3) { background: #22D3EE; } .hb-intro-bars span:nth-child(4) { background: #22C55E; }
-    .hb-intro-bars span:nth-child(5) { background: #A78BFA; } .hb-intro-bars span:nth-child(6) { background: #F97316; }
-    .hb-intro-bars span:nth-child(7) { background: #3B82F6; }
-    .hb-intro-scan { position: absolute; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.35); box-shadow: 0 0 10px rgba(255,255,255,0.5); animation: hbScanY 1.8s linear infinite; }
-    .hb-intro-title { font-weight: 800; font-size: 26px; color: #FB923C; text-shadow: 0 0 16px rgba(249,115,22,0.55); animation: hbTitle 1.1s 0.35s cubic-bezier(.2,.8,.2,1) both; }
-    .hb-intro-sub { margin-top: 10px; font-size: 11px; color: #67E8F9; letter-spacing: 0.18em; animation: hbFade 0.8s 0.9s both; }
-    .hb-dots i { font-style: normal; animation: hbBlink 1.2s infinite; } .hb-dots i:nth-child(2) { animation-delay: 0.2s; } .hb-dots i:nth-child(3) { animation-delay: 0.4s; }
-    .hb-intro-load { width: 200px; height: 4px; border-radius: 4px; background: rgba(148,163,184,0.18); overflow: hidden; animation: hbFade 0.6s 0.7s both; }
-    .hb-intro-load span { display: block; width: 45%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #F97316, #22D3EE); box-shadow: 0 0 10px rgba(34,211,238,0.7); animation: hbLoad 1.3s ease-in-out infinite; }
-    @keyframes hbCrtOn { 0% { transform: scale(0.02, 0.02); opacity: 0; filter: brightness(3); } 45% { transform: scale(1, 0.02); opacity: 1; filter: brightness(3); } 100% { transform: scale(1, 1); opacity: 1; filter: brightness(1); } }
-    @keyframes hbPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.06); filter: brightness(1.25); } }
-    @keyframes hbGlitch { 0%, 92%, 100% { transform: translateX(0); } 93% { transform: translateX(-3px); } 95% { transform: translateX(3px); } 97% { transform: translateX(-2px); } }
-    @keyframes hbBar { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
-    @keyframes hbScanY { 0% { top: -4px; } 100% { top: 100%; } }
-    @keyframes hbTitle { 0% { opacity: 0; letter-spacing: 0.7em; filter: blur(6px); } 100% { opacity: 1; letter-spacing: 0.1em; filter: blur(0); } }
-    @keyframes hbFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes hbBlink { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
-    @keyframes hbLoad { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
-    @keyframes hbSweep { 0% { top: -140px; } 100% { top: 100%; } }
-    @keyframes hbGridMove { 0% { background-position: 0 0; } 100% { background-position: 0 38px; } }
-    @media (prefers-reduced-motion: reduce) { .hb-intro *, .hb-intro { animation-duration: 0.01s !important; animation-iteration-count: 1 !important; } }
 
     @keyframes gentleWaveBreath {
       0%, 100% { transform: perspective(1200px) rotateY(2.2deg) rotateX(1deg) translate3d(0, 0px, 20px); }
@@ -661,6 +627,178 @@
       );
     }
 
+    const INITIAL_CATALOG = [
+      {
+        id: "CH_CACTO",
+        slug: "cacto",
+        title: "Brinquedo Cacto Dançante e Falante",
+        badge: "VIRAL SHOPEE",
+        auraScore: "99.8% AURA",
+        caseStudy: "Retenção média de 84% no telão. Estudo de caso: intercalar o vídeo de demonstração cômica com o unboxing aumenta a taxa de clique em 38%.",
+        videos: [
+          { label: "Vídeo 1: Teste Engraçado", url: "https://www.youtube.com/embed/qL9Hkc4xjs8" },
+          { label: "Vídeo 2: Demonstração Dança", url: "https://assets.mixkit.co/videos/preview/mixkit-little-robot-dancing-happily-43407-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Cacto Dançante Falante USB",
+            priceOld: "R$ 45,99",
+            priceCurrent: "R$ 35,99",
+            discount: "-22%",
+            sold: "10mil+ vendidos",
+            rating: "★ 4.7",
+            badge: "OFERTA PRINCIPAL",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://down-br.img.susercontent.com/file/br-11134207-7r98o-lx2t54e58uhh15",
+            features: ["Imita a voz e repete sons", "Toca músicas e dança com LED", "Recarregável USB"]
+          },
+          {
+            title: "Kit 2x Cactos (Casal Dançante)",
+            priceOld: "R$ 89,90",
+            priceCurrent: "R$ 64,90",
+            discount: "-28%",
+            sold: "2.4k vendidos",
+            rating: "★ 4.9",
+            badge: "SUPER COMBO",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=600&q=80",
+            features: ["Dois cactos que tocam juntos", "Presente duplo para irmãos", "Frete Grátis Shopee"]
+          }
+        ]
+      },
+      {
+        id: "CH_SMARTWATCH",
+        slug: "smartwatch",
+        title: "Smartwatch T800 Ultra 2026",
+        badge: "TOP VENDAS",
+        auraScore: "99.4% AURA",
+        caseStudy: "Pico de cliques entre público tech e fitness. Desconto acima de 60% gera sensação de urgência com CTR médio de 14.2%.",
+        videos: [
+          { label: "Vídeo 1: Análise Hardware", url: "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-microchip-technology-43282-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Smartwatch T800 Ultra Original",
+            priceOld: "R$ 120,00",
+            priceCurrent: "R$ 45,88",
+            discount: "-62%",
+            sold: "100mil+ vendidos",
+            rating: "★ 4.9",
+            badge: "TOP VENDAS",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+            features: ["Bluetooth e chamadas no pulso", "Carregamento sem fio por indução", "Sensores de saúde completos"]
+          }
+        ]
+      },
+      {
+        id: "CH_BIKE",
+        slug: "bicicleta",
+        title: "Bicicleta Infantil Rosa (2 Unid)",
+        badge: "SUPER PREÇO",
+        auraScore: "96.5% AURA",
+        caseStudy: "Conversão orientada a presentes de datas comemorativas. Transmissões em finais de semana dobram o volume de consultas de preço.",
+        videos: [
+          { label: "Vídeo 1: Passeio Infantil", url: "https://assets.mixkit.co/videos/preview/mixkit-little-robot-dancing-happily-43407-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Bicicleta Infantil Reforçada",
+            priceOld: "R$ 350,00",
+            priceCurrent: "Consulte o Preço",
+            discount: "OFERTA",
+            sold: "2 unidades com NF",
+            rating: "★ 5.0",
+            badge: "SUPER PREÇO",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80",
+            features: ["Cestinha frontal inclusa", "Estrutura reforçada de aço", "Garantia oficial"]
+          }
+        ]
+      },
+      {
+        id: "CH_MOTO",
+        slug: "moto-infantil",
+        title: "Moto Elétrica Infantil Bateria",
+        badge: "FRETE GRÁTIS",
+        auraScore: "98.2% AURA",
+        caseStudy: "Ticket médio mais alto do catálogo. O vídeo em ação no telão dissipa dúvidas sobre o tamanho e o funcionamento real.",
+        videos: [
+          { label: "Vídeo 1: Pilotando ao Vivo", url: "https://assets.mixkit.co/videos/preview/mixkit-set-of-plateaus-seen-from-the-sky-in-a-sunset-26070-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Moto Elétrica Infantil 6V",
+            priceOld: "R$ 549,90",
+            priceCurrent: "R$ 449,90",
+            discount: "-20%",
+            sold: "1mil+ vendidos",
+            rating: "★ 4.8",
+            badge: "FRETE GRÁTIS",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=600&q=80",
+            features: ["Bateria 6V recarregável", "Luzes e sons de motor", "Suporta até 30kg"]
+          }
+        ]
+      },
+      {
+        id: "CH_MAINFRAME",
+        slug: "toughbook",
+        title: "Toughbook CF-31 Brute Edition",
+        badge: "EXCLUSIVO",
+        auraScore: "99.9% AURA",
+        caseStudy: "Audiência técnica de alta renda. Item de colecionador e trabalho em campo com taxa de fechamento direto de 100% no estoque.",
+        videos: [
+          { label: "Vídeo 1: Teste de Queda", url: "https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-starfield-in-space-41535-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Notebook Militar CF-31 Blindado",
+            priceOld: "R$ 4.500",
+            priceCurrent: "R$ 2.890",
+            discount: "-35%",
+            sold: "Apenas 3 unidades",
+            rating: "★ 5.0",
+            badge: "EXCLUSIVO",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80",
+            features: ["Carcaça de magnésio blindada", "Resistente a quedas e chuva", "Bateria estendida 12h"]
+          }
+        ]
+      },
+      {
+        id: "CH_AIRFRYER",
+        slug: "airfryer",
+        title: "Air Fryer Titanium 5L",
+        badge: "DESCONTO",
+        auraScore: "95.1% AURA",
+        caseStudy: "Campeã em buscas orgânicas de utilidades domésticas. O apelo visual de receitas saudáveis no telão dobra o volume de cliques.",
+        videos: [
+          { label: "Vídeo 1: Receitas na Air Fryer", url: "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-microchip-technology-43282-large.mp4" }
+        ],
+        offers: [
+          {
+            title: "Fritadeira Sem Óleo 5L Titanium",
+            priceOld: "R$ 389,00",
+            priceCurrent: "R$ 259,90",
+            discount: "-33%",
+            sold: "5mil+ vendidos",
+            rating: "★ 4.9",
+            badge: "DESCONTO",
+            affiliateLink: "https://s.shopee.com.br/1qcjQjdoFt",
+            cta: "COMPRAR NA SHOPEE",
+            thumbImg: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=600&q=80",
+            features: ["Cesto antiaderente 5 Litros", "Timer sonoro automático", "Receitas rápidas sem óleo"]
+          }
+        ]
+      }
+    ];
 
     // ===== PONTE COM O CATÁLOGO v4: produtos viram ANÚNCIOS do monitor menor =====
     const brlCat = (v) => (+v > 0 ? "R$ " + (+v).toFixed(2).replace(".", ",") : "Consulte o Preço");
@@ -802,6 +940,144 @@
     // ===== MOBILE v4 (etapa 1): home de canais, feed em linhas, visualizadores, anúncio em pé e ofertas =====
     // Só aparece em tela estreita (<= 820px). O desktop continua com o App original, sem mudanças.
     // Regra de ouro: vídeo 16:9 = palco largo (gira para paisagem). Todo o resto = palco em pé 9:16.
+    // ===== PRÉVIA DE VÍDEO NO FEED (estilo YouTube: roda mudo só o card visível no centro da tela) =====
+    function extractYtId(rawUrl) {
+      const u = String(rawUrl || "").trim();
+      const m = u.match(/youtu\.be\/([\w-]{6,})/) || u.match(/[?&]v=([\w-]{6,})/) || u.match(/\/(?:shorts|embed)\/([\w-]{6,})/);
+      return (u.match(/youtube\.com|youtu\.be/) && m) ? m[1] : "";
+    }
+
+    function VideoPreview({ it, thumbImg }) {
+      const boxRef = useRef(null);
+      const [active, setActive] = useState(false);
+      const [ready, setReady] = useState(false);
+      const [soundOn, setSoundOn] = useState(false);
+      const vidRef = useRef(null);
+
+      useEffect(() => {
+        const el = boxRef.current;
+        if (!el) return;
+        let timer = null;
+        let io = null;
+        try {
+          io = new IntersectionObserver((entries) => {
+            const en = entries[0];
+            if (en && en.isIntersecting && en.intersectionRatio >= 0.65) {
+              timer = setTimeout(() => setActive(true), 450);
+            } else {
+              clearTimeout(timer);
+              setActive(false);
+              setReady(false);
+            }
+          }, { threshold: [0.2, 0.65, 0.9], rootMargin: "-12% 0px -12% 0px" });
+          io.observe(el);
+        } catch (e) {}
+        return () => {
+          clearTimeout(timer);
+          if (io) io.disconnect();
+        };
+      }, [it && it.url]);
+
+      const parsed = parseOmniLink((it && it.url) || "");
+      const isYt = parsed.type === "YOUTUBE" || parsed.type === "YOUTUBE_SHORTS";
+      const isMp4 = parsed.type === "VIDEO";
+      const ytId = isYt ? extractYtId(it.url) : "";
+
+      return (
+        <div ref={boxRef} style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#050A14" }}>
+          {thumbImg ? (
+            <SafeImage src={thumbImg} alt={it.label} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
+              <span style={{ fontSize: 30 }}>{typeIcon(parsed.type)}</span>
+            </div>
+          )}
+
+          {active && isYt && ytId ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=${soundOn ? 0 : 1}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${ytId}&disablekb=1`}
+              title={it.label || "Prévia"}
+              tabIndex={-1}
+              aria-hidden="true"
+              onLoad={() => setTimeout(() => setReady(true), 500)}
+              allow="autoplay; encrypted-media"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: parsed.type === "YOUTUBE_SHORTS" ? "105%" : "135%",
+                height: parsed.type === "YOUTUBE_SHORTS" ? "115%" : "135%",
+                transform: "translate(-50%, -50%)",
+                border: 0,
+                pointerEvents: "none",
+                opacity: ready ? 1 : 0,
+                transition: "opacity 0.4s ease"
+              }}
+            />
+          ) : null}
+
+          {active && isMp4 ? (
+            <video
+              ref={vidRef}
+              src={parsed.cleanUrl}
+              autoPlay
+              muted={!soundOn}
+              loop
+              playsInline
+              onLoadedData={() => setReady(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",
+                opacity: ready ? 1 : 0,
+                transition: "opacity 0.4s ease"
+              }}
+            />
+          ) : null}
+
+          {active && ready ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                playHoloSound("click");
+                setSoundOn(!soundOn);
+              }}
+              title={soundOn ? "Silenciar prévia" : "Ouvir com som"}
+              style={{
+                position: "absolute",
+                bottom: 8,
+                left: 8,
+                zIndex: 4,
+                padding: "4px 8px",
+                borderRadius: 8,
+                background: soundOn ? "#F97316" : "rgba(3,6,12,0.85)",
+                color: soundOn ? "#1A0A00" : "#22D3EE",
+                border: "1px solid " + (soundOn ? "#F97316" : "rgba(34,211,238,0.5)"),
+                fontSize: 10,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              {soundOn ? "🔊 SOM ON" : "🔇 MUDO"}
+            </button>
+          ) : null}
+
+          {active && ready ? (
+            <span className="font-mono" style={{ position: "absolute", bottom: 8, right: 8, padding: "2px 6px", borderRadius: 5, fontSize: 8, fontWeight: 800, background: "rgba(3,6,12,0.82)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.45)", zIndex: 3, pointerEvents: "none" }}>
+              ▶ PRÉVIA
+            </span>
+          ) : null}
+        </div>
+      );
+    }
+
     function itemKind(url) {
       const t = parseOmniLink(url || "").type;
       if (t === "YOUTUBE" || t === "VIDEO") return "video";
@@ -1244,6 +1520,8 @@
       const thumbBox = (it, live) => {
         const t = (it.capa && it.capa.trim()) || itemThumb(it.url);
         const ty = parseOmniLink(it.url || "").type;
+        const isVid = ty === "YOUTUBE" || ty === "YOUTUBE_SHORTS" || ty === "VIDEO";
+        if (live !== false && isVid) return <VideoPreview it={it} thumbImg={t} />;
         const ph = (<div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
               <span style={{ fontSize: 30 }}>{typeIcon(ty)}</span>
               {ty !== "PDF" && (() => { try { return <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8", wordBreak: "break-all" }}>{new URL(it.url).hostname.replace(/^www\./, "")}</span>; } catch (e) { return null; } })()}
@@ -1304,7 +1582,7 @@
               Rod_Oz - dhigoos@gmail.com - zap: 38.9247.6634
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div className="font-hud font-bold" style={{ flex: "0 0 50px", width: 50, height: 50, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+              <div className="font-hud font-bold" title="Comandante: clique duplo para abrir o Admin" onDoubleClick={() => { if (onAdmin) onAdmin(); }} style={{ flex: "0 0 50px", width: 50, height: 50, borderRadius: 14, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 17, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                 {LOGO_URL ? <img src={LOGO_URL} alt="HB" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : "HB"}
               </div>
               <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
@@ -1350,6 +1628,7 @@
                       {it("canais", "CANAIS", <><rect x="2" y="7" width="20" height="14" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></>, () => closeDrawer(() => go("home")), view === "home" || view === "feed")}
                       {it("ofertas", "OFERTAS", <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></>, () => closeDrawer(() => go("offers")), view === "offers", true)}
                       {it("sala", "SALA", <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></>, () => closeDrawer(() => go("sala")), view === "sala")}
+                      {onAdmin && it("admin", "ADMIN", <><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></>, () => closeDrawer(() => onAdmin()), false)}
                       <div style={{ borderTop: "1px solid rgba(148,163,184,0.25)", margin: "4px 10px" }}></div>
                       {it("som", "SOM", <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></>, () => { playHoloSound("click"); setIsMuted(!isMuted); }, false, false, isMuted ? "OFF" : "ON")}
                       {it("auto", "AUTOPLAY", <><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></>, () => setAutoPlay(!autoPlay), false, false, autoPlay ? "ON" : "OFF")}
@@ -1973,10 +2252,17 @@
       );
     }
 
-    function AppInner({ initCh, adsPub, adsLoading, chatTxt }) {
-      const [channels, setChannels] = useState(initCh);
-      const initDeep = useRef(readItemParamsFromUrl(initCh)).current;
+    function App() {
+      const [channels, setChannels] = useState(() => {
+        try {
+          const saved = localStorage.getItem("BRUTE_MULTI_CAMPAIGN_DATA");
+          const arr = saved ? JSON.parse(saved) : INITIAL_CATALOG;
+          const clean = arr.filter((c) => !String(c.id).startsWith("CAT_"));
+          return clean.length ? clean : INITIAL_CATALOG;
+        } catch (e) { return INITIAL_CATALOG; }
+      });
 
+      const initDeep = useRef(readItemParamsFromUrl(channels)).current;
       const [currentIndex, setCurrentIndex] = useState(initDeep ? initDeep.ci : 0);
       const [selectedVideoIdx, setSelectedVideoIdx] = useState(initDeep ? initDeep.ii : 0);
       const [selectedOfferIdx, setSelectedOfferIdx] = useState(0);
@@ -2015,6 +2301,8 @@
       });
 
       // ADMIN & DRAGÃO
+      const [isAdminOpen, setIsAdminOpen] = useState(false);
+      const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
       const [isFlagOpen, setIsFlagOpen] = useState(false);
       const [pcToast, setPcToast] = useState("");
       const showPcToast = (msg) => { setPcToast(msg); setTimeout(() => setPcToast(""), 2400); };
@@ -2046,21 +2334,71 @@
           </button>
         );
       };
+      const [pinInput, setPinInput] = useState("");
       
       // ESTÚDIO MULTI-PÁGINA: Canal em edição aprofundada!
+      const [campaignEditing, setCampaignEditing] = useState(null);
 
       // ANÚNCIOS DO MONITOR MENOR (vindos do catálogo v4), independentes do telão
-      const [ads, setAds] = useState([]);
+      const [ads, setAds] = useState(() => {
+        try { const sv = localStorage.getItem("BRUTE_ADS_V1"); return sv ? JSON.parse(sv).filter((a) => a && a.id && a.id !== "AD_undefined" && a.title) : []; } catch (e) { return []; }
+      });
       const [adIdx, setAdIdx] = useState(0);
       const [adMediaIdx, setAdMediaIdx] = useState(0);
       const [adSec, setAdSec] = useState(() => {
         try { return +localStorage.getItem("BRUTE_AD_SEC") || 10; } catch (e) { return 10; }
       });
       const [adminTab, setAdminTab] = useState("conteudo");
+      // chat (texto simples): rascunho do admin fica no navegador; "publicado" vem do chat.txt do site de dados
+      const [chatTxt, setChatTxt] = useState(() => { try { return localStorage.getItem("BRUTE_CHAT_TXT") || ""; } catch (e) { return ""; } });
+      const [chatWho, setChatWho] = useState("RODRIGO OZ");
+      const [chatNew, setChatNew] = useState("");
+      const saveChat = (t) => { setChatTxt(t); try { localStorage.setItem("BRUTE_CHAT_TXT", t); } catch (e) {} };
+      useEffect(() => {
+        let has = false;
+        try { has = !!localStorage.getItem("BRUTE_CHAT_TXT"); } catch (e) {}
+        if (has) return;
+        fetch(DATA_URL + "chat.txt?v=" + Date.now(), { cache: "no-store" }).then((r) => (r.ok ? r.text() : "")).then((t) => { if (t) setChatTxt(t); }).catch(() => {});
+      }, []);
+      const addChat = () => {
+        const msg = chatNew.replace(/[\r\n]+/g, " ").trim();
+        if (!msg) return;
+        const d = new Date();
+        const when = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const base = chatTxt.replace(/\s+$/, "");
+        saveChat((base ? base + "\n" : "") + when + " | " + chatWho + " | " + msg + "\n");
+        setChatNew("");
+      };
+      const exportChat = () => {
+        const a = document.createElement("a");
+        a.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(chatTxt));
+        a.setAttribute("download", "chat.txt");
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      const chatUsarPublicado = () => {
+        if (!confirm("Descartar o seu texto do chat e carregar o que está publicado?")) return;
+        fetch(DATA_URL + "chat.txt?v=" + Date.now(), { cache: "no-store" }).then((r) => (r.ok ? r.text() : null)).then((t) => {
+          if (t === null) { alert("Não achei o chat.txt publicado."); return; }
+          saveChat(t);
+        }).catch(() => alert("Não consegui buscar o chat.txt publicado."));
+      };
       const [catUrl, setCatUrl] = useState(() => {
         try { return localStorage.getItem("BRUTE_CAT_URL") || "https://brute-man-produtos.netlify.app/"; } catch (e) { return "https://brute-man-produtos.netlify.app/"; }
       });
 
+      // Injetor Rápido do Dragão
+      const [quickUrl, setQuickUrl] = useState("");
+      const [quickTitle, setQuickTitle] = useState("");
+
+      useEffect(() => {
+        try {
+          localStorage.setItem("BRUTE_MULTI_CAMPAIGN_DATA", JSON.stringify(channels));
+        } catch (e) { /* mídia grande demais para guardar no navegador: segue só nesta sessão */ }
+      }, [channels]);
+
+      useEffect(() => {
+        try { localStorage.setItem("BRUTE_ADS_V1", JSON.stringify(ads)); } catch (e) { /* mídia grande: vale só nesta sessão */ }
+      }, [ads]);
 
       useEffect(() => {
         try { localStorage.setItem("BRUTE_HOLD_SEC", String(holdSec)); } catch (e) {}
@@ -2074,10 +2412,68 @@
         try { localStorage.setItem("BRUTE_CAT_URL", catUrl); } catch (e) {}
       }, [catUrl]);
 
-      // anúncios do catálogo entram quando o catalogo.json chega (os canais já vieram antes)
+      // ===== MODO PUBLICADO (v3.10): lê canais.json e catalogo.json da mesma pasta do site =====
+      // Visitante: sempre vê o publicado. Navegador do admin (entrou com o PIN uma vez): o rascunho local vale.
+      const [pubReady, setPubReady] = useState(() => {
+        try { return localStorage.getItem("BRUTE_ADMIN") === "1"; } catch (e) { return false; }
+      });
+      const [pubInfo, setPubInfo] = useState({ ch: 0, ads: 0 });
+      const pubRef = useRef({ ch: [], ads: [] });
       useEffect(() => {
-        if (adsPub && adsPub.length) { setAds(adsPub); setAdIdx(0); setAdMediaIdx(0); }
-      }, [adsPub]);
+        let off = false;
+        const get = (name) =>
+          fetch(DATA_URL + name + "?v=" + Date.now(), { cache: "no-store" })
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null);
+        const timer = setTimeout(() => { if (!off) setPubReady(true); }, 5000);
+        // rascunho "de verdade" = tem algum canal que não é da demonstração antiga (CH_CACTO etc.)
+        const DEMO_IDS = ["CH_CACTO", "CH_SMARTWATCH", "CH_BIKE", "CH_MOTO", "CH_MAINFRAME", "CH_AIRFRYER"];
+        const isAdmin = () => { try { return localStorage.getItem("BRUTE_ADMIN") === "1"; } catch (e) { return false; } };
+        // canais (leve) e catálogo (pesado) entram cada um quando chega, sem um esperar o outro
+        get("canais.json").then((pc) => {
+          if (off) return;
+          let localCh = false;
+          try {
+            const raw = localStorage.getItem("BRUTE_MULTI_CAMPAIGN_DATA");
+            const arr = raw ? JSON.parse(raw) : [];
+            localCh = Array.isArray(arr) && arr.some((c) => c && c.id && DEMO_IDS.indexOf(c.id) < 0);
+          } catch (e) {}
+          const chs = Array.isArray(pc) ? pc.filter((c) => c && c.id && !String(c.id).startsWith("CAT_")) : [];
+          pubRef.current = { ch: chs, ads: pubRef.current.ads };
+          setPubInfo((p) => ({ ch: chs.length, ads: p.ads }));
+          if (chs.length && (!isAdmin() || !localCh)) {
+            setChannels(chs);
+            const deep = readItemParamsFromUrl(chs);
+            if (deep) { setCurrentIndex(deep.ci); setSelectedVideoIdx(deep.ii); }
+            else { setCurrentIndex(0); setSelectedVideoIdx(0); }
+          }
+          clearTimeout(timer);
+          setPubReady(true);
+        });
+        // Lab 24: anuncios.json primeiro (leve); se nao existir, catalogo.json antigo
+        get("anuncios.json").then((pl) => { let la = []; try { la = pl ? linksToAds(pl) : []; } catch (e) {} return la.length ? { links: la } : get("catalogo.json"); }).then((pk) => {
+          if (off) return;
+          let localAds = false;
+          try {
+            const la = localStorage.getItem("BRUTE_ADS_V1");
+            localAds = !!la && JSON.parse(la).filter((a) => a && a.id && a.id !== "AD_undefined" && a.title).length > 0;
+          } catch (e) {}
+          let adsPub = [];
+          try { adsPub = pk ? (pk.links || catalogToAds(pk)) : []; } catch (e) {}
+          pubRef.current = { ch: pubRef.current.ch, ads: adsPub };
+          setPubInfo((p) => ({ ch: p.ch, ads: adsPub.length }));
+          if (adsPub.length && (!isAdmin() || !localAds)) { setAds(adsPub); setAdIdx(0); setAdMediaIdx(0); }
+        });
+        return () => { off = true; clearTimeout(timer); };
+      }, []);
+
+      const usarPublicado = () => {
+        const p = pubRef.current;
+        if (!p.ch.length && !p.ads.length) { alert("Não achei canais.json nem catalogo.json publicados neste endereço."); return; }
+        if (!confirm("Descartar o seu rascunho e carregar o que está publicado?")) return;
+        if (p.ch.length) { setChannels(p.ch); setCurrentIndex(0); setSelectedVideoIdx(0); }
+        if (p.ads.length) { setAds(p.ads); setAdIdx(0); setAdMediaIdx(0); }
+      };
 
       // Lab 23b: vínculo anúncio-canal no PC (igual ao celular): se o canal tem "adIds", o monitor mostra só esses
       const pcCh = channels[currentIndex] || channels[0];
@@ -2124,6 +2520,9 @@
             setIsSidebarOpen((v) => !v);
           }
           if (e.key === "Escape") {
+            setIsAdminOpen(false);
+            setIsAuthModalOpen(false);
+            setCampaignEditing(null);
           }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -2248,16 +2647,179 @@
       // fechar o monitor menor: se o conteúdo do telão estava nele, volta antes para o telão
       const closePip = () => { if (isSwapped) setIsSwapped(false); setIsPipVisible(false); };
 
+      const handleVerifyPin = (e) => {
+        e.preventDefault();
+        if (pinInput === "1234") {
+          try { localStorage.setItem("BRUTE_ADMIN", "1"); } catch (e) {}
+          setIsAuthModalOpen(false);
+          setIsAdminOpen(true);
+          setPinInput("");
+        } else {
+          alert("PIN INCORRETO!");
+          setPinInput("");
+        }
+      };
 
+      // Adicionar Canal Rápido com o Dragão
+      const handleQuickAdd = (e) => {
+        e.preventDefault();
+        if (!quickUrl.trim()) return;
 
+        playHoloSound('swap');
+        const parsed = parseOmniLink(quickUrl);
 
+        const newChan = {
+          id: `CH_${Date.now()}`,
+          slug: (quickTitle || "canal").toLowerCase().replace(/[^a-z0-9]/g, "-").slice(0, 20),
+          title: quickTitle.trim() || `CANAL // ${parsed.badge}`,
+          badge: parsed.badge,
+          auraScore: "99.9% AURA",
+          caseStudy: "",
+          videos: [
+            { label: "Vídeo 1: Principal", url: quickUrl.trim(), data: new Date().toISOString() }
+          ],
+          offers: []
+        };
 
+        setChannels([newChan, ...channels]);
+        selectChannel(0);
+        setQuickUrl("");
+        setQuickTitle("");
+      };
 
+      // Salvar Edição Completa da Campanha Multi-Página
+      const handleSaveCampaignEditing = (e) => {
+        e.preventDefault();
+        setChannels(channels.map(c => c.id === campaignEditing.id ? campaignEditing : c));
+        setCampaignEditing(null);
+        alert("Campanha e ofertas salvas com sucesso!");
+      };
 
+      // Manipulação de Vídeos do Canal em Edição
+      const addVideoToCampaign = () => {
+        const url = prompt("Cole a URL do novo vídeo (YouTube, MP4, Shorts, Drive):");
+        if (!url) return;
+        const label = prompt("Título/Etiqueta do vídeo (ex: Vídeo 2: Demonstração):") || `Vídeo ${campaignEditing.videos.length + 1}`;
+        setCampaignEditing({
+          ...campaignEditing,
+          videos: [...campaignEditing.videos, { label, url, data: new Date().toISOString() }]
+        });
+      };
 
+      const removeVideoFromCampaign = (vIdx) => {
+        if (campaignEditing.videos.length <= 1) {
+          alert("O canal precisa ter pelo menos 1 vídeo!");
+          return;
+        }
+        setCampaignEditing({
+          ...campaignEditing,
+          videos: campaignEditing.videos.filter((_, idx) => idx !== vIdx)
+        });
+      };
 
+      // Manipulação de Ofertas do Canal em Edição
+      const addOfferToCampaign = () => {
+        const title = prompt("Título do Produto/Oferta:") || "Nova Oferta Vinculada";
+        const priceCurrent = prompt("Preço Atual (ex: R$ 35,99):") || "R$ 35,99";
+        const affiliateLink = prompt("Link de Afiliado Shopee:") || "https://s.shopee.com.br/1qcjQjdoFt";
+        const thumbImg = prompt("URL da Imagem da Foto:") || SAFE_IMG_FALLBACK;
+        const badge = prompt("Selo (ex: SUPER COMBO, 50% OFF):") || "OFERTA";
 
+        const newOff = {
+          title,
+          priceOld: "R$ 59,90",
+          priceCurrent,
+          discount: "-25%",
+          sold: "1mil+ vendidos",
+          rating: "★ 4.9",
+          badge,
+          affiliateLink,
+          thumbImg,
+          features: ["Produto com garantia", "Frete Grátis Shopee"]
+        };
 
+        setCampaignEditing({
+          ...campaignEditing,
+          offers: [...campaignEditing.offers, newOff]
+        });
+      };
+
+      const removeOfferFromCampaign = (oIdx) => {
+        setCampaignEditing({
+          ...campaignEditing,
+          offers: campaignEditing.offers.filter((_, idx) => idx !== oIdx)
+        });
+      };
+
+      // Exportar / Importar JSON
+      const handleExportarJSON = () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(channels, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "canais.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      };
+
+      const handleImportarJSON = (e) => {
+        const fileReader = new FileReader();
+        fileReader.readAsText(e.target.files[0], "UTF-8");
+        fileReader.onload = (event) => {
+          try {
+            const parsed = JSON.parse(event.target.result);
+            if (Array.isArray(parsed)) {
+              setChannels(parsed);
+              setCurrentIndex(0);
+              alert("Catálogo importado com sucesso!");
+            }
+          } catch (err) {
+            alert("Arquivo JSON inválido!");
+          }
+        };
+      };
+
+      const handleCarregarCatalogo = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const fr = new FileReader();
+        fr.onload = (ev) => {
+          try {
+            const novos = catalogToAds(JSON.parse(ev.target.result));
+            if (!novos.length) { alert("Não achei produtos nesse arquivo."); return; }
+            setAds(novos);
+            setAdIdx(0);
+            setAdMediaIdx(0);
+            setAdminTab("anuncios");
+            alert(novos.length + " anúncio(s) do catálogo carregado(s) no monitor menor!");
+          } catch (err) {
+            alert("Arquivo do catálogo inválido!");
+          }
+        };
+        fr.readAsText(file, "UTF-8");
+        e.target.value = "";
+      };
+
+      const handleAddAdMedia = (adId, fileList) => {
+        const all = Array.from(fileList || []);
+        const files = all.filter((f) => /^(video|image)\//.test(f.type));
+        if (!all.length) return;
+        if (!files.length) { alert("Nenhum vídeo ou imagem reconhecido nos arquivos escolhidos."); return; }
+        const big = files.filter((f) => f.size > 2 * 1024 * 1024);
+        if (big.length) alert("Atenção: arquivo grande (" + (big[0].size / 1048576).toFixed(1) + " MB). Pode não ficar salvo ao recarregar a página. Prefira loops leves.");
+        Promise.all(files.map((f) => new Promise((res) => {
+          const fr = new FileReader();
+          fr.onload = () => res({ t: f.type.startsWith("video/") ? "vid" : "img", src: fr.result });
+          fr.onerror = () => res(null);
+          fr.readAsDataURL(f);
+        }))).then((items) => {
+          const novos = items.filter(Boolean);
+          if (!novos.length) { alert("Não consegui ler os arquivos escolhidos."); return; }
+          setAds((prev) => prev.map((a) => (a.id === adId ? { ...a, media: [...a.media, ...novos] } : a)));
+          setAdMediaIdx(0);
+          alert(novos.length + " mídia(s) adicionada(s) ao anúncio!");
+        });
+      };
 
       const renderMainContent = () => (
         <OmniScreenRenderer
@@ -2274,8 +2836,8 @@
       const renderProductCardContent = () => !activeOffer ? (
         <div className="flex flex-col h-full items-center justify-center text-center gap-2 p-4">
           <div className="text-3xl">🛒</div>
-          <div className="font-hud font-bold text-[11px] text-orange-300">{adsLoading ? "CARREGANDO OFERTAS..." : "SEM OFERTAS NO MOMENTO"}</div>
-          {adsLoading ? <div className="text-[9px] font-mono text-gray-400">Só mais um instante.</div> : null}
+          <div className="font-hud font-bold text-[11px] text-orange-300">SEM ANÚNCIOS AINDA</div>
+          <div className="text-[9px] font-mono text-gray-400">Abra o painel → Anúncios do monitor menor → CARREGAR CATÁLOGO v4.</div>
         </div>
       ) : (
         <div className="flex flex-col h-full justify-between">
@@ -2358,17 +2920,25 @@
 
       return (
         <div className="hb-root w-full h-full flex flex-col justify-between">
+          {!pubReady && (
+            <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#050A14", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12, color: "#67E8F9", fontFamily: "monospace", letterSpacing: "0.12em", fontSize: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 18, color: "#FB923C" }}>HOMEM BRUTO</div>
+              <div>CARREGANDO A TV…</div>
+            </div>
+          )}
           
           {isMobile ? (
             <MobileTV channels={channels} ads={ads} isMuted={isMuted} setIsMuted={setIsMuted} onBlocked={reportBlocked}
               autoPlay={autoPlayNext} setAutoPlay={setAutoPlayNext} holdSec={holdSec} chatTxt={chatTxt}
-              />
+              onAdmin={() => setIsAuthModalOpen(true)} />
           ) : (<>
           {/* HEADER PÚBLICO */}
           <header className="hb-header flex items-center justify-between border-b border-cyan-500/20 pb-2 text-xs">
             <div className="flex items-center gap-3">
               <div 
+                onDoubleClick={() => setIsAuthModalOpen(true)}
                 className="hb-logo w-8 h-8 rounded-lg bg-orange-600/30 border border-orange-500 flex items-center justify-center font-hud font-bold text-orange-400 text-xs shadow-[0_0_12px_rgba(249,115,22,0.4)] cursor-pointer select-none hover:scale-105 transition"
+                title="Comandante: Clique duplo para abrir o Dragão Admin"
               >
                 HB
               </div>
@@ -2451,7 +3021,12 @@
           <div className="hb-mhead" style={{ position: "relative" }}>
             <div style={{ padding: "10px 12px", background: "#07101D", border: "1px solid rgba(34,211,238,0.22)", borderRadius: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, height: 44 }}>
-                <div className="font-hud font-bold" style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>HB</div>
+                <button type="button" aria-label="Bandeira do Bruto: abrir o Dragão Admin" title="Bruto: Dragão Admin"
+                  onClick={() => { playHoloSound('click'); setIsAuthModalOpen(true); }}
+                  className="font-hud font-bold"
+                  style={{ flex: "0 0 44px", width: 44, height: 44, padding: 0, borderRadius: 12, border: "2px solid #F97316", background: "rgba(249,115,22,0.14)", color: "#FB923C", fontSize: 15, cursor: "pointer", touchAction: "manipulation" }}>
+                  HB
+                </button>
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                   <div className="font-hud font-bold" style={{ fontSize: 15, color: "#FB923C", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HOMEM BRUTO</div>
                   <div className="font-mono" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "#67E8F9", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
@@ -2761,116 +3336,578 @@
             </div>
           ) : null}
 
+          {/* MODAL PIN SECRETO */}
+          {isAuthModalOpen && (
+            <div 
+              onClick={(e) => { if (e.target === e.currentTarget) setIsAuthModalOpen(false); }}
+              className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            >
+              <div className="bg-slate-900 border-2 border-orange-500 rounded-xl w-full max-w-sm p-4 text-center shadow-[0_0_40px_rgba(249,115,22,0.5)]">
+                <div className="text-2xl mb-2">🔒</div>
+                <h3 className="font-hud font-bold text-sm text-orange-400 mb-1">ACESSO OPERACIONAL BRUTE</h3>
+                <p className="text-[10px] font-mono text-gray-400 mb-3">Digite o PIN do Comandante (Padrão: 1234)</p>
+                
+                <form onSubmit={handleVerifyPin} className="space-y-3">
+                  <input
+                    type="password"
+                    autoFocus
+                    placeholder="PIN Secreto..."
+                    value={pinInput}
+                    onChange={(e) => setPinInput(e.target.value)}
+                    className="w-full bg-black border border-orange-500/60 rounded p-2 text-center text-cyan-300 font-mono text-sm tracking-widest outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setIsAuthModalOpen(false)} className="flex-1 py-1.5 bg-slate-800 text-gray-300 rounded text-xs font-mono">
+                      Cancelar
+                    </button>
+                    <button type="submit" className="flex-1 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded text-xs font-hud font-bold">
+                      Desbloquear ➔
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* ========================================================
               MODAL DRAGÃO ADMIN MASTER & ESTÚDIO MULTI-PÁGINA
              ======================================================== */}
+          {isAdminOpen && (
+            <div 
+              onClick={(e) => { if (e.target === e.currentTarget) { setIsAdminOpen(false); setCampaignEditing(null); } }}
+              className="hb-adminwrap fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            >
+              <div className="hb-admin bg-slate-900 border-2 border-orange-500 rounded-2xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-[0_0_50px_rgba(249,115,22,0.4)] overflow-hidden">
+                
+                {/* Header */}
+                <div className="p-3 bg-slate-950 border-b border-orange-500/30 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🐉</span>
+                    <div>
+                      <h3 className="text-sm font-bold text-orange-400 font-hud tracking-wider">
+                        {campaignEditing ? `ESTÚDIO // EDITANDO ${campaignEditing.title}` : "DRAGÃO ADMIN // MULTI-CAMPAIGN MASTER"}
+                      </h3>
+                      <p className="text-[9px] font-mono text-gray-400">
+                        {campaignEditing ? "GERENCIANDO MÚLTIPLOS VÍDEOS E OFERTAS DO CANAL" : "INJETOR DE LINKS • GESTÃO DE PÁGINAS • EXPORTAÇÃO JSON"}
+                      </p>
+                    </div>
+                  </div>
 
-        </div>
-      );
-    }
+                  <div className="flex items-center gap-2 font-mono text-[10px]">
+                    {campaignEditing ? (
+                      <button 
+                        onClick={() => setCampaignEditing(null)}
+                        className="px-3 py-1 bg-slate-800 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
+                      >
+                        ← Voltar para a Lista
+                      </button>
+                    ) : (
+                      <>
+                        <button onClick={handleExportarJSON} className="px-2.5 py-1 rounded bg-blue-950 border border-blue-400 text-blue-300 font-bold hover:bg-blue-900 transition">
+                          📥 EXPORTAR JSON
+                        </button>
+                        <label className="cursor-pointer px-2.5 py-1 rounded bg-emerald-950 border border-emerald-400 text-emerald-300 font-bold hover:bg-emerald-900 transition">
+                          📚 CARREGAR CATÁLOGO v4
+                          <input type="file" accept=".json" onChange={handleCarregarCatalogo} className="hidden" />
+                        </label>
+                        <label className="cursor-pointer px-2.5 py-1 rounded bg-purple-950 border border-purple-400 text-purple-300 font-bold hover:bg-purple-900 transition">
+                          📤 IMPORTAR JSON
+                          <input type="file" accept=".json" onChange={handleImportarJSON} className="hidden" />
+                        </label>
+                        <button onClick={usarPublicado} title="Carrega o que está publicado neste endereço (canais.json e catalogo.json)" className="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-400 text-cyan-300 font-bold hover:bg-cyan-900 transition">
+                          🌐 USAR O PUBLICADO ({pubInfo.ch} canal · {pubInfo.ads} anúncio)
+                        </button>
+                      </>
+                    )}
 
-    function IntroScreen({ on, status, onRetry }) {
-      const [gone, setGone] = useState(false);
-      useEffect(() => {
-        if (on) { setGone(false); return; }
-        const t = setTimeout(() => setGone(true), 700);
-        return () => clearTimeout(t);
-      }, [on]);
-      if (gone && !on) return null;
-      return (
-            <div className="hb-intro" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 26, overflow: "hidden", opacity: on ? 1 : 0, transition: "opacity 0.6s ease", pointerEvents: on ? "auto" : "none" }}>
-            <div className="hb-intro-grid" />
-            <div className="hb-intro-sweep" />
-            <div className="hb-intro-tv">
-              <div className="hb-intro-screen">
-                <div className="hb-intro-logo font-hud">HB</div>
-                <div className="hb-intro-bars">
-                  {[0, 1, 2, 3, 4, 5, 6].map((i) => <span key={i} style={{ animationDelay: (i * 0.12) + "s" }} />)}
+                    <button 
+                      onClick={() => { setIsAdminOpen(false); setCampaignEditing(null); }}
+                      className="px-3 py-1 bg-red-950 border border-red-500 text-red-300 rounded font-bold hover:bg-red-800 transition"
+                    >
+                      ✕ FECHAR PAINEL
+                    </button>
+                  </div>
                 </div>
-                <div className="hb-intro-scan" />
+
+                {/* CONTEÚDO: MODO LISTA OU MODO ESTÚDIO DE EDIÇÃO */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 font-mono text-xs hud-scroll">
+                  
+                  {/* SE ESTIVER NO MODO ESTÚDIO DE EDIÇÃO DE UM CANAL */}
+                  {!campaignEditing && (
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setAdminTab("conteudo")}
+                        className={`px-3 py-1.5 rounded font-bold text-[10px] border ${adminTab === "conteudo" ? "bg-cyan-900/60 border-cyan-400 text-cyan-200" : "bg-slate-950 border-slate-700 text-gray-400"}`}>
+                        📺 CONTEÚDO DO TELÃO ({channels.length})
+                      </button>
+                      <button type="button" onClick={() => setAdminTab("anuncios")}
+                        className={`px-3 py-1.5 rounded font-bold text-[10px] border ${adminTab === "anuncios" ? "bg-orange-900/60 border-orange-400 text-orange-200" : "bg-slate-950 border-slate-700 text-gray-400"}`}>
+                        🛒 ANÚNCIOS DO MONITOR MENOR ({ads.length})
+                      </button>
+                      <button type="button" onClick={() => setAdminTab("chat")}
+                        className={`px-3 py-1.5 rounded font-bold text-[10px] border ${adminTab === "chat" ? "bg-emerald-900/60 border-emerald-400 text-emerald-200" : "bg-slate-950 border-slate-700 text-gray-400"}`}>
+                        💬 CHAT
+                      </button>
+                    </div>
+                  )}
+
+                  {adminTab === "chat" && !campaignEditing ? (
+                    <div className="space-y-3">
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-emerald-500/40 space-y-2">
+                        <div className="font-bold text-emerald-300 text-xs">💬 CHAT: micro blog que aparece no site (os visitantes só leem)</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <select value={chatWho} onChange={(e) => setChatWho(e.target.value)} className="bg-black border border-slate-600 rounded px-2 py-1 text-white">
+                            <option>RODRIGO OZ</option>
+                            <option>CLÁUDIA</option>
+                          </select>
+                          <input type="text" value={chatNew} onChange={(e) => setChatNew(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Enter") addChat(); }}
+                            placeholder="Escreva a mensagem e aperte Enter..." className="flex-1 min-w-[200px] bg-black border border-slate-600 rounded px-2 py-1 text-white" />
+                          <button type="button" onClick={addChat} className="px-3 py-1 rounded bg-emerald-900/60 border border-emerald-400 text-emerald-200 font-bold">➕ ADICIONAR</button>
+                        </div>
+                        <div className="text-gray-400">Texto completo. Uma mensagem por linha, no formato <span className="text-emerald-300">DD/MM/AAAA HH:MM | AUTOR | mensagem</span>. Pode editar à mão:</div>
+                        <textarea value={chatTxt} onChange={(e) => saveChat(e.target.value)} rows={10}
+                          className="w-full bg-black border border-slate-600 rounded p-2 text-white hud-scroll" style={{ fontFamily: "monospace" }} />
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button type="button" onClick={exportChat} className="px-3 py-1 rounded bg-blue-950 border border-blue-400 text-blue-300 font-bold">📥 EXPORTAR chat.txt</button>
+                          <button type="button" onClick={chatUsarPublicado} className="px-3 py-1 rounded bg-slate-900 border border-slate-500 text-gray-300 font-bold">↺ USAR O PUBLICADO</button>
+                        </div>
+                        <div className="text-[10px] text-gray-500">Depois de exportar, coloque o <b>chat.txt</b> na pasta dos dados (junto do canais.json) e suba essa pasta no site de dados.</div>
+                      </div>
+                    </div>
+                  ) : adminTab === "anuncios" && !campaignEditing ? (
+                    <div className="space-y-3">
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-orange-500/40 space-y-2">
+                        <div className="font-bold text-orange-400 text-xs">🛒 ANÚNCIOS (vêm do catálogo v4 e giram sozinhos no monitor laranja)</div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <label className="text-gray-400">Segundos por anúncio:</label>
+                          <input type="number" min="3" max="120" value={adSec}
+                            onChange={(e) => setAdSec(Math.max(3, +e.target.value || 10))}
+                            className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none" />
+                          <button type="button" onClick={() => { if (ads.length && confirm("Limpar todos os anúncios?")) { setAds([]); setAdIdx(0); } }}
+                            className="px-2.5 py-1 rounded bg-red-950 border border-red-500/50 text-red-300 text-[10px] font-bold">Limpar anúncios</button>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <label className="text-gray-400">Endereço do catálogo publicado:</label>
+                          <input type="text" value={catUrl} onChange={(e) => setCatUrl(e.target.value)}
+                            className="flex-1 min-w-[220px] bg-slate-900 border border-slate-700 rounded px-2 py-1 text-cyan-300 outline-none" />
+                        </div>
+                        <p className="text-[10px] text-gray-500">Para trazer ou atualizar produtos, use o botão verde "📚 CARREGAR CATÁLOGO v4" lá em cima. Edição de preço, link e fotos continua sendo feita no catálogo.</p>
+                      </div>
+
+                      {ads.length === 0 && (
+                        <p className="text-gray-500 text-center py-6">Nenhum anúncio ainda. Exporte o catalogo-config.json na v4 e carregue aqui.</p>
+                      )}
+
+                      {ads.map((a, i) => (
+                        <div key={a.id} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <SafeImage src={a.offer.thumbImg} className="w-12 h-12 object-cover rounded-lg border border-slate-700 shrink-0" />
+                            <div className="truncate">
+                              <div className="font-bold text-slate-200 text-sm truncate">{a.title}</div>
+                              <div className="text-[10px] text-cyan-400">
+                                {a.offer.priceCurrent} • 🖼 <strong className="text-white">{a.media.length} MÍDIAS</strong> • {a.offer.badge}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 ml-2">
+                            <label className="cursor-pointer px-2.5 py-1.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/50 text-[10px] font-bold hover:bg-emerald-900">
+                              ➕ Loops
+                              <input type="file" multiple accept="video/*,image/*" className="hidden"
+                                onChange={(e) => { handleAddAdMedia(a.id, e.target.files); e.target.value = ""; }} />
+                            </label>
+                            <button onClick={() => { if (confirm("Apagar as " + a.media.length + " mídia(s) deste anúncio?")) { setAds(ads.map((x) => (x.id === a.id ? { ...x, media: [] } : x))); setAdMediaIdx(0); } }}
+                              className="px-2.5 py-1.5 rounded bg-slate-800 text-gray-300 border border-slate-600 text-[10px] font-bold hover:bg-slate-700">🧹 Mídias</button>
+                            <button onClick={() => { setAdIdx(i); setAdMediaIdx(0); setIsPipVisible(true); setIsAdminOpen(false); }}
+                              className="px-3 py-1.5 rounded bg-teal-900/60 text-teal-300 border border-teal-500/40 text-[10px] font-bold hover:bg-teal-800">Mostrar agora ⚡</button>
+                            <button onClick={() => { if (confirm("Excluir este anúncio?")) { setAds(ads.filter((x) => x.id !== a.id)); setAdIdx(0); } }}
+                              className="px-2.5 py-1.5 rounded bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold hover:bg-red-900">Excluir</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : campaignEditing ? (
+                    <form onSubmit={handleSaveCampaignEditing} className="space-y-4">
+                      
+                      {/* DADOS GERAIS */}
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-cyan-500/40 space-y-2">
+                        <div className="font-bold text-cyan-400 text-xs">1. DADOS GERAIS DO CANAL</div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-gray-400 block mb-0.5">Título do Canal:</label>
+                            <input
+                              type="text"
+                              value={campaignEditing.title}
+                              onChange={(e) => setCampaignEditing({ ...campaignEditing, title: e.target.value })}
+                              className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-gray-400 block mb-0.5">Selo (opcional):</label>
+                            <input
+                              type="text"
+                              value={campaignEditing.badge}
+                              onChange={(e) => setCampaignEditing({ ...campaignEditing, badge: e.target.value })}
+                              className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-gray-400 block mb-0.5">Categoria na home (ex: MÚSICA, ANIMAÇÃO E HQ):</label>
+                          <input
+                            type="text"
+                            list="cat-sugestoes"
+                            value={campaignEditing.category || ""}
+                            onChange={(e) => setCampaignEditing({ ...campaignEditing, category: e.target.value })}
+                            placeholder="vazio = CANAIS"
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 outline-none"
+                          />
+                          <datalist id="cat-sugestoes">
+                            {[...new Set(channels.map((c) => c.category).filter(Boolean))].map((c) => <option key={c} value={c} />)}
+                          </datalist>
+                        </div>
+
+                        <div className="bg-slate-900/80 p-2 rounded-lg border border-orange-500/50 space-y-1">
+                          <div className="font-bold text-orange-400 text-xs">PRODUTOS DO CATÁLOGO VINCULADOS A ESTE CANAL ({(campaignEditing.adIds || []).length})</div>
+                          {!ads.length ? (
+                            <div className="text-gray-400 text-[10px]">Nenhum catálogo carregado. Importe o catálogo (ou publique o catalogo.json) para vincular produtos.</div>
+                          ) : (
+                            <div className="space-y-1 max-h-40 overflow-y-auto">
+                              {ads.map((a) => {
+                                const id = String(a.id).replace(/^AD_/, "");
+                                const on = (campaignEditing.adIds || []).map((x) => String(x).replace(/^AD_/, "")).includes(id);
+                                return (
+                                  <label key={a.id} className="text-slate-200 cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={on}
+                                      style={{ width: 18, height: 18, flex: "0 0 18px" }}
+                                      onChange={() => {
+                                        const cur = (campaignEditing.adIds || []).map((x) => String(x).replace(/^AD_/, ""));
+                                        setCampaignEditing({ ...campaignEditing, adIds: on ? cur.filter((x) => x !== id) : [...cur, id] });
+                                      }}
+                                    />
+                                    <span>{a.title}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="text-gray-400 block mb-0.5">Descrição do canal (opcional — aparece no card do canal):</label>
+                          <textarea
+                            rows="2"
+                            value={campaignEditing.caseStudy}
+                            onChange={(e) => setCampaignEditing({ ...campaignEditing, caseStudy: e.target.value })}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* VÍDEOS DO TELÃO (PÁGINAS DE VÍDEO) */}
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-cyan-500/40 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-cyan-400 text-xs">2. VÍDEOS DO TELÃO MAIOR ({campaignEditing.videos.length})</span>
+                          <button
+                            type="button"
+                            onClick={addVideoToCampaign}
+                            className="px-2.5 py-1 bg-cyan-900/60 border border-cyan-400 text-cyan-200 rounded text-[10px] font-bold hover:bg-cyan-800"
+                          >
+                            ➕ Adicionar Outro Vídeo ao Canal
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {campaignEditing.videos.map((vid, vIdx) => (
+                            <div key={vIdx} className="p-2 rounded bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                              <div className="flex-1 grid grid-cols-3 gap-2">
+                                <input
+                                  type="text"
+                                  value={vid.label}
+                                  placeholder="Etiqueta do Vídeo"
+                                  onChange={(e) => {
+                                    const updated = [...campaignEditing.videos];
+                                    updated[vIdx].label = e.target.value;
+                                    setCampaignEditing({ ...campaignEditing, videos: updated });
+                                  }}
+                                  className="bg-black border border-slate-700 rounded px-2 py-1 text-slate-200 outline-none"
+                                />
+                                <input
+                                  type="text"
+                                  value={vid.url}
+                                  placeholder="URL do Vídeo (YouTube, MP4, Shorts, Drive)"
+                                  onChange={(e) => {
+                                    const updated = [...campaignEditing.videos];
+                                    updated[vIdx].url = e.target.value;
+                                    setCampaignEditing({ ...campaignEditing, videos: updated });
+                                  }}
+                                  className="col-span-2 bg-black border border-slate-700 rounded px-2 py-1 text-cyan-300 outline-none"
+                                />
+                                <input
+                                  type="text"
+                                  value={vid.capa || ""}
+                                  placeholder="CAPA (link de imagem) — opcional, p/ sites e PDFs"
+                                  onChange={(e) => {
+                                    const updated = [...campaignEditing.videos];
+                                    updated[vIdx].capa = e.target.value;
+                                    setCampaignEditing({ ...campaignEditing, videos: updated });
+                                  }}
+                                  className="col-span-2 bg-black border border-slate-700 rounded px-2 py-1 text-emerald-300 outline-none"
+                                />
+                                <label className="flex items-center gap-1 text-[10px] text-orange-300 font-mono">
+                                  <input type="checkbox" checked={!!vid.externo}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.videos];
+                                      updated[vIdx].externo = e.target.checked;
+                                      setCampaignEditing({ ...campaignEditing, videos: updated });
+                                    }} />
+                                  ABRIR EM NOVA ABA
+                                </label>
+                                <textarea
+                                  value={vid.desc || ""}
+                                  rows={2}
+                                  placeholder="DESCRIÇÃO da mídia (aparece no card e na visualização) — opcional"
+                                  onChange={(e) => {
+                                    const updated = [...campaignEditing.videos];
+                                    updated[vIdx].desc = e.target.value;
+                                    setCampaignEditing({ ...campaignEditing, videos: updated });
+                                  }}
+                                  className="col-span-3 bg-black border border-slate-700 rounded px-2 py-1 text-slate-200 outline-none"
+                                ></textarea>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeVideoFromCampaign(vIdx)}
+                                className="px-2 py-1 bg-red-950 border border-red-500/50 text-red-300 rounded text-[10px] hover:bg-red-900"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* OFERTAS ANTIGAS (opcional, só aparece se o canal tiver) */}
+                      {(campaignEditing.offers || []).length > 0 && (
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-orange-500/40 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-orange-400 text-xs">3. OFERTAS ANTIGAS DESTE CANAL ({campaignEditing.offers.length}) — opcional, só aparecem se não houver anúncios</span>
+                          <button
+                            type="button"
+                            onClick={addOfferToCampaign}
+                            className="px-2.5 py-1 bg-orange-900/60 border border-orange-400 text-orange-200 rounded text-[10px] font-bold hover:bg-orange-800"
+                          >
+                            ➕ Adicionar Outra Oferta Vinculada
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {campaignEditing.offers.map((off, oIdx) => (
+                            <div key={oIdx} className="p-2.5 rounded-lg bg-slate-900 border border-orange-500/30 space-y-2">
+                              <div className="flex justify-between items-center text-[10px] text-orange-300 font-bold">
+                                <span>OFERTA #{oIdx + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeOfferFromCampaign(oIdx)}
+                                  className="text-red-400 hover:text-red-300"
+                                >
+                                  Remover Esta Oferta
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-4 gap-2">
+                                <div className="col-span-2">
+                                  <label className="text-gray-400 block mb-0.5 text-[9px]">Nome do Produto:</label>
+                                  <input
+                                    type="text"
+                                    value={off.title}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.offers];
+                                      updated[oIdx].title = e.target.value;
+                                      setCampaignEditing({ ...campaignEditing, offers: updated });
+                                    }}
+                                    className="w-full bg-black border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-gray-400 block mb-0.5 text-[9px]">Preço Atual:</label>
+                                  <input
+                                    type="text"
+                                    value={off.priceCurrent}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.offers];
+                                      updated[oIdx].priceCurrent = e.target.value;
+                                      setCampaignEditing({ ...campaignEditing, offers: updated });
+                                    }}
+                                    className="w-full bg-black border border-slate-700 rounded px-2 py-1 text-orange-300 font-bold outline-none"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-gray-400 block mb-0.5 text-[9px]">Selo da Oferta:</label>
+                                  <input
+                                    type="text"
+                                    value={off.badge}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.offers];
+                                      updated[oIdx].badge = e.target.value;
+                                      setCampaignEditing({ ...campaignEditing, offers: updated });
+                                    }}
+                                    className="w-full bg-black border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none"
+                                  />
+                                </div>
+
+                                <div className="col-span-2">
+                                  <label className="text-gray-400 block mb-0.5 text-[9px]">Link de Afiliado Shopee:</label>
+                                  <input
+                                    type="text"
+                                    value={off.affiliateLink}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.offers];
+                                      updated[oIdx].affiliateLink = e.target.value;
+                                      setCampaignEditing({ ...campaignEditing, offers: updated });
+                                    }}
+                                    className="w-full bg-black border border-slate-700 rounded px-2 py-1 text-cyan-300 outline-none"
+                                  />
+                                </div>
+
+                                <div className="col-span-2">
+                                  <label className="text-gray-400 block mb-0.5 text-[9px]">URL da Foto (Capa):</label>
+                                  <input
+                                    type="text"
+                                    value={off.thumbImg}
+                                    onChange={(e) => {
+                                      const updated = [...campaignEditing.offers];
+                                      updated[oIdx].thumbImg = e.target.value;
+                                      setCampaignEditing({ ...campaignEditing, offers: updated });
+                                    }}
+                                    className="w-full bg-black border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      )}
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setCampaignEditing(null)}
+                          className="px-4 py-2 bg-slate-800 text-gray-300 rounded font-bold hover:bg-slate-700"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-6 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold rounded-lg shadow-lg"
+                        >
+                          💾 SALVAR TODAS AS ALTERAÇÕES DO CANAL
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    /* MODO LISTA NORMAL COM BOTÃO RÁPIDO DO DRAGÃO */
+                    <>
+                      <div className="bg-slate-950/90 p-3 rounded-xl border border-cyan-500/40 flex items-center gap-3 flex-wrap">
+                        <span className="font-bold text-cyan-400 text-xs">⏱ LOOP AUTOMÁTICO</span>
+                        <label className="text-gray-400">Segundos na tela para sites, notícias, PDF e imagens:</label>
+                        <input type="number" min="5" max="300" value={holdSec}
+                          onChange={(e) => setHoldSec(Math.max(5, +e.target.value || 15))}
+                          className="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none" />
+                        <span className="text-[10px] text-gray-500">Vídeos passam sozinhos quando terminam (com AUTOPLAY ligado).</span>
+                      </div>
+
+                      {/* INJETOR RÁPIDO DO DRAGÃO */}
+                      <form onSubmit={handleQuickAdd} className="bg-slate-950/90 p-3 rounded-xl border border-orange-500/40 space-y-2">
+                        <div className="font-bold text-orange-400 text-xs">
+                          🔥 INJETOR RÁPIDO DO DRAGÃO (COLE QUALQUER LINK):
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            required
+                            value={quickTitle}
+                            onChange={(e) => setQuickTitle(e.target.value)}
+                            placeholder="Título do Canal..."
+                            className="w-1/3 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-100 outline-none"
+                          />
+                          <input
+                            type="text"
+                            required
+                            value={quickUrl}
+                            onChange={(e) => setQuickUrl(e.target.value)}
+                            placeholder="Cole link de Vídeo, Shorts, PDF, Site..."
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-cyan-300 outline-none"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-1 bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold rounded hover:from-orange-500"
+                          >
+                            + Injetar
+                          </button>
+                        </div>
+                      </form>
+
+                      {/* LISTA DE CANAIS COM O NOVO BOTÃO DE GERENCIAMENTO COMPLETO */}
+                      <div className="space-y-2">
+                        <div className="font-bold text-gray-400">CANAIS REGISTRADOS NA SMARTBOX ({channels.length})</div>
+                        {channels.map((c, i) => (
+                          <div key={c.id} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              <SafeImage src={channelThumb(c) || SAFE_IMG_FALLBACK} className="w-12 h-12 object-cover rounded-lg border border-slate-700 shrink-0" />
+                              <div className="truncate">
+                                <div className="font-bold text-slate-200 text-sm truncate">{c.title}</div>
+                                <div className="text-[10px] text-cyan-400">
+                                  🎬 <strong className="text-white">{c.videos.length} VÍDEOS</strong> • #{c.slug}
+                                </div>
+                                <div className="text-[9px] text-gray-500 truncate max-w-md">{c.videos[0]?.url}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0 ml-2">
+                              <button 
+                                onClick={() => { selectChannel(i); setIsAdminOpen(false); }} 
+                                className="px-3 py-1.5 rounded bg-teal-900/60 text-teal-300 border border-teal-500/40 text-[10px] font-bold hover:bg-teal-800"
+                              >
+                                Transmitir ⚡
+                              </button>
+                              
+                              {/* NOVO BOTÃO MASTER DE EDIÇÃO DE PRODUTO & PÁGINAS */}
+                              <button 
+                                onClick={() => setCampaignEditing(c)} 
+                                className="px-3 py-1.5 rounded bg-amber-600/30 text-amber-300 border border-amber-500/60 text-[10px] font-bold hover:bg-amber-600/50 flex items-center gap-1"
+                              >
+                                ✏️ GERENCIAR PRODUTO & PÁGINAS
+                              </button>
+
+                              <button 
+                                onClick={() => {
+                                  if (confirm("Excluir este canal definitivamente?")) {
+                                    setChannels(channels.filter(item => item.id !== c.id));
+                                  }
+                                }} 
+                                className="px-2.5 py-1.5 rounded bg-red-900/60 text-red-300 border border-red-500/40 text-[10px] font-bold hover:bg-red-900"
+                              >
+                                Excluir
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                </div>
               </div>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <div className="hb-intro-title font-hud">HOMEM BRUTO</div>
-              {status === "erro" ? (
-                <div>
-                  <div className="hb-intro-sub font-mono" style={{ color: "#FCA5A5" }}>SEM CONEXÃO COM OS CANAIS</div>
-                  <button type="button" onClick={onRetry} className="font-mono" style={{ marginTop: 14, height: 38, padding: "0 18px", borderRadius: 999, border: "1px solid #22D3EE", background: "rgba(34,211,238,0.14)", color: "#A5F3FC", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", cursor: "pointer" }}>TENTAR DE NOVO</button>
-                </div>
-              ) : <div className="hb-intro-sub font-mono">SINTONIZANDO OS CANAIS<span className="hb-dots"><i>.</i><i>.</i><i>.</i></span></div>}
-            </div>
-            <div className="hb-intro-load"><span /></div>
-          </div>
-      );
-    }
+          )}
 
-    function App() {
-      const [chData, setChData] = useState(null);
-      const [adsData, setAdsData] = useState([]);
-      const [adsLoading, setAdsLoading] = useState(true);
-      const [chatTxt, setChatTxt] = useState("");
-      const [status, setStatus] = useState("carregando");
-      const [minOk, setMinOk] = useState(false);
-      const [tryN, setTryN] = useState(0);
-      useEffect(() => { const t = setTimeout(() => setMinOk(true), 1800); return () => clearTimeout(t); }, []);
-      useEffect(() => {
-        let off = false;
-        setStatus("carregando");
-        // insiste sozinho: se uma tentativa falhar (rede, servidor, resposta cortada), tenta de novo, sem o visitante precisar de F5
-        const get = async (name, tries, quick) => {
-          for (let i = 0; i < tries; i++) {
-            if (off) return null;
-            try {
-              const r = await fetch(DATA_URL + name + "?v=" + Date.now() + "_" + i, { cache: "no-store" });
-              if (r.ok) return await r.json();
-              if (quick && r.status === 404) return null;
-              console.warn("[TV]", name, "HTTP", r.status, "tentativa", i + 1);
-            } catch (e) {
-              console.warn("[TV]", name, "falhou", e && e.message, "tentativa", i + 1);
-            }
-            await new Promise((res) => setTimeout(res, 1200 * (i + 1)));
-          }
-          return null;
-        };
-        const timer = setTimeout(() => { if (!off) setStatus((st) => (st === "carregando" ? "erro" : st)); }, 15000);
-        // os canais (leve) aparecem primeiro; o catálogo (pesado) entra depois sem travar a TV
-        get("canais.json", 5).then((pc) => {
-          if (off) return;
-          const chs = Array.isArray(pc) ? pc.filter((c) => c && c.id && !String(c.id).startsWith("CAT_")) : [];
-          if (chs.length) { clearTimeout(timer); setChData(chs); setStatus("ok"); }
-          else { clearTimeout(timer); setStatus("erro"); }
-        });
-        setAdsLoading(true);
-        // Lab 24: primeiro o anuncios.json (leve, so links); se nao existir ou vier vazio, usa o catalogo.json antigo
-        get("anuncios.json", 2, true).then((pl) => {
-          if (off) return;
-          let la = []; try { la = pl ? linksToAds(pl) : []; } catch (e) {}
-          if (la.length) { setAdsData(la); setAdsLoading(false); return; }
-          get("catalogo.json", 7).then((pk) => {
-            if (off) return;
-            try { const a = pk ? catalogToAds(pk) : []; if (a.length) setAdsData(a); } catch (e) {}
-            setAdsLoading(false);
-          });
-        });
-        // chat (texto simples): se não existir ou falhar, o site segue sem ele
-        (async () => {
-          for (let i = 0; i < 3; i++) {
-            if (off) return;
-            try {
-              const r = await fetch(DATA_URL + "chat.txt?v=" + Date.now() + "_" + i, { cache: "no-store" });
-              if (r.ok) { const t = await r.text(); if (!off) setChatTxt(t); return; }
-              if (r.status === 404) return;
-            } catch (e) {}
-            await new Promise((res) => setTimeout(res, 1200 * (i + 1)));
-          }
-        })();
-        return () => { off = true; clearTimeout(timer); };
-      }, [tryN]);
-      return (
-        <>
-          {chData ? <AppInner initCh={chData} adsPub={adsData} adsLoading={adsLoading} chatTxt={chatTxt} /> : null}
-          <IntroScreen on={!(chData && minOk)} status={status} onRetry={() => setTryN((n) => n + 1)} />
-        </>
+        </div>
       );
     }
 
