@@ -8,47 +8,21 @@
     "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
     "videos": [
       {
-        "label": "GEMÊAS AVENTUREIRAS - PARTE 01",
-        "url": "https://youtube.com/shorts/q7fyH20khLc?si=RruRTmkNknwfHePr"
+        "label": "LALÁ NA BAGUNÇA",
+        "url": "https://youtube.com/shorts/Dv7tHojScfM?si=NvIOaM9Jjrq-AY_l"
       },
       {
-        "label": "GEMÊAS AVENTUREIRAS - PARTE 02",
-        "url": "https://youtube.com/shorts/DlwKJ3eSne4?si=nEMAK5rO8d6xAkJO"
+        "label": "AVENTURAS",
+        "url": "https://youtube.com/shorts/-BHBKqcVTs8?si=RjwsRr6Wxv46ri4Z"
       },
       {
-        "label": "GTA V",
-        "url": "https://canaltech.com.br/games/capa-vazada-de-gta-6-no-xbox-revela-vantagens-de-imagem-e-som-sobre-o-ps5/",
-        "data": "2026-11-13T03:05:44.184Z"
-      },
-      {
-        "label": "shoppe",
-        "url": "https://brute-man-produtos.netlify.app/#/p/cacto-dancante",
-        "data": "2026-11-13T04:21:41.081Z",
-        "externo": false
+        "label": "seeart mangá",
+        "url": "https://www.seaart.ai/pt/app/dbm9kile878c739ebaqg",
+        "data": "2026-11-12T23:58:01.381Z"
       }
     ],
     "offers": [],
-    "category": "KAKÁ & LALÁ",
-    "adIds": [
-      "cacto-dancante",
-      "bike-rosa"
-    ]
-  },
-  {
-    "id": "CH_1794279042804",
-    "slug": "brute-man-app-ii",
-    "title": "BRUTE_MAN APP II",
-    "badge": "YOUTUBE HD",
-    "auraScore": "99.9% AURA",
-    "caseStudy": "TESTE DE APLICATIVO BRUTE MAN TV",
-    "videos": [
-      {
-        "label": "APP BRUTE_MAN",
-        "url": "https://youtu.be/saSNUe_-vXM"
-      }
-    ],
-    "offers": [],
-    "category": "BRUTE_MAN APP",
+    "category": "LALÁ E KAKÁ",
     "adIds": [
       "cacto-dancante",
       "bike-rosa"
@@ -78,13 +52,18 @@
     "id": "CH_1794020024653",
     "slug": "brute-man-app",
     "title": "BRUTE_MAN APP",
-    "badge": "",
+    "badge": "YOUTUBE HD",
     "auraScore": "99.9% AURA",
     "caseStudy": "Novo canal ingerido pelo Dragão Consumidor.",
     "videos": [
       {
-        "label": "BRUTE_MAN INTRO",
+        "label": "VIDEO 1 B_M APP",
         "url": "https://youtu.be/Ci875Rz_Jb4?si=o3itoEveT7rAgady"
+      },
+      {
+        "label": "VIDEO 2 B_M APP",
+        "url": "https://youtu.be/saSNUe_-vXM",
+        "data": "2026-11-14T05:15:32.722Z"
       }
     ],
     "offers": [],
@@ -148,6 +127,9 @@
       }
     ],
     "offers": [],
-    "adIds": []
+    "adIds": [
+      "cacto-dancante",
+      "bike-rosa"
+    ]
   }
 ]

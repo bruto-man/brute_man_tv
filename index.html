@@ -549,7 +549,10 @@
     const DATA_URL = "./";
 
     function catalogToAds(data) {
-      const list = Array.isArray(data) ? data : (data && data.P) || [];
+      const list0 = Array.isArray(data) ? data : (data && data.P) || [];
+      // Lab 24b: se o arquivo for no formato novo (anuncios.json: itens com "link"), usa o leitor novo; itens sem nome nem id (lixo) saem
+      if (list0.some((x) => x && (x.link || x.url) && !x.n)) return linksToAds(list0);
+      const list = list0.filter((p) => p && (p.n || p.id));
       const wa = String((data && data.cfg && data.cfg.wa) || "").replace(/\D/g, "");
       return list.map((p) => {
         const media = (Array.isArray(p.media) ? p.media : [])
@@ -582,6 +585,76 @@
           }
         };
       });
+    }
+
+
+    // ===== Lab 24: anuncios.json (leve) = so links + campos opcionais. Substitui o catalogo.json pesado (que fica de reserva) =====
+    function parseBRLn(v) {
+      const t = String(v || "").replace(/[^\d,.]/g, "");
+      if (!t) return 0;
+      const n = parseFloat(t.indexOf(",") >= 0 ? t.replace(/\./g, "").replace(",", ".") : t);
+      return isFinite(n) ? n : 0;
+    }
+    function linksToAds(data) {
+      const list = Array.isArray(data) ? data : (data && data.anuncios) || [];
+      const out = [];
+      list.forEach((x, n) => {
+        const link = String((x && (x.link || x.url)) || "").trim();
+        if (!link) return;
+        const m = link.match(/#\/p\/([^/?#]+)/);
+        const slug = String(x.id || (m && m[1]) || ("a" + n)).replace(/^AD_/, "");
+        let host = ""; try { host = new URL(link).hostname.replace(/^www\./, ""); } catch (e) {}
+        const pretty = slug.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        const title = String(x.titulo || x.title || "").trim() || pretty;
+        const capa = String(x.capa || "").trim();
+        const preco = String(x.preco || "").trim();
+        const antigo = String(x.precoAntigo || "").trim();
+        let desc = String(x.desconto || "").trim();
+        if (!desc && parseBRLn(antigo) > parseBRLn(preco) && parseBRLn(preco) > 0) desc = "-" + Math.round((1 - parseBRLn(preco) / parseBRLn(antigo)) * 100) + "%";
+        out.push({
+          id: "AD_" + slug, title, page: link, wa: "",
+          media: capa ? [{ t: "img", src: capa }] : [],
+          offer: {
+            title, priceCurrent: preco, priceOld: antigo, discount: desc, sold: String(x.vendidos || "").trim(), rating: "",
+            badge: String(x.selo || "").trim(), cta: String(x.cta || "").trim() || "VER ANÚNCIO", affiliateLink: link,
+            thumbImg: capa || SAFE_IMG_FALLBACK, features: [], sub: String(x.sub || "").trim(), local: String(x.local || "").trim(), host
+          }
+        });
+      });
+      return out;
+    }
+
+    // card completo (estilo vitrine): capa OU miniatura viva da pagina; selo, desconto, titulo, preco, "no Pix", local. Tudo opcional.
+    function AdCard({ a, onClick }) {
+      const o = a.offer;
+      const capa = a.media && a.media[0] && a.media[0].src;
+      const ph = (<div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#FB923C", textAlign: "center", padding: 6 }}>
+        <span style={{ fontSize: 30 }}>🛍</span>
+        {o.host ? <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8" }}>{o.host}</span> : null}
+      </div>);
+      return (
+        <button type="button" onClick={onClick}
+          style={{ display: "flex", flexDirection: "column", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+          <div style={{ position: "relative", width: "100%", flex: "1 1 0", minHeight: 0, background: "#050A14", overflow: "hidden" }}>
+            {capa ? <SafeImage src={capa} alt={a.title} className="w-full h-full object-cover" /> : (a.page ? <SitePreview url={a.page} label={a.title} fallback={ph} /> : ph)}
+            {o.discount ? <span className="font-mono" style={{ position: "absolute", top: 0, right: 0, padding: "3px 8px", fontSize: 10, fontWeight: 800, background: "#FEE2E2", color: "#DC2626", borderBottomLeftRadius: 8, zIndex: 2 }}>{o.discount}</span> : null}
+          </div>
+          <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", gap: 6, flex: "0 0 auto" }}>
+            <div className="font-hud font-bold" style={{ fontSize: 12, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>
+              {o.badge ? <span className="font-mono" style={{ display: "inline-block", marginRight: 5, padding: "1px 5px", borderRadius: 4, fontSize: 9, fontWeight: 800, background: "#F97316", color: "#1A0A00", verticalAlign: "1px" }}>{o.badge}</span> : null}
+              {a.title}
+            </div>
+            {o.priceCurrent ? (
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
+                <span className="font-hud font-extrabold" style={{ fontSize: 16, color: "#FB923C" }}>{o.priceCurrent}</span>
+                {o.priceOld ? <span className="font-mono" style={{ fontSize: 10, color: "#64748B", textDecoration: "line-through" }}>{o.priceOld}</span> : null}
+                {o.sub ? <span className="font-mono" style={{ fontSize: 10, color: "#FB923C" }}>{o.sub}</span> : null}
+              </div>
+            ) : <div className="font-mono" style={{ marginTop: "auto", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#FB923C" }}>{o.cta || "VER ANÚNCIO"} ›</div>}
+            {o.local ? <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>📍 {o.local}</div> : null}
+          </div>
+        </button>
+      );
     }
 
     function AdMedia({ item, fallback, alt }) {
@@ -619,18 +692,42 @@
     }
 
     // ---------- CHAT (micro blog, só leitura no site; texto simples: "DD/MM/AAAA HH:MM | AUTOR | mensagem") ----------
+    // Lab 25: sempre do mais novo para o mais antigo (pela data/hora de cada linha), seja qual for a ordem no arquivo
     function parseChat(txt) {
-      return String(txt || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+      const ts = (w) => { const m = String(w || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/); return m ? new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime() : -1; };
+      const arr = String(txt || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l, i) => {
         const p = l.split("|").map((x) => x.trim());
-        if (p.length >= 3) return { when: p[0], who: p[1], text: p.slice(2).join(" | ") };
-        if (p.length === 2) return { when: p[0], who: "", text: p[1] };
-        return { when: "", who: "", text: l };
+        let m;
+        if (p.length >= 3) m = { when: p[0], who: p[1], text: p.slice(2).join(" | ") };
+        else if (p.length === 2) m = { when: p[0], who: "", text: p[1] };
+        else m = { when: "", who: "", text: l };
+        m.t = ts(m.when); m.i = i;
+        return m;
       });
+      return arr.sort((a, b) => (b.t - a.t) || (a.i - b.i));
     }
 
     function ChatBox({ txt }) {
       const [open, setOpen] = useState(false);
-      const rev = parseChat(txt).reverse();
+      // Lab 26: janela flutuante (balões, arrastável pelo topo, redimensionável pelo canto)
+      const [pos, setPos] = useState(() => { try { const j = JSON.parse(localStorage.getItem("BRUTE_CHAT_POS") || "null"); if (j && isFinite(j.x) && isFinite(j.y)) return j; } catch (e) {} return null; });
+      const dragRef = useRef(null);
+      const onDown = (e) => {
+        if (e.target.closest("button")) return;
+        const r = e.currentTarget.parentElement.getBoundingClientRect();
+        dragRef.current = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+        try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+      };
+      const onMove = (e) => {
+        const d = dragRef.current; if (!d) return;
+        setPos({ x: Math.min(Math.max(0, e.clientX - d.dx), window.innerWidth - 140), y: Math.min(Math.max(0, e.clientY - d.dy), window.innerHeight - 60) });
+      };
+      const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setPos((p) => { try { if (p) localStorage.setItem("BRUTE_CHAT_POS", JSON.stringify(p)); } catch (e) {} return p; }); };
+      const linkify = (t) => String(t).split(/(https?:\/\/[^\s]+)/g).map((p, i) => /^https?:\/\//.test(p)
+        ? <a key={i} href={p} target="_blank" rel="noopener noreferrer" style={{ color: "#67E8F9", textDecoration: "underline", wordBreak: "break-all" }}>{p}</a>
+        : <span key={i}>{p}</span>);
+      const isCla = (w) => /cl[aá]ud/i.test(w || "");
+      const rev = parseChat(txt);
       useEffect(() => {
         if (!open) return;
         const k = (e) => { if (e.key === "Escape") setOpen(false); };
@@ -658,17 +755,38 @@
             <div className="mt-1 text-[8px] font-mono text-gray-500 truncate">BRUTE_MAN_TV - RODRIGO OZ / CLÁUDIA</div>
           </div>
           {open && (
-            <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 9000, background: "rgba(0,0,0,0.72)" }} onClick={() => setOpen(false)}>
-              <div className="w-full flex flex-col rounded-2xl border border-orange-500/60 bg-slate-950" style={{ maxWidth: 560, maxHeight: "80vh", boxShadow: "0 0 40px rgba(249,115,22,0.25)" }} onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-4 py-3 border-b border-orange-500/30">
-                  <span className="font-hud font-bold text-xs tracking-wider text-orange-400">CHAT · CONVERSA COMPLETA ({rev.length})</span>
-                  <button type="button" onClick={() => setOpen(false)} className="px-2 py-1 rounded bg-slate-900 border border-orange-500/50 text-orange-300 text-[10px] font-bold">✕</button>
+            <div style={{ position: "fixed", zIndex: 9000, left: pos ? pos.x : Math.max(8, window.innerWidth - 480), top: pos ? pos.y : 70, width: 440, height: 560, minWidth: 300, minHeight: 260, maxWidth: "96vw", maxHeight: "94vh", resize: "both", overflow: "hidden", display: "flex", flexDirection: "column", borderRadius: 16, border: "1px solid rgba(249,115,22,0.6)", background: "#050A14", boxShadow: "0 12px 40px rgba(0,0,0,0.7), 0 0 30px rgba(249,115,22,0.2)" }}>
+              <div onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderBottom: "1px solid rgba(34,211,238,0.2)", cursor: "grab", userSelect: "none", touchAction: "none", flex: "0 0 auto" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div className="font-hud font-bold" style={{ fontSize: 14, color: "#FB923C", letterSpacing: "0.04em" }}>NOSSA SALA</div>
+                  <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.08em" }}>RODRIGO & CLÁUDIA · {rev.length}{rev.length === 1 ? " MENSAGEM" : " MENSAGENS"}</div>
                 </div>
-                <div className="hud-scroll overflow-y-auto px-4 py-3" style={{ flex: 1 }}>
-                  {rev.length ? rev.map(row) : <div className="text-xs font-mono text-gray-500">Sem mensagens ainda.</div>}
-                </div>
-                <div className="px-4 py-2 border-t border-orange-500/20 text-[9px] font-mono text-gray-500">BRUTE_MAN_TV - RODRIGO OZ / CLÁUDIA</div>
+                <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" style={{ width: 32, height: 32, borderRadius: 10, border: "1px solid rgba(249,115,22,0.6)", background: "rgba(249,115,22,0.12)", color: "#FB923C", fontWeight: 800, cursor: "pointer" }}>✕</button>
               </div>
+              <div className="hud-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                {!rev.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "30px 0" }}>A sala ainda está vazia.</p>}
+                {(() => {
+                  let lastDay = "";
+                  return rev.map((m, i) => {
+                    const cla = isCla(m.who);
+                    const day = (m.when || "").split(" ")[0];
+                    const hour = (m.when || "").split(" ")[1] || "";
+                    const sep = day && day !== lastDay;
+                    if (day) lastDay = day;
+                    return (
+                      <React.Fragment key={i}>
+                        {sep ? <div className="font-mono" style={{ alignSelf: "center", fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em", padding: "5px 10px", border: "1px solid rgba(148,163,184,0.25)", borderRadius: 999, marginTop: 4 }}>{day}</div> : null}
+                        <div style={{ alignSelf: cla ? "flex-start" : "flex-end", maxWidth: "88%", display: "flex", flexDirection: "column", alignItems: cla ? "flex-start" : "flex-end" }}>
+                          <div className="font-mono" style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: cla ? "#C4B5FD" : "#FDBA74", marginBottom: 3 }}>{(m.who || (cla ? "CLÁUDIA" : "RODRIGO")).toUpperCase()}{hour ? " · " + hour : ""}</div>
+                          <div style={{ padding: "9px 12px", borderRadius: cla ? "4px 16px 16px 16px" : "16px 4px 16px 16px", background: cla ? "rgba(167,139,250,0.14)" : "rgba(249,115,22,0.16)", border: "1px solid " + (cla ? "rgba(167,139,250,0.4)" : "rgba(249,115,22,0.45)"), color: "#fff", fontSize: 13, lineHeight: 1.45, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{linkify(m.text)}</div>
+                        </div>
+                      </React.Fragment>
+                    );
+                  });
+                })()}
+              </div>
+              <div className="font-mono" style={{ flex: "0 0 auto", padding: "6px 12px", borderTop: "1px solid rgba(249,115,22,0.2)", fontSize: 9, color: "#64748B" }}>arraste pelo topo · puxe o canto para aumentar · Esc fecha</div>
             </div>
           )}
         </>
@@ -1099,7 +1217,7 @@
           );
         };
         const meta = (e) => (channels[e.ci] ? channels[e.ci].title : "") + " · " + KIND_LABEL[e.kind] + relTime(e.t);
-        const adCard = (a) => (
+        const adCard = (a) => a.page ? (<div key={"ad" + a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "mix")} /></div>) : (
           <button key={"ad" + a.id} type="button" onClick={() => openAd(a.id, "mix")}
             style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
             <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
@@ -1157,7 +1275,7 @@
           ? <a key={i} href={p} target="_blank" rel="noopener noreferrer" style={{ color: "#67E8F9", textDecoration: "underline", wordBreak: "break-all" }}>{p}</a>
           : <span key={i}>{p}</span>);
         let lastDay = "";
-        const last = msgs.length ? msgs[msgs.length - 1] : null;
+        const last = msgs.length ? msgs[0] : null;
         return (
           <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
             {subHeader("NOSSA SALA", "RODRIGO & CLÁUDIA · " + msgs.length + (msgs.length === 1 ? " MENSAGEM" : " MENSAGENS"), () => { if (stackRef.current.length > 1) { try { window.history.back(); return; } catch (e) {} } navReplace("mix"); }, "orange")}
@@ -1351,7 +1469,7 @@
                             {thumbBox(e.it)}
                             {tag(KIND_LABEL[e.it.kind])}
                             </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind], e.it.desc, () => openItem(chIdx, e.it.i))}</div>
-                        ) : ((a) => (
+                        ) : ((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "feed")} /></div>) : (
                           <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                             <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
@@ -1537,6 +1655,25 @@
       }
 
       // ---------- 4. ANÚNCIO COMPLETO (em pé) ----------
+      // Lab 24: anúncio por link = a própria página do anúncio, em tela cheia, com a faixa de proteção sobre o topo dela
+      if (view === "ad" && curAd && curAd.page) {
+        return (
+          <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#050A14" }}>
+            {subHeader("ANÚNCIO", curAd.title, () => up(adBack), "orange")}
+            <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+              <iframe key={curAd.id} src={curAd.page} title={curAd.title}
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0, background: "#000" }} />
+              <div aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 18, height: 64, zIndex: 5, background: "transparent" }}></div>
+            </div>
+            <div style={{ padding: "8px 12px calc(10px + env(safe-area-inset-bottom))", background: "#050A14", borderTop: "1px solid rgba(249,115,22,0.35)" }}>
+              <a href={curAd.page} target="_blank" rel="noopener noreferrer" className="font-hud font-bold"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 44, borderRadius: 12, border: "1px solid #F97316", color: "#FB923C", fontSize: 12, letterSpacing: "0.08em", textDecoration: "none" }}>ABRIR EM NOVA ABA ↗</a>
+            </div>
+          </div>
+        );
+      }
+
       if (view === "ad" && curAd) {
         const o = curAd.offer;
         const m = curAd.media && curAd.media.length ? curAd.media[adMedia % curAd.media.length] : null;
@@ -1584,7 +1721,7 @@
             </div>
             {!ads.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "40px 0" }}>Nenhuma oferta ainda.</p>}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginTop: 14 }}>
-              {ads.map((a) => (
+              {ads.map((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "offers")} /></div>) : (
                 <button key={a.id} type="button" onClick={() => openAd(a.id, "offers")}
                   style={{ display: "flex", flexDirection: "column", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                   <div style={{ position: "relative", width: "100%", aspectRatio: "9 / 14" }}>
@@ -1637,7 +1774,7 @@
       const [autoPlayNext, setAutoPlayNext] = useState(true);
       const [playNonce, setPlayNonce] = useState(0);
       const [holdSec, setHoldSec] = useState(() => {
-        try { return Math.max(5, +localStorage.getItem("BRUTE_HOLD_SEC") || 15); } catch (e) { return 15; }
+        try { return Math.max(5, +localStorage.getItem("BRUTE_HOLD_SEC") || 60); } catch (e) { return 60; }
       });
       const advanceRef = useRef(null);
       const failTimer = useRef(null);
@@ -1708,20 +1845,39 @@
         if (adsPub && adsPub.length) { setAds(adsPub); setAdIdx(0); setAdMediaIdx(0); }
       }, [adsPub]);
 
+      // Lab 23b: vínculo anúncio-canal no PC (igual ao celular): se o canal tem "adIds", o monitor mostra só esses
+      const pcCh = channels[currentIndex] || channels[0];
+      const pcAds = (() => {
+        const ids = (pcCh && pcCh.adIds) || [];
+        const l = ids.map((id) => ads.find((a) => a.id === "AD_" + String(id).replace(/^AD_/, ""))).filter(Boolean);
+        return l.length ? l : ads;
+      })();
+      useEffect(() => { setAdIdx(0); setAdMediaIdx(0); }, [currentIndex]);
+
+      // Lab 23: o anúncio abre como página no monitor menor; ao mexer nele (ou travar no botão), o giro para
+      const [adHold, setAdHold] = useState(false);
+      useEffect(() => { setAdHold(false); }, [adIdx]);
+      useEffect(() => {
+        if (!isPipVisible || isSwapped) return;
+        const onBlur = () => setTimeout(() => { const a = document.activeElement; if (a && a.tagName === "IFRAME" && a.getAttribute("data-adpage")) setAdHold(true); }, 0);
+        window.addEventListener("blur", onBlur);
+        return () => window.removeEventListener("blur", onBlur);
+      }, [isPipVisible, isSwapped, adIdx]);
+
       // gira os anúncios sozinho, solto do que passa no telão
       useEffect(() => {
-        if (ads.length < 2) return;
-        const t = setInterval(() => { setAdIdx((i) => (i + 1) % ads.length); setAdMediaIdx(0); }, Math.max(3, adSec) * 1000);
+        if (pcAds.length < 2 || adHold) return;
+        const t = setInterval(() => { setAdIdx((i) => (i + 1) % pcAds.length); setAdMediaIdx(0); }, Math.max(3, adSec) * 1000);
         return () => clearInterval(t);
-      }, [ads.length, adSec]);
+      }, [pcAds.length, adSec, adHold]);
 
       // dentro de cada anúncio, troca foto/vídeo/GIF
       useEffect(() => {
-        const cur = ads.length ? ads[adIdx % ads.length] : null;
+        const cur = pcAds.length ? pcAds[adIdx % pcAds.length] : null;
         if (!cur || !cur.media || cur.media.length < 2) return;
         const t = setInterval(() => setAdMediaIdx((m) => m + 1), 3500);
         return () => clearInterval(t);
-      }, [ads, adIdx]);
+      }, [ads, adIdx, pcAds.length]);
 
       useEffect(() => {
         try { localStorage.setItem("BRUTE_SIDEBAR_OPEN", isSidebarOpen ? "1" : "0"); } catch (e) {}
@@ -1807,9 +1963,9 @@
         clearTimeout(failTimer.current);
         failTimer.current = setTimeout(() => { if (advanceRef.current) advanceRef.current(); }, 5000);
       };
-      const curAd = ads.length ? ads[adIdx % ads.length] : null;
+      const curAd = pcAds.length ? pcAds[adIdx % pcAds.length] : null;
       const adPageUrl = curAd
-        ? (catUrl.trim().replace(/#.*$/, "").replace(/\/?$/, "/") + "#/p/" + String(curAd.id).replace(/^AD_/, ""))
+        ? (curAd.page || (catUrl.trim().replace(/#.*$/, "").replace(/\/?$/, "/") + "#/p/" + String(curAd.id).replace(/^AD_/, "")))
         : "";
       const chOffers = currentChannel.offers || [];
       const activeOffer = curAd ? curAd.offer : (chOffers[selectedOfferIdx] || chOffers[0] || null);
@@ -2171,7 +2327,7 @@
                     <div className="flex items-center gap-1.5 truncate">
                       <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
                       <span className="font-bold font-hud tracking-wider">
-                        {isSwapped ? "TRANSMISSÃO NO MONITOR MENOR" : curAd ? "ANÚNCIOS (" + ((adIdx % ads.length) + 1) + "/" + ads.length + ")" : "OFERTAS DO CANAL (" + chOffers.length + ")"}
+                        {isSwapped ? "TRANSMISSÃO NO MONITOR MENOR" : curAd ? "ANÚNCIOS (" + ((adIdx % pcAds.length) + 1) + "/" + pcAds.length + ")" : "OFERTAS DO CANAL (" + chOffers.length + ")"}
                       </span>
                     </div>
 
@@ -2185,6 +2341,15 @@
                         >
                           📄 ANÚNCIO COMPLETO
                         </a>
+                      )}
+                      {curAd && !isSwapped && pcAds.length > 1 && (
+                        <button
+                          onClick={() => setAdHold(!adHold)}
+                          title="Trava neste anúncio (para o giro automático)"
+                          className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${adHold ? 'bg-orange-500/30 border-orange-400 text-orange-200' : 'bg-black/80 border-cyan-500/60 text-cyan-200'}`}
+                        >
+                          {adHold ? '⏸ PAUSADO · SEGUIR' : '🔒 FICAR'}
+                        </button>
                       )}
                       <button 
                         onClick={() => { playHoloSound('swap'); setIsSwapped(!isSwapped); }}
@@ -2210,7 +2375,15 @@
                   </div>
 
                   <div className="flex-1 p-3 bg-black/60 relative overflow-hidden flex flex-col justify-between">
-                    {isSwapped ? renderMainContent() : renderProductCardContent()}
+                    {isSwapped ? renderMainContent() : curAd ? (
+                      <iframe key={curAd.id} data-adpage="1" src={adPageUrl} title={"Anúncio " + curAd.id}
+                        className="absolute inset-0 w-full h-full border-0 bg-black"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox" />
+                    ) : renderProductCardContent()}
+                    {!isSwapped && curAd && (
+                      <div aria-hidden="true" title="Navegação travada neste anúncio"
+                        style={{ position: "absolute", top: 0, left: 0, right: 18, height: 64, zIndex: 5, background: "transparent", cursor: "default" }} />
+                    )}
                   </div>
                 </div>
               ) : (
@@ -2362,12 +2535,13 @@
         let off = false;
         setStatus("carregando");
         // insiste sozinho: se uma tentativa falhar (rede, servidor, resposta cortada), tenta de novo, sem o visitante precisar de F5
-        const get = async (name, tries) => {
+        const get = async (name, tries, quick) => {
           for (let i = 0; i < tries; i++) {
             if (off) return null;
             try {
               const r = await fetch(DATA_URL + name + "?v=" + Date.now() + "_" + i, { cache: "no-store" });
               if (r.ok) return await r.json();
+              if (quick && r.status === 404) return null;
               console.warn("[TV]", name, "HTTP", r.status, "tentativa", i + 1);
             } catch (e) {
               console.warn("[TV]", name, "falhou", e && e.message, "tentativa", i + 1);
@@ -2385,10 +2559,16 @@
           else { clearTimeout(timer); setStatus("erro"); }
         });
         setAdsLoading(true);
-        get("catalogo.json", 7).then((pk) => {
+        // Lab 24: primeiro o anuncios.json (leve, so links); se nao existir ou vier vazio, usa o catalogo.json antigo
+        get("anuncios.json", 2, true).then((pl) => {
           if (off) return;
-          try { const a = pk ? catalogToAds(pk) : []; if (a.length) setAdsData(a); } catch (e) {}
-          setAdsLoading(false);
+          let la = []; try { la = pl ? linksToAds(pl) : []; } catch (e) {}
+          if (la.length) { setAdsData(la); setAdsLoading(false); return; }
+          get("catalogo.json", 7).then((pk) => {
+            if (off) return;
+            try { const a = pk ? catalogToAds(pk) : []; if (a.length) setAdsData(a); } catch (e) {}
+            setAdsLoading(false);
+          });
         });
         // chat (texto simples): se não existir ou falhar, o site segue sem ele
         (async () => {
