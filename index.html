@@ -218,11 +218,12 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // ===== DEEP LINK (?canal=X&item=Y) =====
+    // ===== DEEP LINK (?canal=X&item=Y e ?anuncio=ID) =====
     function buildItemShareUrl(ci, ii) {
       try {
         const url = new URL(window.location.href);
         url.hash = "";
+        url.searchParams.delete("anuncio");
         url.searchParams.set("canal", String(ci));
         url.searchParams.set("item", String(ii));
         return url.toString();
@@ -231,21 +232,52 @@
       }
     }
 
-    function shareSpecificItem(ci, ii, titleText, onFeedback) {
+    function buildAdShareUrl(adId) {
+      try {
+        const url = new URL(window.location.href);
+        url.hash = "";
+        url.searchParams.delete("canal");
+        url.searchParams.delete("item");
+        url.searchParams.set("anuncio", String(adId || "").replace(/^AD_/, ""));
+        return url.toString();
+      } catch (e) {
+        return window.location.href;
+      }
+    }
+
+    function shareUrlDirect(shareUrl, titleText, feedbackMsg, onFeedback) {
       playHoloSound("click");
-      const shareUrl = buildItemShareUrl(ci, ii);
       if (navigator.share) {
         navigator.share({ title: titleText || "Homem Bruto TV", url: shareUrl }).catch(() => {});
         return;
       }
       try {
         navigator.clipboard.writeText(shareUrl).then(() => {
-          if (onFeedback) onFeedback("LINK DO CONTEÚDO COPIADO!");
+          if (onFeedback) onFeedback(feedbackMsg || "LINK COPIADO!");
         }).catch(() => {
           if (onFeedback) onFeedback(shareUrl);
         });
       } catch (e) {
         if (onFeedback) onFeedback(shareUrl);
+      }
+    }
+
+    function shareSpecificItem(ci, ii, titleText, onFeedback) {
+      shareUrlDirect(buildItemShareUrl(ci, ii), titleText, "LINK DO CONTEÚDO COPIADO!", onFeedback);
+    }
+
+    function shareSpecificAd(adId, titleText, onFeedback) {
+      shareUrlDirect(buildAdShareUrl(adId), titleText, "LINK DO ANÚNCIO COPIADO!", onFeedback);
+    }
+
+    function readAdParamFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const aRaw = params.get("anuncio");
+        if (!aRaw) return null;
+        return "AD_" + String(aRaw).replace(/^AD_/, "");
+      } catch (e) {
+        return null;
       }
     }
 
@@ -272,12 +304,31 @@
     function syncItemUrl(ci, ii, mode = "push", stateObj = null) {
       try {
         const url = new URL(window.location.href);
+        url.searchParams.delete("anuncio");
         if (ci === null || ii === null) {
           url.searchParams.delete("canal");
           url.searchParams.delete("item");
         } else {
           url.searchParams.set("canal", String(ci));
           url.searchParams.set("item", String(ii));
+        }
+        if (mode === "replace") {
+          window.history.replaceState(stateObj !== null ? stateObj : window.history.state, "", url);
+        } else {
+          window.history.pushState(stateObj !== null ? stateObj : {}, "", url);
+        }
+      } catch (e) {}
+    }
+
+    function syncAdUrl(adId, mode = "push", stateObj = null) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("canal");
+        url.searchParams.delete("item");
+        if (!adId) {
+          url.searchParams.delete("anuncio");
+        } else {
+          url.searchParams.set("anuncio", String(adId).replace(/^AD_/, ""));
         }
         if (mode === "replace") {
           window.history.replaceState(stateObj !== null ? stateObj : window.history.state, "", url);
@@ -694,7 +745,7 @@
     }
 
     // card completo (estilo vitrine): capa OU miniatura viva da pagina; selo, desconto, titulo, preco, "no Pix", local. Tudo opcional.
-    function AdCard({ a, onClick }) {
+    function AdCard({ a, onClick, onShare }) {
       const o = a.offer;
       const capa = a.media && a.media[0] && a.media[0].src;
       const ph = (<div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#FB923C", textAlign: "center", padding: 6 }}>
@@ -702,16 +753,25 @@
         {o.host ? <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8" }}>{o.host}</span> : null}
       </div>);
       return (
-        <button type="button" onClick={onClick}
+        <div onClick={onClick} role="button" tabIndex={0}
           style={{ display: "flex", flexDirection: "column", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
           <div style={{ position: "relative", width: "100%", flex: "1 1 0", minHeight: 0, background: "#050A14", overflow: "hidden" }}>
             {capa ? <SafeImage src={capa} alt={a.title} className="w-full h-full object-cover" /> : (a.page ? <SitePreview url={a.page} label={a.title} fallback={ph} /> : ph)}
             {o.discount ? <span className="font-mono" style={{ position: "absolute", top: 0, right: 0, padding: "3px 8px", fontSize: 10, fontWeight: 800, background: "#FEE2E2", color: "#DC2626", borderBottomLeftRadius: 8, zIndex: 2 }}>{o.discount}</span> : null}
           </div>
           <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", gap: 6, flex: "0 0 auto" }}>
-            <div className="font-hud font-bold" style={{ fontSize: 12, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>
-              {o.badge ? <span className="font-mono" style={{ display: "inline-block", marginRight: 5, padding: "1px 5px", borderRadius: 4, fontSize: 9, fontWeight: 800, background: "#F97316", color: "#1A0A00", verticalAlign: "1px" }}>{o.badge}</span> : null}
-              {a.title}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+              <div className="font-hud font-bold" style={{ flex: 1, minWidth: 0, fontSize: 12, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>
+                {o.badge ? <span className="font-mono" style={{ display: "inline-block", marginRight: 5, padding: "1px 5px", borderRadius: 4, fontSize: 9, fontWeight: 800, background: "#F97316", color: "#1A0A00", verticalAlign: "1px" }}>{o.badge}</span> : null}
+                {a.title}
+              </div>
+              {onShare ? (
+                <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar link do anúncio"
+                  onClick={(e) => { e.stopPropagation(); onShare(); }}
+                  style={{ flex: "0 0 26px", width: 26, height: 26, padding: 0, borderRadius: 8, border: "1px solid rgba(249,115,22,0.5)", background: "rgba(11,22,38,0.9)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                </button>
+              ) : null}
             </div>
             {o.priceCurrent ? (
               <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
@@ -722,7 +782,7 @@
             ) : <div className="font-mono" style={{ marginTop: "auto", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#FB923C" }}>{o.cta || "VER ANÚNCIO"} ›</div>}
             {o.local ? <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>📍 {o.local}</div> : null}
           </div>
-        </button>
+        </div>
       );
     }
 
@@ -864,7 +924,8 @@
 
     function MobileTV({ channels, ads, isMuted, setIsMuted, onBlocked, autoPlay, setAutoPlay, holdSec, onAdmin, chatTxt }) {
       const initDeep = useRef(readItemParamsFromUrl(channels)).current;
-      const [view, setView] = useState(initDeep ? "viewer" : "mix");
+      const initAdDeep = useRef(readAdParamFromUrl()).current;
+      const [view, setView] = useState(initDeep ? "viewer" : initAdDeep ? "ad" : "mix");
       const [itemBack, setItemBack] = useState("mix");
       const [homeSel, setHomeSel] = useState(-1); // Lab 22: canal escolhido no seletor da tela CANAIS (-1 = todos)
       const [homeOpen, setHomeOpen] = useState(false);
@@ -875,8 +936,8 @@
       const [chIdx, setChIdx] = useState(initDeep ? initDeep.ci : 0);
       const [itemIdx, setItemIdx] = useState(initDeep ? initDeep.ii : 0);
       const [filter, setFilter] = useState("all");
-      const [selAdId, setSelAdId] = useState(null);
-      const [adBack, setAdBack] = useState("offers");
+      const [selAdId, setSelAdId] = useState(initAdDeep || null);
+      const [adBack, setAdBack] = useState(initAdDeep ? "mix" : "offers");
       const [adMedia, setAdMedia] = useState(0);
       const [rotated, setRotated] = useState(false);
       const [flagOpen, setFlagOpen] = useState(false);
@@ -990,12 +1051,15 @@
       }, [view, selAdId]);
 
       // ---- botão VOLTAR do celular: cada tela vira uma entrada do histórico do navegador ----
-      const stackRef = useRef(initDeep ? ["mix", "viewer"] : ["mix"]);
+      const stackRef = useRef((initDeep || initAdDeep) ? ["mix", initDeep ? "viewer" : "ad"] : ["mix"]);
       useEffect(() => {
         try {
           if (initDeep) {
             syncItemUrl(null, null, "replace", { tv: "mix", n: 0 });
             syncItemUrl(initDeep.ci, initDeep.ii, "push", { tv: "viewer", n: 1, ci: initDeep.ci, ii: initDeep.ii });
+          } else if (initAdDeep) {
+            syncAdUrl(null, "replace", { tv: "mix", n: 0 });
+            syncAdUrl(initAdDeep, "push", { tv: "ad", n: 1, adId: initAdDeep });
           } else {
             window.history.replaceState({ tv: "mix", n: 0 }, "");
           }
@@ -1012,6 +1076,9 @@
               ? { ci: st.ci, ii: st.ii }
               : readItemParamsFromUrl(channels);
             if (p) { setChIdx(p.ci); setItemIdx(p.ii); }
+          } else if (v === "ad") {
+            const aid = (st && st.adId) || readAdParamFromUrl();
+            if (aid) setSelAdId(aid);
           } else {
             syncItemUrl(null, null, "replace", st || { tv: v, n });
           }
@@ -1070,7 +1137,21 @@
         setView("viewer");
         toTop();
       };
-      const openAd = (id, back) => { playHoloSound("swap"); setSelAdId(id); setAdBack(back); setAdMedia(0); syncItemUrl(null, null, "replace"); navPush("ad"); toTop(); };
+      const openAd = (id, back) => {
+        playHoloSound("swap");
+        setSelAdId(id);
+        setAdBack(back);
+        setAdMedia(0);
+        const s = stackRef.current;
+        if (s[s.length - 1] === "ad") {
+          syncAdUrl(id, "replace", { tv: "ad", n: s.length - 1, adId: id });
+        } else {
+          s.push("ad");
+          syncAdUrl(id, "push", { tv: "ad", n: s.length - 1, adId: id });
+        }
+        setView("ad");
+        toTop();
+      };
       const openDrawer = () => {
         playHoloSound("click"); setFlagOpen(false);
         const st = stackRef.current;
@@ -1122,15 +1203,17 @@
       );
 
       const autoBtn = (
-        <button type="button" aria-label={autoPlay ? "Autoplay ligado" : "Autoplay desligado"} title="Autoplay" onClick={() => setAutoPlay(!autoPlay)}
-          style={{ flex: "0 0 auto", height: 36, padding: "0 10px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6, cursor: "pointer", ...(autoPlay ? tones.cyan : tones.off) }}>
-          <Ico size={16}><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></Ico>
-          <span className="font-mono" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em" }}>{autoPlay ? "AUTO ON" : "AUTO OFF"}</span>
+        <button type="button" aria-label={autoPlay ? "Autoplay ligado" : "Autoplay desligado"} title={autoPlay ? "Autoplay ligado" : "Autoplay desligado"} onClick={() => setAutoPlay(!autoPlay)}
+          style={{ flex: "0 0 36px", width: 36, height: 36, padding: 0, border: 0, background: "transparent", color: autoPlay ? "#22D3EE" : "#64748B", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <Ico size={20}><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></Ico>
         </button>
       );
       const subHeader = (title, sub, onBack, tone, right) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#050A14", borderBottom: "1px solid rgba(34,211,238,0.2)", position: "sticky", top: 0, zIndex: 20 }}>
-          {backBtn(onBack, tone)}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#050A14", borderBottom: "1px solid rgba(34,211,238,0.2)", position: "sticky", top: 0, zIndex: 20 }}>
+          <button type="button" aria-label="Voltar" onClick={onBack}
+            style={{ flex: "0 0 36px", width: 36, height: 36, padding: 0, border: 0, background: "transparent", color: tone === "orange" ? "#FB923C" : "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+            <Ico size={22}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></Ico>
+          </button>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div className="font-hud font-bold" style={{ fontSize: 14, color: "#FB923C", letterSpacing: "0.04em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
             <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8", letterSpacing: "0.08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</div>
@@ -1340,7 +1423,7 @@
           );
         };
         const meta = (e) => (channels[e.ci] ? channels[e.ci].title : "") + " · " + KIND_LABEL[e.kind] + relTime(e.t);
-        const adCard = (a) => a.page ? (<div key={"ad" + a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "mix")} /></div>) : (
+        const adCard = (a) => a.page ? (<div key={"ad" + a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "mix")} onShare={() => shareSpecificAd(a.id, a.title, showToast)} /></div>) : (
           <button key={"ad" + a.id} type="button" onClick={() => openAd(a.id, "mix")}
             style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
             <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
@@ -1595,7 +1678,7 @@
                             {thumbBox(e.it)}
                             {tag(KIND_LABEL[e.it.kind])}
                             </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind], e.it.desc, () => openItem(chIdx, e.it.i), () => shareSpecificItem(chIdx, e.it.i, e.it.label, showToast))}</div>
-                        ) : ((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "feed")} /></div>) : (
+                        ) : ((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "feed")} onShare={() => shareSpecificAd(a.id, a.title, showToast)} /></div>) : (
                           <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
                             style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                             <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
@@ -1690,12 +1773,11 @@
 
         const sub = "ITEM " + (itemIdx + 1) + " DE " + items.length;
         const shareViewerBtn = (
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flex: "0 0 auto" }}>
             <button type="button" aria-label="Compartilhar este conteúdo" title="Compartilhar"
               onClick={() => shareSpecificItem(chIdx, itemIdx, item.label || ch.title, showToast)}
-              style={{ flex: "0 0 auto", height: 36, padding: "0 10px", borderRadius: 10, display: "flex", alignItems: "center", gap: 5, cursor: "pointer", ...tones.on }}>
-              <Ico size={15}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
-              <span className="font-mono" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.06em" }}>ENVIAR</span>
+              style={{ flex: "0 0 36px", width: 36, height: 36, padding: 0, border: 0, background: "transparent", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <Ico size={20}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
             </button>
             {autoBtn}
           </div>
@@ -1796,7 +1878,13 @@
       if (view === "ad" && curAd && curAd.page) {
         return (
           <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#050A14" }}>
-            {subHeader("ANÚNCIO", curAd.title, () => up(adBack), "orange")}
+            {subHeader("ANÚNCIO", curAd.title, () => up(adBack), "orange", (
+              <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar anúncio"
+                onClick={() => shareSpecificAd(curAd.id, curAd.title, showToast)}
+                style={{ flex: "0 0 36px", width: 36, height: 36, padding: 0, border: 0, background: "transparent", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={20}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
+              </button>
+            ))}
             <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
               <iframe key={curAd.id} src={curAd.page} title={curAd.title}
                 sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
@@ -1816,7 +1904,13 @@
         const m = curAd.media && curAd.media.length ? curAd.media[adMedia % curAd.media.length] : null;
         return (
           <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-            {subHeader("ANÚNCIO COMPLETO", "OFERTA · HOMEM BRUTO", () => up(adBack), "orange")}
+            {subHeader("ANÚNCIO COMPLETO", "OFERTA · HOMEM BRUTO", () => up(adBack), "orange", (
+              <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar anúncio"
+                onClick={() => shareSpecificAd(curAd.id, curAd.title, showToast)}
+                style={{ flex: "0 0 36px", width: 36, height: 36, padding: 0, border: 0, background: "transparent", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={20}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
+              </button>
+            ))}
             <div style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", maxHeight: "62vh", background: "#000", overflow: "hidden" }}>
               <AdMedia item={m} fallback={o.thumbImg} alt={curAd.title} />
               {o.badge ? tag(o.badge, true) : null}
@@ -1858,7 +1952,7 @@
             </div>
             {!ads.length && <p className="font-mono" style={{ fontSize: 11, color: "#64748B", textAlign: "center", padding: "40px 0" }}>Nenhuma oferta ainda.</p>}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginTop: 14 }}>
-              {ads.map((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "offers")} /></div>) : (
+              {ads.map((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "offers")} onShare={() => shareSpecificAd(a.id, a.title, showToast)} /></div>) : (
                 <button key={a.id} type="button" onClick={() => openAd(a.id, "offers")}
                   style={{ display: "flex", flexDirection: "column", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
                   <div style={{ position: "relative", width: "100%", aspectRatio: "9 / 14" }}>
