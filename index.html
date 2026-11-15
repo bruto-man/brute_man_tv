@@ -824,14 +824,38 @@
       const boxRef = useRef(null);
       const [active, setActive] = useState(false);
       const [ready, setReady] = useState(false);
-      const [soundOn, setSoundOn] = useState(false);
+      const [soundOn, setSoundOn] = useState(true);
+      const [playing, setPlaying] = useState(false);
       const vidRef = useRef(null);
+      const ytRef = useRef(null);
+      const timeRef = useRef(0);
+      const startRef = useRef(0);
       const stopRef = useRef(null);
+      const ytCmd = (func, args) => {
+        try {
+          const w = ytRef.current && ytRef.current.contentWindow;
+          if (w) w.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*");
+        } catch (er) {}
+      };
+      // sair da tela / outro card tocar: descarrega, mas guarda o ponto onde parou
       stopRef.current = () => {
+        if (vidRef.current) { try { timeRef.current = vidRef.current.currentTime || 0; } catch (er) {} }
         setActive(false);
         setReady(false);
-        setSoundOn(false);
+        setPlaying(false);
       };
+      // o player do YouTube avisa o tempo atual; guardamos para retomar de onde parou
+      useEffect(() => {
+        if (!active) return;
+        const onMsg = (ev) => {
+          if (!ytRef.current || ev.source !== ytRef.current.contentWindow) return;
+          let d = ev.data;
+          if (typeof d === "string") { try { d = JSON.parse(d); } catch (er) { return; } }
+          if (d && d.info && typeof d.info.currentTime === "number") timeRef.current = d.info.currentTime;
+        };
+        window.addEventListener("message", onMsg);
+        return () => window.removeEventListener("message", onMsg);
+      }, [active]);
 
       // Só observa se o card sair completamente da tela para descarregar da memória
       useEffect(() => {
@@ -859,32 +883,38 @@
       const ytId = isYt ? extractYtId(it.url) : "";
       const canPlay = (isYt && !!ytId) || isMp4;
 
+      const startPlay = () => {
+        claimPreviewSlot(stopRef.current);
+        startRef.current = Math.floor(timeRef.current || 0);
+        setReady(false);
+        setSoundOn(true);
+        setPlaying(true);
+        setActive(true);
+      };
+
+      // Play: começa já com som. Pausar mantém o ponto; Play de novo continua de onde parou.
       const togglePlay = (e) => {
         e.stopPropagation();
         playHoloSound("click");
-        if (active) {
-          releasePreviewSlot(stopRef.current);
-          setActive(false);
-          setReady(false);
-          setSoundOn(false);
+        if (!active) { startPlay(); return; }
+        if (playing) {
+          if (isYt) ytCmd("pauseVideo"); else if (vidRef.current) { try { vidRef.current.pause(); } catch (er) {} }
+          setPlaying(false);
         } else {
-          claimPreviewSlot(stopRef.current);
-          setReady(false);
-          setActive(true);
+          if (isYt) ytCmd("playVideo"); else if (vidRef.current) { try { vidRef.current.play(); } catch (er) {} }
+          setPlaying(true);
         }
       };
 
+      // Som: só liga/desliga o áudio, sem reiniciar o vídeo
       const toggleSound = (e) => {
         e.stopPropagation();
         playHoloSound("click");
-        if (!active) {
-          claimPreviewSlot(stopRef.current);
-          setReady(false);
-          setSoundOn(true);
-          setActive(true);
-        } else {
-          setSoundOn((s) => !s);
-        }
+        if (!active) { startPlay(); return; }
+        const next = !soundOn;
+        setSoundOn(next);
+        if (isYt) ytCmd(next ? "unMute" : "mute");
+        else if (vidRef.current) { try { vidRef.current.muted = !next; } catch (er) {} }
       };
 
       return (
@@ -899,12 +929,16 @@
 
           {active && isYt && ytId ? (
             <iframe
-              key={ytId + "-" + (soundOn ? "1" : "0")}
-              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=${soundOn ? 0 : 1}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${ytId}&disablekb=1`}
+              key={ytId}
+              ref={ytRef}
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${ytId}&disablekb=1&enablejsapi=1&start=${startRef.current}`}
               title={it.label || "Prévia"}
               tabIndex={-1}
               aria-hidden="true"
-              onLoad={() => setTimeout(() => setReady(true), 350)}
+              onLoad={() => {
+                try { if (ytRef.current && ytRef.current.contentWindow) ytRef.current.contentWindow.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*"); } catch (er) {}
+                setTimeout(() => setReady(true), 350);
+              }}
               allow="autoplay; encrypted-media"
               style={{
                 position: "absolute",
@@ -929,7 +963,10 @@
               muted={!soundOn}
               loop
               playsInline
-              onLoadedData={() => setReady(true)}
+              onLoadedData={() => {
+                if (vidRef.current && startRef.current > 0) { try { vidRef.current.currentTime = startRef.current; } catch (er) {} }
+                setReady(true);
+              }}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -948,23 +985,23 @@
               <button
                 type="button"
                 onClick={togglePlay}
-                aria-label={active ? "Pausar prévia" : "Reproduzir prévia"}
-                title={active ? "Pausar" : "Play"}
+                aria-label={active && playing ? "Pausar prévia" : "Reproduzir prévia"}
+                title={active && playing ? "Pausar" : "Play"}
                 style={{
                   width: 32,
                   height: 32,
                   padding: 0,
                   borderRadius: 9,
-                  background: active ? "#F97316" : "rgba(3,6,12,0.86)",
-                  color: active ? "#1A0A00" : "#22D3EE",
-                  border: "1px solid " + (active ? "#F97316" : "rgba(34,211,238,0.55)"),
+                  background: active && playing ? "#F97316" : "rgba(3,6,12,0.86)",
+                  color: active && playing ? "#1A0A00" : "#22D3EE",
+                  border: "1px solid " + (active && playing ? "#F97316" : "rgba(34,211,238,0.55)"),
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center"
                 }}
               >
-                {active ? (
+                {active && playing ? (
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
                 ) : (
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
@@ -1590,16 +1627,14 @@
         mixAll.forEach((e) => { if (kindsPresent.indexOf(e.kind) < 0) kindsPresent.push(e.kind); });
         const base = mixAll.filter((e) => mixFilter === "all" || e.kind === mixFilter);
         const isTall = (e) => !!e.ad || (e.kind !== "video" && e.kind !== "site");
-        const adList = mixFilter === "all" ? ads.slice() : [];
+        const adList = mixFilter === "all" ? ads.filter((a, i, arr) => arr.findIndex((x) => x.id === a.id) === i) : []; // cada anúncio aparece UMA vez no feed
         const q = [];
         let adPos = 0;
         base.forEach((e, n) => {
           q.push(e);
-          if (adList.length && (n + 1) % 6 === 0) {
-            q.push({ ad: adList[adPos % adList.length] }); adPos++;
-            if (adList.length > 1) { q.push({ ad: adList[adPos % adList.length] }); adPos++; }
-          }
+          if (adPos < adList.length && (n + 1) % 4 === 0) { q.push({ ad: adList[adPos] }); adPos++; }
         });
+        while (adPos < adList.length) { q.push({ ad: adList[adPos] }); adPos++; }
         const rows = [];
         const rest = q.slice();
         while (rest.length) {
@@ -1608,11 +1643,7 @@
           let j = -1;
           for (let k = 0; k < Math.min(rest.length, 3); k++) { if (isTall(rest[k])) { j = k; break; } }
           if (j >= 0) { rows.push({ t: "pair", list: [e, rest.splice(j, 1)[0]] }); }
-          else if (adList.length > 1 || (adList.length === 1 && !e.ad)) {
-            let a = adList[adPos % adList.length]; adPos++;
-            if (e.ad && a.id === e.ad.id) { a = adList[adPos % adList.length]; adPos++; }
-            rows.push({ t: "pair", list: [e, { ad: a }] });
-          } else rows.push({ t: "pair", list: [e] });
+          else rows.push({ t: "pair", list: [e] });
         }
         const chipMix = (id, label, orange, onClick) => {
           const on = mixFilter === id;
