@@ -452,27 +452,24 @@
 
     const SAFE_IMG_FALLBACK = "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=600&q=80";
 
-    // Lab 21b: miniatura "ao vivo" do site no card (so quando nao ha capa). Quadro 1024 px reduzido, sem toque, carrega so perto da tela.
+    // Miniatura de site/anúncio: abre normalmente sem restrição de centro de tela ou congelamento
     function SitePreview({ url, label, fallback }) {
       const boxRef = React.useRef(null);
       const [size, setSize] = React.useState({ w: 0, h: 0 });
-      const [near, setNear] = React.useState(false);
       React.useEffect(() => {
         const el = boxRef.current; if (!el) return;
         const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
         measure();
         let ro = null; try { ro = new ResizeObserver(measure); ro.observe(el); } catch (e) {}
-        let io = null;
-        try { io = new IntersectionObserver((en) => { if (en[0] && en[0].isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: "300px" }); io.observe(el); } catch (e) { setNear(true); }
-        return () => { if (ro) ro.disconnect(); if (io) io.disconnect(); };
+        return () => { if (ro) ro.disconnect(); };
       }, []);
       const W = 1024;
       const k = size.w ? size.w / W : 0;
       return (
         <div ref={boxRef} style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#0B1626" }}>
           <div style={{ position: "absolute", inset: 0 }}>{fallback}</div>
-          {near && k > 0 ? (
-            <iframe src={url} title={label || "site"} loading="lazy" tabIndex={-1} aria-hidden="true"
+          {k > 0 ? (
+            <iframe src={url} title={label || "site"} tabIndex={-1} aria-hidden="true"
               sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer"
               style={{ position: "absolute", top: 0, left: 0, width: W, height: Math.ceil(size.h / k), border: 0, transform: "scale(" + k + ")", transformOrigin: "top left", pointerEvents: "none", background: "#fff" }} />
           ) : null}
@@ -744,7 +741,7 @@
       return out;
     }
 
-    // card completo (estilo vitrine): capa OU miniatura viva da pagina; selo, desconto, titulo, preco, "no Pix", local. Tudo opcional.
+    // card completo (estilo vitrine): capa OU miniatura viva da pagina; selo, desconto, titulo, preco, "no Pix", local e botao de compartilhar padronizado (mesma cor ciano dos shorts).
     function AdCard({ a, onClick, onShare }) {
       const o = a.offer;
       const capa = a.media && a.media[0] && a.media[0].src;
@@ -753,35 +750,37 @@
         {o.host ? <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8" }}>{o.host}</span> : null}
       </div>);
       return (
-        <div onClick={onClick} role="button" tabIndex={0}
-          style={{ display: "flex", flexDirection: "column", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
-          <div style={{ position: "relative", width: "100%", flex: "1 1 0", minHeight: 0, background: "#050A14", overflow: "hidden" }}>
-            {capa ? <SafeImage src={capa} alt={a.title} className="w-full h-full object-cover" /> : (a.page ? <SitePreview url={a.page} label={a.title} fallback={ph} /> : ph)}
-            {o.discount ? <span className="font-mono" style={{ position: "absolute", top: 0, right: 0, padding: "3px 8px", fontSize: 10, fontWeight: 800, background: "#FEE2E2", color: "#DC2626", borderBottomLeftRadius: 8, zIndex: 2 }}>{o.discount}</span> : null}
-          </div>
-          <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", gap: 6, flex: "0 0 auto" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-              <div className="font-hud font-bold" style={{ flex: 1, minWidth: 0, fontSize: 12, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>
+        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+          <div onClick={onClick} role="button" tabIndex={0}
+            style={{ display: "flex", flexDirection: "column", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+            <div style={{ position: "relative", width: "100%", flex: "1 1 0", minHeight: 0, background: "#050A14", overflow: "hidden" }}>
+              {capa ? <SafeImage src={capa} alt={a.title} className="w-full h-full object-cover" /> : (a.page ? <SitePreview url={a.page} label={a.title} fallback={ph} /> : ph)}
+              {o.discount ? <span className="font-mono" style={{ position: "absolute", top: 0, right: 0, padding: "3px 8px", fontSize: 10, fontWeight: 800, background: "#FEE2E2", color: "#DC2626", borderBottomLeftRadius: 8, zIndex: 2 }}>{o.discount}</span> : null}
+            </div>
+            <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", gap: 6, flex: "0 0 auto" }}>
+              <div className="font-hud font-bold" style={{ fontSize: 12, lineHeight: 1.3, color: "#fff", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>
                 {o.badge ? <span className="font-mono" style={{ display: "inline-block", marginRight: 5, padding: "1px 5px", borderRadius: 4, fontSize: 9, fontWeight: 800, background: "#F97316", color: "#1A0A00", verticalAlign: "1px" }}>{o.badge}</span> : null}
                 {a.title}
               </div>
-              {onShare ? (
-                <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar link do anúncio"
-                  onClick={(e) => { e.stopPropagation(); onShare(); }}
-                  style={{ flex: "0 0 26px", width: 26, height: 26, padding: 0, borderRadius: 8, border: "1px solid rgba(249,115,22,0.5)", background: "rgba(11,22,38,0.9)", color: "#FB923C", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                </button>
-              ) : null}
+              {o.priceCurrent ? (
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
+                  <span className="font-hud font-extrabold" style={{ fontSize: 16, color: "#FB923C" }}>{o.priceCurrent}</span>
+                  {o.priceOld ? <span className="font-mono" style={{ fontSize: 10, color: "#64748B", textDecoration: "line-through" }}>{o.priceOld}</span> : null}
+                  {o.sub ? <span className="font-mono" style={{ fontSize: 10, color: "#FB923C" }}>{o.sub}</span> : null}
+                </div>
+              ) : <div className="font-mono" style={{ marginTop: "auto", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#FB923C" }}>{o.cta || "VER ANÚNCIO"} ›</div>}
+              {o.local ? <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>📍 {o.local}</div> : null}
             </div>
-            {o.priceCurrent ? (
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
-                <span className="font-hud font-extrabold" style={{ fontSize: 16, color: "#FB923C" }}>{o.priceCurrent}</span>
-                {o.priceOld ? <span className="font-mono" style={{ fontSize: 10, color: "#64748B", textDecoration: "line-through" }}>{o.priceOld}</span> : null}
-                {o.sub ? <span className="font-mono" style={{ fontSize: 10, color: "#FB923C" }}>{o.sub}</span> : null}
-              </div>
-            ) : <div className="font-mono" style={{ marginTop: "auto", fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#FB923C" }}>{o.cta || "VER ANÚNCIO"} ›</div>}
-            {o.local ? <div className="font-mono" style={{ fontSize: 10, color: "#94A3B8" }}>📍 {o.local}</div> : null}
           </div>
+          {onShare ? (
+            <div style={{ padding: "8px 4px 0", display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar link direto"
+                onClick={(e) => { e.stopPropagation(); onShare(); }}
+                style={{ flex: "0 0 28px", width: 28, height: 28, padding: 0, borderRadius: 8, border: "1px solid rgba(34,211,238,0.4)", background: "rgba(11,22,38,0.9)", color: "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={14}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
+              </button>
+            </div>
+          ) : null}
         </div>
       );
     }
@@ -802,6 +801,206 @@
     // ===== MOBILE v4 (etapa 1): home de canais, feed em linhas, visualizadores, anúncio em pé e ofertas =====
     // Só aparece em tela estreita (<= 820px). O desktop continua com o App original, sem mudanças.
     // Regra de ouro: vídeo 16:9 = palco largo (gira para paisagem). Todo o resto = palco em pé 9:16.
+    // ===== PRÉVIA DE VÍDEO NO FEED (estilo YouTube: roda mudo só o card visível no centro da tela) =====
+    function extractYtId(rawUrl) {
+      const u = String(rawUrl || "").trim();
+      const m = u.match(/youtu\.be\/([\w-]{6,})/) || u.match(/[?&]v=([\w-]{6,})/) || u.match(/\/(?:shorts|embed)\/([\w-]{6,})/);
+      return (u.match(/youtube\.com|youtu\.be/) && m) ? m[1] : "";
+    }
+
+    // Controle global: garante que apenas UM card por vez rode prévia ativa no feed
+    let hbActivePreviewStop = null;
+    function claimPreviewSlot(stopFn) {
+      if (hbActivePreviewStop && hbActivePreviewStop !== stopFn) {
+        try { hbActivePreviewStop(); } catch (e) {}
+      }
+      hbActivePreviewStop = stopFn;
+    }
+    function releasePreviewSlot(stopFn) {
+      if (hbActivePreviewStop === stopFn) hbActivePreviewStop = null;
+    }
+
+    function VideoPreview({ it, thumbImg }) {
+      const boxRef = useRef(null);
+      const [active, setActive] = useState(false);
+      const [ready, setReady] = useState(false);
+      const [soundOn, setSoundOn] = useState(false);
+      const vidRef = useRef(null);
+      const stopRef = useRef(null);
+      stopRef.current = () => {
+        setActive(false);
+        setReady(false);
+        setSoundOn(false);
+      };
+
+      // Só observa se o card sair completamente da tela para descarregar da memória
+      useEffect(() => {
+        const el = boxRef.current;
+        if (!el || !active) return;
+        let io = null;
+        try {
+          io = new IntersectionObserver((entries) => {
+            const en = entries[0];
+            if (en && !en.isIntersecting) {
+              releasePreviewSlot(stopRef.current);
+              stopRef.current();
+            }
+          }, { threshold: 0.05 });
+          io.observe(el);
+        } catch (e) {}
+        return () => { if (io) io.disconnect(); };
+      }, [active]);
+
+      useEffect(() => () => releasePreviewSlot(stopRef.current), []);
+
+      const parsed = parseOmniLink((it && it.url) || "");
+      const isYt = parsed.type === "YOUTUBE" || parsed.type === "YOUTUBE_SHORTS";
+      const isMp4 = parsed.type === "VIDEO";
+      const ytId = isYt ? extractYtId(it.url) : "";
+      const canPlay = (isYt && !!ytId) || isMp4;
+
+      const togglePlay = (e) => {
+        e.stopPropagation();
+        playHoloSound("click");
+        if (active) {
+          releasePreviewSlot(stopRef.current);
+          setActive(false);
+          setReady(false);
+          setSoundOn(false);
+        } else {
+          claimPreviewSlot(stopRef.current);
+          setReady(false);
+          setActive(true);
+        }
+      };
+
+      const toggleSound = (e) => {
+        e.stopPropagation();
+        playHoloSound("click");
+        if (!active) {
+          claimPreviewSlot(stopRef.current);
+          setReady(false);
+          setSoundOn(true);
+          setActive(true);
+        } else {
+          setSoundOn((s) => !s);
+        }
+      };
+
+      return (
+        <div ref={boxRef} style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#050A14" }}>
+          {thumbImg ? (
+            <SafeImage src={thumbImg} alt={it.label} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
+              <span style={{ fontSize: 30 }}>{typeIcon(parsed.type)}</span>
+            </div>
+          )}
+
+          {active && isYt && ytId ? (
+            <iframe
+              key={ytId + "-" + (soundOn ? "1" : "0")}
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=${soundOn ? 0 : 1}&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${ytId}&disablekb=1`}
+              title={it.label || "Prévia"}
+              tabIndex={-1}
+              aria-hidden="true"
+              onLoad={() => setTimeout(() => setReady(true), 350)}
+              allow="autoplay; encrypted-media"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: parsed.type === "YOUTUBE_SHORTS" ? "105%" : "135%",
+                height: parsed.type === "YOUTUBE_SHORTS" ? "115%" : "135%",
+                transform: "translate(-50%, -50%)",
+                border: 0,
+                pointerEvents: "none",
+                opacity: ready ? 1 : 0,
+                transition: "opacity 0.3s ease"
+              }}
+            />
+          ) : null}
+
+          {active && isMp4 ? (
+            <video
+              ref={vidRef}
+              src={parsed.cleanUrl}
+              autoPlay
+              muted={!soundOn}
+              loop
+              playsInline
+              onLoadedData={() => setReady(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",
+                opacity: ready ? 1 : 0,
+                transition: "opacity 0.3s ease"
+              }}
+            />
+          ) : null}
+
+          {canPlay ? (
+            <div style={{ position: "absolute", bottom: 8, left: 8, zIndex: 4, display: "flex", alignItems: "center", gap: 6 }}>
+              <button
+                type="button"
+                onClick={togglePlay}
+                aria-label={active ? "Pausar prévia" : "Reproduzir prévia"}
+                title={active ? "Pausar" : "Play"}
+                style={{
+                  width: 32,
+                  height: 32,
+                  padding: 0,
+                  borderRadius: 9,
+                  background: active ? "#F97316" : "rgba(3,6,12,0.86)",
+                  color: active ? "#1A0A00" : "#22D3EE",
+                  border: "1px solid " + (active ? "#F97316" : "rgba(34,211,238,0.55)"),
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                {active ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={toggleSound}
+                aria-label={soundOn && active ? "Silenciar prévia" : "Ouvir com som"}
+                title={soundOn && active ? "Mudo" : "Som"}
+                style={{
+                  width: 32,
+                  height: 32,
+                  padding: 0,
+                  borderRadius: 9,
+                  background: soundOn && active ? "#F97316" : "rgba(3,6,12,0.86)",
+                  color: soundOn && active ? "#1A0A00" : "#22D3EE",
+                  border: "1px solid " + (soundOn && active ? "#F97316" : "rgba(34,211,238,0.55)"),
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                {soundOn && active ? (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                )}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+
     function itemKind(url) {
       const t = parseOmniLink(url || "").type;
       if (t === "YOUTUBE" || t === "VIDEO") return "video";
@@ -1244,6 +1443,8 @@
       const thumbBox = (it, live) => {
         const t = (it.capa && it.capa.trim()) || itemThumb(it.url);
         const ty = parseOmniLink(it.url || "").type;
+        const isVid = ty === "YOUTUBE" || ty === "YOUTUBE_SHORTS" || ty === "VIDEO";
+        if (live !== false && isVid) return <VideoPreview it={it} thumbImg={t} />;
         const ph = (<div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-slate-900 to-black" style={{ color: "#67E8F9", padding: 6, textAlign: "center" }}>
               <span style={{ fontSize: 30 }}>{typeIcon(ty)}</span>
               {ty !== "PDF" && (() => { try { return <span className="font-mono" style={{ fontSize: 9, color: "#94A3B8", wordBreak: "break-all" }}>{new URL(it.url).hostname.replace(/^www\./, "")}</span>; } catch (e) { return null; } })()}
@@ -1424,15 +1625,24 @@
         };
         const meta = (e) => (channels[e.ci] ? channels[e.ci].title : "") + " · " + KIND_LABEL[e.kind] + relTime(e.t);
         const adCard = (a) => a.page ? (<div key={"ad" + a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "mix")} onShare={() => shareSpecificAd(a.id, a.title, showToast)} /></div>) : (
-          <button key={"ad" + a.id} type="button" onClick={() => openAd(a.id, "mix")}
-            style={{ position: "relative", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
-            <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
-            {a.offer.badge ? tag(a.offer.badge, true) : null}
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
-              <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
-              <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+          <div key={"ad" + a.id}>
+            <button type="button" onClick={() => openAd(a.id, "mix")}
+              style={{ position: "relative", display: "block", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+              <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
+              {a.offer.badge ? tag(a.offer.badge, true) : null}
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
+                <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
+                <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+              </div>
+            </button>
+            <div style={{ padding: "8px 4px 0", display: "flex", justifyContent: "flex-end" }}>
+              <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar link direto"
+                onClick={(e) => { e.stopPropagation(); shareSpecificAd(a.id, a.title, showToast); }}
+                style={{ flex: "0 0 28px", width: 28, height: 28, padding: 0, borderRadius: 8, border: "1px solid rgba(34,211,238,0.4)", background: "rgba(11,22,38,0.9)", color: "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Ico size={14}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
+              </button>
             </div>
-          </button>
+          </div>
         );
         const cell = (e, ratio, tagTxt) => (
           <div key={"c" + e.ci + "-" + e.ii}>
@@ -1679,15 +1889,24 @@
                             {tag(KIND_LABEL[e.it.kind])}
                             </button>{capTitle(e.it.label, KIND_LABEL[e.it.kind], e.it.desc, () => openItem(chIdx, e.it.i), () => shareSpecificItem(chIdx, e.it.i, e.it.label, showToast))}</div>
                         ) : ((a) => a.page ? (<div key={a.id} style={{ display: "flex" }}><AdCard a={a} onClick={() => openAd(a.id, "feed")} onShare={() => shareSpecificAd(a.id, a.title, showToast)} /></div>) : (
-                          <button key={a.id} type="button" onClick={() => openAd(a.id, "feed")}
-                            style={{ position: "relative", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
-                            <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
-                            {a.offer.badge ? tag(a.offer.badge, true) : null}
-                            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
-                              <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
-                              <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+                          <div key={a.id}>
+                            <button type="button" onClick={() => openAd(a.id, "feed")}
+                              style={{ position: "relative", display: "block", width: "100%", aspectRatio: "9 / 16", padding: 0, borderRadius: 14, overflow: "hidden", border: "1px solid #F97316", background: "#0B1626", cursor: "pointer", textAlign: "left" }}>
+                              <AdMedia item={(a.media.find((x) => x.t !== "vid")) || a.media[0]} fallback={a.offer.thumbImg} alt={a.title} />
+                              {a.offer.badge ? tag(a.offer.badge, true) : null}
+                              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 10px 10px", background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}>
+                                <div className="font-hud font-bold" style={{ fontSize: 11, color: "#fff", lineHeight: 1.25, marginBottom: 4 }}>{a.title}</div>
+                                <div className="font-hud font-extrabold" style={{ fontSize: 15, color: "#FDBA74" }}>{a.offer.priceCurrent}</div>
+                              </div>
+                            </button>
+                            <div style={{ padding: "8px 4px 0", display: "flex", justifyContent: "flex-end" }}>
+                              <button type="button" aria-label="Compartilhar anúncio" title="Compartilhar link direto"
+                                onClick={(e) => { e.stopPropagation(); shareSpecificAd(a.id, a.title, showToast); }}
+                                style={{ flex: "0 0 28px", width: 28, height: 28, padding: 0, borderRadius: 8, border: "1px solid rgba(34,211,238,0.4)", background: "rgba(11,22,38,0.9)", color: "#67E8F9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                                <Ico size={14}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></Ico>
+                              </button>
                             </div>
-                          </button>
+                          </div>
                         ))(e.ad))}
                       </div>
                     );
