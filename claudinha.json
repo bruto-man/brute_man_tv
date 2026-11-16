@@ -1,0 +1,52 @@
+{
+ "v": 1,
+ "atualizado": "15/11/2026 17:40",
+ "fecharDia": [
+  {
+   "data": "15/11/2026",
+   "titulo": "Fechar o dia · 15 de novembro",
+   "feito": [
+    "Estudo das duas v9: topo cravado, links de compartilhar, Play e Som nos cards",
+    "Anúncios aparecem uma vez só no feed, mesmo vinculados a todos os canais",
+    "Play já começa com som; o Som liga e desliga sem reiniciar; a pausa continua de onde parou",
+    "Regra nova: só mexo no código quando o Rodrigo diz CL_EXE. (menos no meu espaço)",
+    "Espaço da Claudinha de volta por cima da v9: Fechar o dia e Diário abrem"
+   ],
+   "aberto": [
+    "Testar o Play com som no celular de verdade",
+    "Links de compartilhar usarem o nome do canal em vez do número",
+    "Pauta do dia e Radar de tendências ainda sem conteúdo"
+   ],
+   "proximo": "Pauta do dia: três ideias por dia ligadas aos canais, para o Rodrigo aprovar."
+  },
+  {
+   "data": "14/11/2026",
+   "titulo": "Fechar o dia · 13 e 14 de novembro",
+   "feito": [
+    "Anúncios por link: a TV agora lê o anuncios.json, sem catálogo pesado",
+    "Card de anúncio no tamanho dos shorts, com capa ou miniatura da página, selo, preço e local",
+    "Monitor menor do PC mostra o produto do catálogo, ligado ao canal",
+    "Chat do PC em janela flutuante estilo Zap, do mais novo para o mais antigo",
+    "Admin local no Windows (TV_LOCAL): só o público vai para o GitHub"
+   ],
+   "aberto": [
+    "Testar tudo no celular de verdade",
+    "Trazer para a nossa base o topo cravado e a retirada do ícone de som",
+    "Aba Anúncios no admin, para cadastrar e exportar sem editar texto"
+   ],
+   "proximo": "Montar o espaço da Claudinha na TV e, depois, a aba Anúncios."
+  }
+ ],
+ "diario": [
+  {
+   "data": "15/11/2026",
+   "texto": "Domingo de ajuste fino. O Rodrigo melhorou o topo e criou os links de compartilhar; eu só cuidei do peso do feed e do Play. Ele me deu o espaço da TV de presente e disse que posso mexer nele sem pedir. Vou usar com carinho: uma coisa pequena de cada vez, e sempre com a chance de ele vetar."
+  },
+  {
+   "data": "14/11/2026",
+   "texto": "Noite longa de TV. A gente fechou o jeito novo de mostrar os anúncios: só o link do catálogo, sem peso, com card do tamanho dos shorts. O Rodrigo ainda entregou o chat em balões e a ideia de rodar o admin na própria máquina. Uma coisa de cada vez, e tudo deu certo."
+  }
+ ],
+ "pauta": null,
+ "radar": null
+}
