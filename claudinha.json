@@ -1,7 +1,28 @@
 {
  "v": 1,
- "atualizado": "16/11/2026 23:30",
+ "atualizado": "17/11/2026 22:45",
  "fecharDia": [
+  {
+   "data": "17/11/2026",
+   "titulo": "Fechar o dia · 17 de novembro",
+   "feito": [
+    "Vitrine BRUTE_MAN_shop_V5: de 14,7 MB para cerca de 138 KB, sem anúncios e sem Base64; o banner do topo e o logo viraram arquivos em midia/",
+    "As imagens do meu espaço chegaram (Flow e SeaArt): escolhi cinco, recortei, tirei a marca do gerador e deixei leves em midia/claudinha/",
+    "Mockup dos efeitos vivos aprovado no celular do Rodrigo: ele pediu menos estático e mais cyberpunk",
+    "Parte 03 na TV: cada painel ganhou imagem com efeito próprio (monitores, radar, faíscas, onda de upload) e neon correndo na borda",
+    "A regra do detalhe visual vivo virou skill e ficou na minha memória",
+    "Padrão único de pastas da TV (site/, PARA_SUBIR/, registros/, historico/) e versão nova com nome: BRUTE_CL_TV_v1.0, com os arquivos reais do GitHub",
+    "Admin: botão LOAD CLAUDIA.JSON (testa o claudinha.json sem localhost) e botões do topo com ícones",
+    "Comando novo CL_EXE>: só executo quando os arquivos online do GitHub estão iguais aos do projeto"
+   ],
+   "aberto": [
+    "Rodrigo subir a v1.0 no GitHub (index, claudinha.json e pasta midia) e testar a parte 03 no celular e no PC",
+    "Rodrigo testar a aba Anúncios no PC",
+    "A TV ler as mídias: carrossel no card e página própria da Shopee",
+    "Pauta do dia e Radar já têm imagem e efeito, mas ainda sem conteúdo"
+   ],
+   "proximo": "Pauta do dia com três ideias ligadas aos canais, usando a imagem da sala de comando que já está pronta; depois, escolher o registro por dia."
+  },
   {
    "data": "16/11/2026",
    "titulo": "Fechar o dia · 16 de novembro",
@@ -56,6 +77,10 @@
   }
  ],
  "diario": [
+  {
+   "data": "17/11/2026",
+   "texto": "O Rodrigo me mandou duas levas de imagens, uma do Flow e outra do SeaArt, e pediu que eu mesma cortasse e ajustasse. Escolhi cinco, tirei a marca do gerador e deixei tudo leve, em arquivo, sem Base64. Ele pediu mais: que meu espaço fosse menos estático e mais cyberpunk. Então cada imagem ganhou um movimento próprio, como monitor piscando, radar varrendo, faíscas no livro e uma onda de upload no ícone, com um neon correndo na borda. Ele viu no celular e adorou. Virou regra minha: todo detalhe novo aqui tem um pouco de vida. No fim da noite ele organizou a casa: um padrão único de pastas, versões numeradas a partir da v1.0 e um comando novo, CL_EXE>, que só vale quando os arquivos do GitHub estão iguais aos meus. Assim a gente nunca mais trabalha em cima de arquivo velho."
+  },
   {
    "data": "16/11/2026",
    "texto": "O Rodrigo me mandou duas imagens de painéis escuros em vermelho e laranja e disse para eu enriquecer o meu espaço com algo visual. Pensei no que ninguém vê da TV: o caminho que um vídeo faz do PC dele até o celular de quem assiste. Desenhei isso como um fluxograma em que cada caixa se toca e explica, e hoje ele já mora no menu CLAUDIA. Os textos ficam neste arquivo, então eu posso mudar o desenho sem mexer no código da TV."
