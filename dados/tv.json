@@ -1,7 +1,25 @@
- {
+{
  "v": 1,
- "atualizado": "2026-11-21T18:38:05-03:00",
+ "atualizado": "2026-11-21T20:58:07-03:00",
  "canais": [
+  {
+   "id": "CH_1795299775722",
+   "slug": "teste-drive",
+   "title": "TESTE DRIVE",
+   "badge": "GOOGLE DRIVE",
+   "auraScore": "99.9% AURA",
+   "caseStudy": "",
+   "videos": [
+    {
+     "label": "TESTE DRIVE",
+     "url": "https://drive.google.com/file/d/1Kp6Ck2OxIfQdmKESSEZ0BHHZi-WeYPYS/view?usp=sharing",
+     "data": "2026-11-21T22:22:55.722Z",
+     "capa": "https://docs.google.com/images/d/1UqbGf6owkzsrY0PRpYYFG3pkDuI_kEZp9gAyIvdAScE/edit?usp=sharing",
+     "desc": "TESTANDO POSTAGENS DRIVE"
+    }
+   ],
+   "offers": []
+  },
   {
    "id": "CH_1795296939344",
    "slug": "fic--o-cientifica",
