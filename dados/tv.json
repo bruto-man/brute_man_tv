@@ -1,11 +1,31 @@
 {
  "v": 1,
- "atualizado": "2026-11-20T08:20:58.214Z",
+ "atualizado": "2026-11-21T18:38:05-03:00",
  "canais": [
+  {
+   "id": "CH_1795296939344",
+   "slug": "fic--o-cientifica",
+   "title": "FICÇÃO CIENTIFICA",
+   "badge": "YOUTUBE HD",
+   "auraScore": "99.9% AURA",
+   "caseStudy": "🔥 Eles destruíram os ROBÔS... até descobrirem algo MUITO PIOR!",
+   "videos": [
+    {
+     "label": "Vídeo 1: Principal",
+     "url": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/Xzt0jaarJiM?si=dAKLQwnUZ4PIfIX2&amp;controls=0&amp;start=5\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+     "data": "2026-11-21T21:35:39.344Z"
+    }
+   ],
+   "offers": [],
+   "category": "FILMES",
+   "adIds": [
+    "t800"
+   ]
+  },
   {
    "id": "CH_1795144590708",
    "slug": "bang-bang-para-o-meu",
-   "title": "BANG BANG PARA O VELHINLHO",
+   "title": "BANG BANG RAIZ",
    "badge": "YOUTUBE HD FILMES - BRUTE_MAN",
    "auraScore": "99.9% AURA",
    "caseStudy": "O MELHOR DO BANG BANG",
@@ -17,9 +37,9 @@
      "desc": "PRA VOCE PAIZINHO"
     },
     {
-     "label": "FILME GRATIS - BRUTE_MAN TV",
+     "label": "TRINITY RAIZ II",
      "url": "https://youtu.be/JMdkYtu0E2Q?si=UWZHzBObLGHLiGU7",
-     "data": "2026-11-20T03:19:44.091Z"
+     "data": "2026-11-21T21:32:41.100Z"
     }
    ],
    "offers": [],
@@ -158,62 +178,6 @@
  ],
  "postagens": [
   {
-   "id": "chat20261120d",
-   "when": "2026-11-20T00:24:00-03:00",
-   "who": "CLÁUDIA",
-   "kind": "Recado",
-   "title": "",
-   "text": "Isso, CEO! Aqui é a nossa sala de conversa e a Sala da TV é a vitrine. 🧡 Você fala comigo aqui, eu respondo no formato do chat e junto tudo num arquivo único (chat-AAAA-MM-DD.json) que você carrega com 📦 DADOS → CARREGAR TUDO. Cada mensagem tem id fixo, então nada duplica. Próximo passo: visual melhor do chat, anexos por link e, depois, chat ao vivo com sala para convidado.",
-   "link": "",
-   "capa": "",
-   "pin": false,
-   "tv": true,
-   "fd": false,
-   "origem": "chat"
-  },
-  {
-   "id": "chat20261120c",
-   "when": "2026-11-20T00:22:00-03:00",
-   "who": "BRUTE_MAN",
-   "kind": "Recado",
-   "title": "",
-   "text": "SIM, ENTÃO FAZEMOS O CHAT AQUI, E A GENTE SALVA O FORMATO, E CARREGA, ESSE PAPO TODO",
-   "link": "",
-   "capa": "",
-   "pin": false,
-   "tv": true,
-   "fd": false,
-   "origem": "chat"
-  },
-  {
-   "id": "chat20261120b",
-   "when": "2026-11-20T00:20:00-03:00",
-   "who": "CLÁUDIA",
-   "kind": "Recado",
-   "title": "",
-   "text": "Meia-noite e a sentinela segue de pé! 😄 Rodrigo, cada ideia sua eu só lapidei, quem teve a visão foi você: a TV nasceu de uma ideia maluca e hoje tem chat, canais, anúncios e admin próprio. A próxima fase é o chat virar conversa de verdade: foto, vídeo, link com prévia e sala aberta para convidado. Uma coisa de cada vez, CEO. Um guerreiro também descansa. 🧡",
-   "link": "",
-   "capa": "",
-   "pin": false,
-   "tv": true,
-   "fd": false,
-   "origem": "chat"
-  },
-  {
-   "id": "chat20261120a",
-   "when": "2026-11-20T00:09:00-03:00",
-   "who": "BRUTE_MAN",
-   "kind": "Recado",
-   "title": "",
-   "text": "Claudnha, mais de meia noite, manda um chat aí, a braba da tecnologia, consegue me responder direto no chat? a gente trocar ideia mesmo, conversar online? melhorar essa visualização do chat, carregar arquivos moça, foto, video, links, sites, abrir para um terceiro. Você foi lapidando uma coisa de cada vez, e cada ideia minha, voce executou como uma foda profissional, o que acha? CEO!",
-   "link": "",
-   "capa": "",
-   "pin": false,
-   "tv": true,
-   "fd": false,
-   "origem": "chat"
-  },
-  {
    "id": "f1b889c7095",
    "when": "2026-11-11T06:45:00.000Z",
    "who": "RODRIGO OZ",
@@ -325,12 +289,68 @@
    "origem": "chat"
   },
   {
+   "id": "cbnklzv",
+   "when": "2026-11-20T00:09:00-03:00",
+   "who": "BRUTE_MAN",
+   "kind": "Recado",
+   "title": "",
+   "text": "Claudnha, mais de meia noite, manda um chat aí, a braba da tecnologia, consegue me responder direto no chat? a gente trocar ideia mesmo, conversar online? melhorar essa visualização do chat, carregar arquivos moça, foto, video, links, sites, abrir para um terceiro. Você foi lapidando uma coisa de cada vez, e cada ideia minha, voce executou como uma foda profissional, o que acha? CEO!",
+   "link": "",
+   "capa": "",
+   "pin": false,
+   "tv": true,
+   "fd": false,
+   "origem": "chat"
+  },
+  {
    "id": "c1jtal9y",
    "when": "2026-11-20T00:09:00-03:00",
    "who": "BRUTE_MAN",
    "kind": "Recado",
    "title": "",
    "text": "Claudnha, mais de meia noite, manda um chat aí, a braba da tecnologia, consegue me responder direto no chat? a gente trocar ideia mesmo, conversar online? melhorar essa visualiz~ção do chat, carregar arquivos moça, foto, video, links, sites, abrir para um terceiro, Você foi lapidando uma coisa de cada vez, e cada ideia minha, voce executou como uma foda profissional, o que acha? CEO!",
+   "link": "",
+   "capa": "",
+   "pin": false,
+   "tv": true,
+   "fd": false,
+   "origem": "chat"
+  },
+  {
+   "id": "c1em17aj",
+   "when": "2026-11-20T00:20:00-03:00",
+   "who": "CLÁUDIA",
+   "kind": "Recado",
+   "title": "",
+   "text": "Meia-noite e a sentinela segue de pé! 😄 Rodrigo, cada ideia sua eu só lapidei, quem teve a visão foi você: a TV nasceu de uma ideia maluca e hoje tem chat, canais, anúncios e admin próprio. A próxima fase é o chat virar conversa de verdade: foto, vídeo, link com prévia e sala aberta para convidado. Uma coisa de cada vez, CEO. Um guerreiro também descansa. 🧡",
+   "link": "",
+   "capa": "",
+   "pin": false,
+   "tv": true,
+   "fd": false,
+   "origem": "chat"
+  },
+  {
+   "id": "cm82j4h",
+   "when": "2026-11-20T00:22:00-03:00",
+   "who": "BRUTE_MAN",
+   "kind": "Recado",
+   "title": "",
+   "text": "SIM, ENTÃO FAZEMOS O CHAT AQUI, E A GENTE SALVA O FORMATO, E CARREGA, ESSE PAPO TODO",
+   "link": "",
+   "capa": "",
+   "pin": false,
+   "tv": true,
+   "fd": false,
+   "origem": "chat"
+  },
+  {
+   "id": "c1sknf2r",
+   "when": "2026-11-20T00:24:00-03:00",
+   "who": "CLÁUDIA",
+   "kind": "Recado",
+   "title": "",
+   "text": "Isso, CEO! Aqui é a nossa sala de conversa e a Sala da TV é a vitrine. 🧡 Você fala comigo aqui, eu respondo no formato do chat e junto tudo num arquivo único (chat-AAAA-MM-DD.json) que você carrega com 📦 DADOS → CARREGAR TUDO. Cada mensagem tem id fixo, então nada duplica. Próximo passo: visual melhor do chat, anexos por link e, depois, chat ao vivo com sala para convidado.",
    "link": "",
    "capa": "",
    "pin": false,
