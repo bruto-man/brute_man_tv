@@ -217,6 +217,12 @@
       .hb-pricerow a { flex: 1 1 100%; text-align: center; padding: 12px !important; font-size: 12px !important; }
     }
       @media (max-width: 767px) { .hb-2dbtn { display: none !important; } }
+      .hb-novo { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #FB923C; box-shadow: 0 0 8px rgba(251,146,60,0.9); animation: hbNovo 1.8s ease-in-out infinite; }
+      @keyframes hbNovo { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.6); opacity: 0.45; } }
+      .hb-cartao-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(167,139,250,0.9), transparent); animation: hbScan 5.5s linear infinite; pointer-events: none; }
+      @keyframes hbScan { from { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { transform: translateY(520px); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { .hb-novo, .hb-cartao-scan { animation: none; } }
+
   </style>
 </head>
 <body class="text-gray-100 cyber-grid min-h-screen flex flex-col justify-between p-3 selection:bg-[#00f2fe]/40 selection:text-white">
@@ -374,19 +380,44 @@
       } catch (e) {}
     };
 
+    function extractGoogleId(rawUrl) {
+      const u = String(rawUrl || "").trim();
+      if (!u || !/drive\.google\.com|docs\.google\.com/i.test(u)) return "";
+      const m = u.match(/(?:drive\.google\.com|docs\.google\.com)\/(?:file|images|document|presentation|spreadsheets)\/d\/([\w-]+)/i)
+             || u.match(/[?&]id=([\w-]+)/i);
+      return m ? m[1] : "";
+    }
+
+    function resolveGoogleImageUrl(rawUrl) {
+      const u = String(rawUrl || "").trim();
+      if (!u) return "";
+      const id = extractGoogleId(u);
+      if (id) return "https://drive.google.com/thumbnail?id=" + id + "&sz=w1000";
+      return u;
+    }
+
     function channelThumb(c) {
-      const u = ((c.videos && c.videos[0] && c.videos[0].url) || "").trim();
+      const v0 = (c.videos && c.videos[0]) || {};
+      const customCapa = resolveGoogleImageUrl(v0.capa || c.capa || "");
+      if (customCapa) return customCapa;
+      const u = (v0.url || "").trim();
       let m = u.match(/youtu\.be\/([\w-]{6,})/) || u.match(/[?&]v=([\w-]{6,})/) || u.match(/\/(?:shorts|embed)\/([\w-]{6,})/);
       if (u.match(/youtube\.com|youtu\.be/) && m) return "https://i.ytimg.com/vi/" + m[1] + "/hqdefault.jpg";
+      const gid = extractGoogleId(u);
+      if (gid && !/docs\.google\.com\/(document|presentation|spreadsheets)\//i.test(u)) {
+        return "https://drive.google.com/thumbnail?id=" + gid + "&sz=w800";
+      }
       if (/^data:image\//i.test(u) || /\.(png|jpe?g|webp|gif)($|\?)/i.test(u)) return u;
       return "";
     }
     function typeIcon(t) {
-      return ({YOUTUBE:"▶",YOUTUBE_SHORTS:"📱",PDF:"📄",GOOGLE_DRIVE:"☁️",IMAGE:"🖼️",VIDEO:"🎞️",WEBSITE:"🌐"})[t] || "📺";
+      return ({YOUTUBE:"▶",YOUTUBE_SHORTS:"📱",PDF:"📄",GOOGLE_DRIVE:"☁️",GOOGLE_DOC:"📝",GOOGLE_SLIDES:"🎞️",GOOGLE_SHEET:"📊",IMAGE:"🖼️",VIDEO:"🎞️",WEBSITE:"🌐",CARTAO:"✨"})[t] || "📺";
     }
 
     function parseOmniLink(rawUrl) {
       if (!rawUrl) return { type: 'UNKNOWN', cleanUrl: '', badge: 'STREAM' };
+      const cm = String(rawUrl).trim().match(/^(claudinha|cartao):([a-z]*)/i);
+      if (cm) return { type: 'CARTAO', cleanUrl: '', badge: 'CLAUDINHA', secao: cm[1].toLowerCase() === 'claudinha' ? cm[2].toLowerCase() : '' };
       let url = rawUrl.trim();
       if (/^data:image\//i.test(url)) return { type: 'IMAGE', cleanUrl: url, badge: 'IMAGEM HD' };
       if (/^data:video\//i.test(url)) return { type: 'VIDEO', cleanUrl: url, badge: 'VÍDEO MP4' };
@@ -394,9 +425,10 @@
       if (iframeMatch) url = iframeMatch[1];
 
       if (url.match(/\.pdf($|\?)/i) || (url.includes("drive.google.com") && url.includes(".pdf"))) {
+        const gid = extractGoogleId(url);
         return {
           type: 'PDF',
-          cleanUrl: url.includes("drive.google.com") ? url.replace(/\/view.*/, "/preview") : url,
+          cleanUrl: gid ? `https://drive.google.com/file/d/${gid}/preview?rm=minimal` : url,
           badge: 'DOCUMENTO PDF'
         };
       }
@@ -423,10 +455,48 @@
         };
       }
 
+      if (/docs\.google\.com\/images\/d\//i.test(url)) {
+        return {
+          type: 'IMAGE',
+          cleanUrl: resolveGoogleImageUrl(url),
+          badge: 'IMAGEM GOOGLE'
+        };
+      }
+
+      if (/docs\.google\.com\/document\/d\//i.test(url)) {
+        const gid = extractGoogleId(url);
+        return {
+          type: 'GOOGLE_DOC',
+          cleanUrl: gid ? `https://docs.google.com/document/d/${gid}/preview?rm=minimal` : url,
+          badge: 'GOOGLE DOCS'
+        };
+      }
+
+      if (/docs\.google\.com\/presentation\/d\//i.test(url)) {
+        const gid = extractGoogleId(url);
+        return {
+          type: 'GOOGLE_SLIDES',
+          cleanUrl: gid ? `https://docs.google.com/presentation/d/${gid}/embed?start=true&loop=true&delayms=5000&rm=minimal` : url,
+          badge: 'GOOGLE SLIDES'
+        };
+      }
+
+      if (/docs\.google\.com\/spreadsheets\/d\//i.test(url)) {
+        const gid = extractGoogleId(url);
+        return {
+          type: 'GOOGLE_SHEET',
+          cleanUrl: gid ? `https://docs.google.com/spreadsheets/d/${gid}/preview?rm=minimal&widget=false&chrome=false` : url,
+          badge: 'GOOGLE SHEETS'
+        };
+      }
+
       if (url.includes("drive.google.com")) {
-        let driveUrl = url;
-        if (url.includes("/view")) driveUrl = url.replace(/\/view.*/, "/preview");
-        else if (!url.includes("/preview")) driveUrl = url.replace(/\/edit.*/, "/preview");
+        const gid = extractGoogleId(url);
+        let driveUrl = gid ? `https://drive.google.com/file/d/${gid}/preview?rm=minimal` : url;
+        if (!gid) {
+          if (url.includes("/view")) driveUrl = url.replace(/\/view.*/, "/preview?rm=minimal");
+          else if (!url.includes("/preview")) driveUrl = url.replace(/\/edit.*/, "/preview?rm=minimal");
+        }
         return {
           type: 'GOOGLE_DRIVE',
           cleanUrl: driveUrl,
@@ -608,9 +678,37 @@
       );
     }
 
-    function OmniScreenRenderer({ videoUrl, title, isMuted, autoAdvance, onVideoEnded, onFail, onBlocked }) {
+    function CartaoClaudinha({ secao, title, desc, capa }) {
+      const nomes = { pauta: "Pauta do dia", radar: "Radar de tendências", diario: "Diário", fecha: "Fechar o dia", bastidores: "Bastidores" };
+      const nome = nomes[secao];
+      return (
+        <div className="hb-cartao" style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#050A14", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {capa ? <SafeImage src={capa} alt="" className="w-full h-full object-cover" style={{ position: "absolute", inset: 0, opacity: 0.3 }} /> : null}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(167,139,250,0.18), transparent 60%), linear-gradient(180deg, rgba(3,6,12,0.35), rgba(3,6,12,0.9))" }}></div>
+          <div className="hb-cartao-scan"></div>
+          <div style={{ position: "relative", maxWidth: 680, maxHeight: "100%", overflowY: "auto", padding: "22px 26px", textAlign: "left" }} className="hud-scroll">
+            <div className="font-mono" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, letterSpacing: "0.14em", color: "#C4B5FD", marginBottom: 10 }}>
+              <span className="hb-novo" style={{ position: "static", background: "#A78BFA" }}></span>CLAUDINHA · SALA DE COMANDO
+            </div>
+            <div className="font-hud font-bold" style={{ fontSize: 22, lineHeight: 1.2, color: "#fff", marginBottom: 12 }}>{title}</div>
+            {desc ? <div style={{ fontSize: 14, lineHeight: 1.55, color: "#E2E8F0", whiteSpace: "pre-wrap", wordBreak: "break-word", marginBottom: 16 }}>{desc}</div> : null}
+            {nome ? (
+              <button type="button" onClick={() => { try { window.dispatchEvent(new CustomEvent("hb-cla-open", { detail: secao })); } catch (e) {} }}
+                className="font-hud font-bold"
+                style={{ padding: "10px 18px", borderRadius: 12, border: "1px solid #A78BFA", background: "rgba(167,139,250,0.16)", color: "#E9D5FF", fontSize: 13, letterSpacing: "0.06em", cursor: "pointer" }}>
+                ✨ ABRIR NO ESPAÇO DA CLAUDINHA · {nome.toUpperCase()} →
+              </button>
+            ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    function OmniScreenRenderer({ videoUrl, title, desc, capa, isMuted, autoAdvance, onVideoEnded, onFail, onBlocked }) {
       if (!videoUrl) return null;
       const parsed = parseOmniLink(videoUrl);
+
+      if (parsed.type === 'CARTAO') return <CartaoClaudinha secao={parsed.secao} title={title} desc={desc} capa={capa} />;
 
       if (parsed.type === 'YOUTUBE' || parsed.type === 'YOUTUBE_SHORTS') {
         const ytId = ((parsed.cleanUrl.match(/\/embed\/([\w-]+)/) || [])[1]) || "";
@@ -636,7 +734,38 @@
       }
 
       if (parsed.type === 'GOOGLE_DRIVE') {
-        return <iframe className="w-full h-full border-0 pointer-events-auto" src={parsed.cleanUrl} title={title} allow="autoplay; fullscreen" allowFullScreen />;
+        return (
+          <div className="w-full h-full relative overflow-hidden bg-black flex items-center justify-center">
+            <iframe
+              className="border-0 pointer-events-auto shrink-0"
+              style={{
+                width: "135.14%",
+                height: "calc(135.14% + 52px)",
+                marginTop: "-38px",
+                transform: "scale(0.74)",
+                transformOrigin: "center center"
+              }}
+              src={parsed.cleanUrl}
+              title={title}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+            />
+          </div>
+        );
+      }
+
+      if (parsed.type === 'GOOGLE_DOC' || parsed.type === 'GOOGLE_SLIDES' || parsed.type === 'GOOGLE_SHEET') {
+        return (
+          <div className="w-full h-full bg-slate-950 overflow-hidden relative flex items-center justify-center">
+            <iframe
+              src={parsed.cleanUrl}
+              title={title}
+              className="w-full h-full border-0 pointer-events-auto"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+            />
+          </div>
+        );
       }
 
       if (parsed.type === 'PDF') {
@@ -1080,6 +1209,25 @@
       return arr.sort((a, b) => (b.t - a.t) || (a.i - b.i));
     }
 
+    function SalaBtn() {
+      const [info, setInfo] = useState({ n: 0, last: 0 });
+      const [vista, setVista] = useState(() => { try { return Number(localStorage.getItem("BRUTE_SALA_VISTA") || 0); } catch (e) { return 0; } });
+      useEffect(() => {
+        const h = (e) => { const d = (e && e.detail) || {}; setInfo({ n: d.n || 0, last: d.last || 0 }); if (d.visto) setVista(d.last || 0); };
+        window.addEventListener("hb-sala-info", h);
+        return () => window.removeEventListener("hb-sala-info", h);
+      }, []);
+      const novo = info.last > vista;
+      return (
+        <button type="button" onClick={() => { playHoloSound('click'); try { window.dispatchEvent(new CustomEvent("hb-sala-toggle")); } catch (e) {} }}
+          className="px-2 py-1 rounded bg-slate-900 border border-orange-500/50 hover:border-orange-400 text-orange-300 font-bold transition flex items-center gap-1.5"
+          title="Abrir a Nossa Sala (conversa do Rodrigo com a Cláudia)" aria-label={novo ? "Nossa Sala: tem mensagem nova" : "Nossa Sala"}>
+          <span>💬 NOSSA SALA</span>
+          {novo ? <span className="hb-novo" aria-hidden="true"></span> : null}
+        </button>
+      );
+    }
+
     function ChatBox({ txt }) {
       const [open, setOpen] = useState(false);
       // Lab 26: janela flutuante (balões, arrastável pelo topo, redimensionável pelo canto)
@@ -1101,6 +1249,10 @@
         : <span key={i}>{p}</span>);
       const isCla = (w) => /cl[aá]ud/i.test(w || "");
       const rev = parseChat(txt);
+      const lastT = rev.length ? Math.max.apply(null, rev.map((m) => m.t)) : 0;
+      useEffect(() => { try { window.dispatchEvent(new CustomEvent("hb-sala-info", { detail: { n: rev.length, last: lastT } })); } catch (e) {} }, [rev.length, lastT]);
+      useEffect(() => { const h = () => setOpen((o) => !o); window.addEventListener("hb-sala-toggle", h); return () => window.removeEventListener("hb-sala-toggle", h); }, []);
+      useEffect(() => { if (!open) return; try { localStorage.setItem("BRUTE_SALA_VISTA", String(lastT)); } catch (e) {} try { window.dispatchEvent(new CustomEvent("hb-sala-info", { detail: { n: rev.length, last: lastT, visto: true } })); } catch (e) {} }, [open, lastT]);
       useEffect(() => {
         if (!open) return;
         const k = (e) => { if (e.key === "Escape") setOpen(false); };
@@ -1115,18 +1267,6 @@
       );
       return (
         <>
-          <div className="mt-2 shrink-0 bg-black/50 border border-orange-500/20 rounded-xl p-2.5">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-hud font-bold text-[10px] tracking-wider text-white flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>CHAT
-              </span>
-              <button type="button" onClick={() => setOpen(true)} className="px-2 py-0.5 rounded bg-slate-900 border border-orange-500/50 hover:border-orange-400 text-orange-300 text-[9px] font-mono font-bold">VER CONVERSA ⤢</button>
-            </div>
-            <div className="hud-scroll overflow-y-auto pr-1" style={{ maxHeight: 112 }}>
-              {rev.length ? rev.slice(0, 3).map(row) : <div className="text-[9px] font-mono text-gray-500">Sem mensagens ainda.</div>}
-            </div>
-            <div className="mt-1 text-[8px] font-mono text-gray-500 truncate">BRUTE_MAN_TV - RODRIGO OZ / CLÁUDIA</div>
-          </div>
           {open && (
             <div style={{ position: "fixed", zIndex: 9000, left: pos ? pos.x : Math.max(8, window.innerWidth - 480), top: pos ? pos.y : 70, width: 440, height: 560, minWidth: 300, minHeight: 260, maxWidth: "96vw", maxHeight: "94vh", resize: "both", overflow: "hidden", display: "flex", flexDirection: "column", borderRadius: 16, border: "1px solid rgba(249,115,22,0.6)", background: "#050A14", boxShadow: "0 12px 40px rgba(0,0,0,0.7), 0 0 30px rgba(249,115,22,0.2)" }}>
               <div onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
@@ -1382,6 +1522,13 @@
       const [rotated, setRotated] = useState(false);
       const [flagOpen, setFlagOpen] = useState(false);
       const [claOpen, setClaOpen] = useState(null);
+      useEffect(() => {
+        const ok = ["pauta", "radar", "diario", "fecha", "bastidores"];
+        const h = (e) => { const k = e && e.detail; if (ok.indexOf(k) >= 0) setClaOpen(k); };
+        window.addEventListener("hb-cla-open", h);
+        try { const k0 = new URLSearchParams(window.location.search).get("claudinha"); if (ok.indexOf(k0) >= 0) setClaOpen(k0); } catch (e) {}
+        return () => window.removeEventListener("hb-cla-open", h);
+      }, []);
       const [nonce, setNonce] = useState(0);
       const advRef = useRef(null);
       const failRef = useRef(null);
@@ -1668,6 +1815,7 @@
           key={chIdx + "-" + itemIdx + "-" + nonce + (rotated ? "r" : "")}
           videoUrl={it.url}
           title={it.label || ch.title}
+          desc={it.desc} capa={it.capa}
           isMuted={isMuted} onBlocked={onBlocked}
           autoAdvance={autoPlay}
           onVideoEnded={() => { if (advRef.current) advRef.current(1); }}
@@ -1683,7 +1831,7 @@
       };
 
       const thumbBox = (it, live) => {
-        const t = (it.capa && it.capa.trim()) || itemThumb(it.url);
+        const t = resolveGoogleImageUrl(it.capa) || itemThumb(it.url);
         const ty = parseOmniLink(it.url || "").type;
         const isVid = ty === "YOUTUBE" || ty === "YOUTUBE_SHORTS" || ty === "VIDEO";
         if (live !== false && isVid) return <VideoPreview it={it} thumbImg={t} />;
@@ -1824,7 +1972,7 @@
               </div>
             </>
           )}
-          {claOpen ? <ClaudiaPanel which={claOpen} data={claudinha} onClose={() => setClaOpen(null)} /> : null}
+          {claOpen && claudinha ? <ClaudiaPanel which={claOpen} data={claudinha} onClose={() => setClaOpen(null)} /> : null}
         </>
       );
       const tabsBar = null;
@@ -2283,7 +2431,7 @@
                   {player(item)}
                 </div>
               )}
-              {kind === "site" && !isBlockedSite(item) && (
+              {kind === "site" && !isBlockedSite(item) && parseOmniLink(item.url).type !== "CARTAO" && (
                 <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-mono"
                   style={{ display: "block", padding: "8px 12px", background: "#07101D", color: "#67E8F9", fontSize: 11, letterSpacing: "0.08em", textAlign: "center", textDecoration: "none", borderTop: "1px solid rgba(34,211,238,0.2)" }}>NÃO CARREGOU? ABRIR EM NOVA ABA ↗</a>
               )}
@@ -2478,6 +2626,13 @@
       // Lab 27: espaço da Claudinha (claudinha.json)
       const [claudinha, setClaudinha] = useState(null);
       const [claOpen, setClaOpen] = useState(null);
+      useEffect(() => {
+        const ok = ["pauta", "radar", "diario", "fecha", "bastidores"];
+        const h = (e) => { const k = e && e.detail; if (ok.indexOf(k) >= 0) setClaOpen(k); };
+        window.addEventListener("hb-cla-open", h);
+        try { const k0 = new URLSearchParams(window.location.search).get("claudinha"); if (ok.indexOf(k0) >= 0) setClaOpen(k0); } catch (e) {}
+        return () => window.removeEventListener("hb-cla-open", h);
+      }, []);
       useEffect(() => {
         let off = false;
         fetch(DATA_URL + "claudinha.json?v=" + Date.now(), { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((j) => { if (!off && j && typeof j === "object") setClaudinha(j); }).catch(() => {});
@@ -2733,7 +2888,7 @@
 
       // Lab 21c: ao mexer dentro do site (ou travar no botao), o relogio do autoplay para
       const [pcSiteHold, setPcSiteHold] = useState(false);
-      const pcIsSiteLike = ["WEBSITE", "PDF", "GOOGLE_DRIVE"].indexOf(parseOmniLink(activeVideo.url).type) >= 0;
+      const pcIsSiteLike = ["WEBSITE", "PDF", "GOOGLE_DRIVE", "GOOGLE_DOC", "GOOGLE_SLIDES", "GOOGLE_SHEET", "CARTAO"].indexOf(parseOmniLink(activeVideo.url).type) >= 0;
       useEffect(() => { setPcSiteHold(false); }, [currentIndex, selectedVideoIdx, activeVideo.url, playNonce]);
       useEffect(() => {
         if (!pcIsSiteLike) return;
@@ -2746,7 +2901,7 @@
       useEffect(() => {
         if (!autoPlayNext || pcSiteHold) return;
         const t = parseOmniLink(activeVideo.url).type;
-        if (["WEBSITE", "PDF", "GOOGLE_DRIVE", "IMAGE"].indexOf(t) < 0) return;
+        if (["WEBSITE", "PDF", "GOOGLE_DRIVE", "GOOGLE_DOC", "GOOGLE_SLIDES", "GOOGLE_SHEET", "IMAGE", "CARTAO"].indexOf(t) < 0) return;
         const id = setTimeout(() => { if (advanceRef.current) advanceRef.current(); }, Math.max(5, holdSec) * 1000);
         return () => clearTimeout(id);
       }, [autoPlayNext, currentIndex, selectedVideoIdx, activeVideo.url, holdSec, playNonce, pcSiteHold]);
@@ -2791,6 +2946,7 @@
           key={playNonce + "-" + currentIndex + "-" + selectedVideoIdx}
           videoUrl={activeVideo.url}
           title={activeVideo.label || currentChannel.title}
+          desc={activeVideo.desc} capa={activeVideo.capa}
           isMuted={isMuted} onBlocked={reportBlocked}
           autoAdvance={autoPlayNext}
           onVideoEnded={() => { if (advanceRef.current) advanceRef.current(); }}
@@ -2973,6 +3129,8 @@
                 {isMuted ? '🔇 SOM DESLIGADO' : '🔊 SOM LIGADO'}
               </button>
 
+              <SalaBtn />
+
               <button
                 type="button" title="Claudinha" aria-label="Claudinha: atalhos" aria-expanded={isFlagOpen}
                 onClick={() => { playHoloSound('click'); setIsFlagOpen(!isFlagOpen); }}
@@ -3087,7 +3245,7 @@
             )}
           </div>
 
-          {claOpen ? <ClaudiaPanel which={claOpen} data={claudinha} onClose={() => setClaOpen(null)} /> : null}
+          {claOpen && claudinha ? <ClaudiaPanel which={claOpen} data={claudinha} onClose={() => setClaOpen(null)} /> : null}
 
           {/* PALCO 3D */}
           <main className="hb-main flex-1 flex items-stretch my-2 overflow-hidden relative">
