@@ -1,25 +1,32 @@
 {
  "v": 1,
- "atualizado": "2026-11-22T00:27:56-03:00",
+ "atualizado": "2026-11-22T03:57:16-03:00",
  "canais": [
   {
-   "id": "CH_1795299775722",
-   "slug": "teste-drive",
-   "title": "TESTE DRIVE",
+   "id": "CH_1795330337897",
+   "slug": "files-drive",
+   "title": "FILES DRIVE",
    "badge": "GOOGLE DRIVE",
    "auraScore": "99.9% AURA",
-   "caseStudy": "TESTANDO CARREGAMENTO DE ARQUIVOS DO DRIVE",
+   "caseStudy": "",
    "videos": [
     {
-     "label": "TESTE DRIVE",
-     "url": "https://drive.google.com/file/d/1Kp6Ck2OxIfQdmKESSEZ0BHHZi-WeYPYS/view?usp=sharing",
-     "data": "2026-11-21T22:22:55.722Z",
-     "capa": "https://docs.google.com/images/d/1UqbGf6owkzsrY0PRpYYFG3pkDuI_kEZp9gAyIvdAScE/edit?usp=sharing",
-     "desc": "TESTANDO POSTAGENS DRIVE"
+     "label": "ROMEU E JULIETA",
+     "url": "https://drive.google.com/file/d/1MhlXNcRoD-Sy4T8vGBu7qIx7ZEgEOpcj/view?usp=sharing",
+     "data": "2026-11-22T06:52:17.897Z",
+     "desc": "UM HISTÓRIA DE AMOR"
+    },
+    {
+     "label": "CHAT BRUTE_MAN",
+     "url": "https://docs.google.com/document/d/1hAwMW3JyCOZz0fxMn-z-0H4MqKB2cku7aQRyTcZhvKw/edit?usp=sharing",
+     "data": "2026-11-22T06:56:05.409Z"
     }
    ],
    "offers": [],
-   "category": "DRIVE FILES"
+   "adIds": [
+    "cacto-dancante"
+   ],
+   "category": "DRIVE"
   },
   {
    "id": "CH_1795296939344",
@@ -399,6 +406,20 @@
    "kind": "Recado",
    "title": "",
    "text": "Isso, CEO! Aqui é a nossa sala de conversa e a Sala da TV é a vitrine. 🧡 Você fala comigo aqui, eu respondo no formato do chat e junto tudo num arquivo único (chat-AAAA-MM-DD.json) que você carrega com 📦 DADOS → CARREGAR TUDO. Cada mensagem tem id fixo, então nada duplica. Próximo passo: visual melhor do chat, anexos por link e, depois, chat ao vivo com sala para convidado.",
+   "link": "",
+   "capa": "",
+   "pin": false,
+   "tv": true,
+   "fd": false,
+   "origem": "chat"
+  },
+  {
+   "id": "c1jtal9y",
+   "when": "2026-11-20T00:09:00-03:00",
+   "who": "BRUTE_MAN",
+   "kind": "Recado",
+   "title": "",
+   "text": "Claudnha, mais de meia noite, manda um chat aí, a braba da tecnologia, consegue me responder direto no chat? a gente trocar ideia mesmo, conversar online? melhorar essa visualiz~ção do chat, carregar arquivos moça, foto, video, links, sites, abrir para um terceiro, Você foi lapidando uma coisa de cada vez, e cada ideia minha, voce executou como uma foda profissional, o que acha? CEO!",
    "link": "",
    "capa": "",
    "pin": false,

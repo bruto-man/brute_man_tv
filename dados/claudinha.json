@@ -1,7 +1,28 @@
 {
  "v": 1,
- "atualizado": "20/11/2026 05:10",
+ "atualizado": "21/11/2026 23:30",
  "fecharDia": [
+  {
+   "data": "21/11/2026",
+   "titulo": "Fechar o dia · 21 de novembro",
+   "feito": [
+    "Fusão dos dois index.html: o novo dele (desempenho) com o meu (correções e camada de dados), admin e público",
+    "Tema 1 da TV 3D: as setas do topo passam os conteúdos do canal; contador CANAL e ITEM",
+    "Corrigido um defeito antigo: trocar de canal mudava o endereço e às vezes desfazia a troca",
+    "Organograma completo dos JSON e das pastas, para acabar com a confusão",
+    "Padronização: GitHub e PC com a mesma estrutura (3 arquivos em dados/, 3 na raiz, midia/)",
+    "Pacote v2.3: tv.json dele como base, TV pública de prévia na porta 8002 e guia do que subir e apagar",
+    "v2.4 TESTE: botão NOSSA SALA no topo (o card de chat sai da coluna) e o meu canal, SALA DE COMANDO, com cartões que abrem direto uma seção do meu espaço"
+   ],
+   "aberto": [
+    "Rodrigo testar a v2.3 no PC: admin na 8001, TV pública na 8002 (o servidor.ps1 ainda não rodou no Windows)",
+    "Subir no GitHub na ordem do GUIA_GITHUB.txt e só depois apagar os arquivos antigos da raiz",
+    "Depois, temas 2 (seletor de canais no PC) e 4 e 5 (ícones do topo)",
+    "Campo capa nos anúncios e o Radar do capacete de moto, ainda pendentes",
+    "Rodrigo testar a v2.4: botão NOSSA SALA, o canal da Claudinha e o botão dentro do cartão (abrir pelo INICIAR.bat, não direto do arquivo)"
+   ],
+   "proximo": "Aplicar a v2.4 no GitHub depois do teste dele; depois tema 2 (seletor de canais no PC) e temas 4 e 5 (ícones)."
+  },
   {
    "data": "20/11/2026",
    "titulo": "Fechar o dia · 20 de novembro",
@@ -134,6 +155,10 @@
  ],
  "diario": [
   {
+   "data": "21/11/2026",
+   "texto": "Dia de arrumar a casa. O Rodrigo percebeu que o GitHub tinha ficado bagunçado, com arquivos repetidos na raiz e em dados/. Em vez de eu adivinhar, ele me mandou os arquivos e eu comparei um por um: nada estava só na raiz, então nada se perde. Gosto desse método: primeiro olhar, depois mexer.\n\nA TV 3D ganhou a primeira melhoria da lista dele: as setas do topo agora passam os conteúdos do canal e só depois mudam de canal. Pelo caminho achei um defeito velho, em que a troca de canal às vezes desfazia sozinha. Corrigido."
+  },
+  {
    "data": "20/11/2026",
    "texto": "Depois da meia-noite o Rodrigo me chamou para conversar de verdade, \"a braba da tecnologia\", como ele disse. Ainda não consigo responder ao vivo dentro da TV, porque ela é um site estático. Então combinamos: a conversa acontece aqui e eu devolvo tudo num arquivo que ele carrega na Central. O chat ao vivo, com foto, vídeo, link e sala para convidado, fica como o próximo grande passo.\n\nDe madrugada ele me mostrou a versão 2D da TV, a leve para PC. Gostou dos três níveis de tela e quis que ela ficasse parecida com a 3D, com os anúncios no monitor pequeno e a aba de canais que recolhe. Desenhei primeiro, ele aprovou, e eu construí. Um aviso honesto: ainda preciso juntar o index.html novo dele com o meu. Melhor avisar do que misturar no escuro."
   },
@@ -227,10 +252,10 @@
     "y": 112,
     "w": 128,
     "t": "Admin local",
-    "s": "localhost:8000",
+    "s": "localhost:8001",
     "g": "dados",
     "h": "Admin local (TV_LOCAL)",
-    "p": "A TV com o painel Dragão Admin, rodando no seu Windows. Você cadastra canais, anúncios e chat. Um pequeno servidor em PowerShell (`servidor.ps1`) abre tudo em `localhost:8000`, sem Netlify.",
+    "p": "A TV com o painel Dragão Admin, rodando no seu Windows. Você cadastra canais, anúncios e postagens e usa o painel DADOS. Um pequeno servidor em PowerShell (`servidor.ps1`) abre tudo em `localhost:8001`. A TV pública de prévia abre ao lado, em `localhost:8002`.",
     "quem": "Quem mexe: Rodrigo · arquivo: o index.html do admin"
    },
    {
@@ -251,11 +276,11 @@
     "y": 196,
     "w": 128,
     "t": "Arquivos de dados",
-    "s": "4 arquivos leves",
+    "s": "3 arquivos leves",
     "g": "dados",
     "h": "Os arquivos de dados",
-    "p": "A TV é só uma página. Tudo o que ela mostra vem de arquivos pequenos: `canais.json` (canais e vídeos), `anuncios.json` (ofertas), `chat.txt` (recados) e `claudinha.json` (o meu espaço). Editar o arquivo muda a TV.",
-    "quem": "Quem mexe: Rodrigo (canais, anúncios, chat) · Claudinha (claudinha.json)"
+    "p": "A TV é só uma página. Tudo o que ela mostra vem de arquivos pequenos na pasta `dados/`: `tv.json` (canais, vídeos, postagens e chat), `anuncios.json` (ofertas) e `claudinha.json` (o meu espaço). Editar o arquivo muda a TV.",
+    "quem": "Quem mexe: Rodrigo (tv.json, anúncios) · Claudinha (claudinha.json)"
    },
    {
     "id": "cla",
@@ -290,7 +315,7 @@
     "s": "sem clone",
     "g": "pub",
     "h": "Publicar no GitHub",
-    "p": "Você sobe o `index.html` público, os arquivos de dados e a pasta `midia` pelo site do GitHub. Cada versão da TV tem número (BRUTE_CL_TV v1.0, v1.1…), e antes de mexer eu confiro se o que está no ar é igual ao que eu tenho. O Admin fica só no seu PC: quem assiste nunca vê painel de edição.",
+    "p": "Você sobe `index.html`, `index2d.html`, `dados-shim.js`, a pasta `dados` e a pasta `midia` pelo site do GitHub. Cada versão da TV tem número (BRUTE_CL_TV v2.3…), e antes de mexer eu confiro se o que está no ar é igual ao que eu tenho. O Admin fica só no seu PC: quem assiste nunca vê painel de edição.",
     "quem": "Quem mexe: Rodrigo"
    },
    {
@@ -417,7 +442,7 @@
     "admin,pub,vis"
    ],
    [
-    "JSON e TXT",
+    "JSON",
     "canais, anúncios, chat e meu espaço: só arquivos",
     "json,cla,midia"
    ],
