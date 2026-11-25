@@ -22,7 +22,14 @@
  {
   "id": "novo-4",
   "link": "https://fone-ouvido-teste.upfling.site",
-  "titulo": "Fone De Ouvido Para Capacete",
+  "titulo": "FONE",
+  "videoAteOFim": true
+ },
+ {
+  "id": "novo-5",
+  "link": "https://duas-bikes-rosas.upfling.site",
+  "titulo": "DUAS BICICLETAS ROSAS",
+  "preco": "500 REAIS CADA, 900 REAIS AS DUAS",
   "videoAteOFim": true
  }
 ]
